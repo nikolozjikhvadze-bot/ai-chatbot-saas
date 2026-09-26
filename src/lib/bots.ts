@@ -70,14 +70,17 @@ async function getUserDetails(clerkUserId: string): Promise<{ dbUserId: string; 
     }
   }
 
-  // 3. თუ users ცხრილში საერთოდ ვერ მოიძებნა, ვქმნით ახალ ჩანაწერს
+  // 3. თუ users ცხრილში საერთოდ ვერ მოიძებნა, ვქმნით ახალ ჩანაწერს.
+  //    ⚠️ is_paid აუცილებლად false-ით! ეს ჩანაწერი მხოლოდ Clerk-ავტორიზაციის
+  //    ფაქტს ადასტურებს, არა გადახდას — is_paid-ს true-ზე მხოლოდ Stripe
+  //    webhook-ი (checkout.session.completed) გადაიყვანს.
   console.log(`[getUserDetails] Creating new user record for Clerk ID: ${clerkUserId}`);
   const { data: newUser, error: createErr } = await supabaseAdmin
     .from("users")
     .insert({ 
       clerk_id: clerkUserId, 
       email: primaryEmail || `${clerkUserId}@placeholder.com`,
-      is_paid: true 
+      is_paid: false,
     })
     .select("id, is_paid")
     .single();
@@ -121,13 +124,17 @@ export async function getOrCreateBotForUser(clerkUserId: string): Promise<string
   }
   if (existing) return existing.id;
 
-  // 2. ვქმნით ახალ ბოტს
+  // 2. ვქმნით ახალ ბოტს — status აუცილებლად "active"-ით, რადგან
+  //    DB-ის სვეტს default მნიშვნელობა არ აქვს დაყენებული და Relay-ის
+  //    route-ი (`bot.status !== "active"`) წინააღმდეგ შემთხვევაში
+  //    ყოველთვის 403-ს დააბრუნებდა ახლად შექმნილ ბოტზეც კი.
   const { data: created, error: insertError } = await supabaseAdmin
     .from("bots")
     .insert({
       owner_id: dbUserId,
       name: "AI Assistant",
       system_prompt: DEFAULT_SYSTEM_PROMPT,
+      status: "active",
     })
     .select("id")
     .single();
