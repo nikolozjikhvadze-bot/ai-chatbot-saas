@@ -107,7 +107,7 @@ export async function POST(
 
   const { data: bot, error: botError } = await supabaseAdmin
     .from("bots")
-    .select("id, status, system_prompt, allowed_origin")
+    .select("id, is_active, system_prompt, allowed_origin")
     .eq("id", botId)
     .maybeSingle();
 
@@ -117,7 +117,7 @@ export async function POST(
       { status: 404, headers: corsHeaders(origin) },
     );
   }
-  if (bot.status !== "active") {
+  if (!bot.is_active) {
     return NextResponse.json(
       { error: "ეს ბოტი დროებით მიუწვდომელია (გამოწერა შეჩერებულია ან პაუზაზეა)." },
       { status: 403, headers: corsHeaders(origin) },

@@ -16,7 +16,7 @@ export class NotPaidError extends Error {
   }
 }
 
-/** 
+/**
  * იღებს users ცხრილიდან Supabase-ის UUID-ს (id).
  * ჯერ ეძებს clerk_id-ით, თუ ვერ იპოვა — email-ით, ხოლო თუ არ არსებობს — ქმნის ახალს.
  */
@@ -77,8 +77,8 @@ async function getUserDetails(clerkUserId: string): Promise<{ dbUserId: string; 
   console.log(`[getUserDetails] Creating new user record for Clerk ID: ${clerkUserId}`);
   const { data: newUser, error: createErr } = await supabaseAdmin
     .from("users")
-    .insert({ 
-      clerk_id: clerkUserId, 
+    .insert({
+      clerk_id: clerkUserId,
       email: primaryEmail || `${clerkUserId}@placeholder.com`,
       is_paid: false,
     })
@@ -124,17 +124,14 @@ export async function getOrCreateBotForUser(clerkUserId: string): Promise<string
   }
   if (existing) return existing.id;
 
-  // 2. ვქმნით ახალ ბოტს — status აუცილებლად "active"-ით, რადგან
-  //    DB-ის სვეტს default მნიშვნელობა არ აქვს დაყენებული და Relay-ის
-  //    route-ი (`bot.status !== "active"`) წინააღმდეგ შემთხვევაში
-  //    ყოველთვის 403-ს დააბრუნებდა ახლად შექმნილ ბოტზეც კი.
+  // 2. ვქმნით ახალ ბოტს. is_active-ს არ ვწერთ — column-ს აქვს
+  //    DEFAULT true, ასე რომ ახალი ბოტი ავტომატურად აქტიურია.
   const { data: created, error: insertError } = await supabaseAdmin
     .from("bots")
     .insert({
       owner_id: dbUserId,
       name: "AI Assistant",
       system_prompt: DEFAULT_SYSTEM_PROMPT,
-      status: "active",
     })
     .select("id")
     .single();
