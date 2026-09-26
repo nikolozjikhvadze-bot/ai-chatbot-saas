@@ -18,8 +18,6 @@ export type RetrievedChunk = {
 
 /**
  * ამ მნიშვნელობის ქვემოთ chunk "შესაბამისად" არ ითვლება.
- * გაითვალისწინე: ბარიერი მოდელზეა დამოკიდებული. დააკალიბრე რეალურ მონაცემებზე
- * (messages.retrieval.top_score იწერება ყოველ პასუხზე).
  */
 export const MIN_SIMILARITY = Number(process.env.RAG_MIN_SIMILARITY ?? 0.5);
 
@@ -42,4 +40,27 @@ export async function retrieve(
   const chunks = (data ?? []) as RetrievedChunk[];
   const topSimilarity = chunks.reduce((max, c) => Math.max(max, c.similarity ?? 0), 0);
   return { chunks, embedding, topSimilarity };
+}
+
+/**
+ * მარტივი დამხმარე ფუნქცია (Wrapper), რომელსაც API route იძახებს
+ */
+export async function retrieveContext(
+  query: string,
+  options: { botId: string },
+  sb?: SupabaseClient
+): Promise<RetrievedChunk[]> {
+  if (!sb) return [];
+  const { chunks } = await retrieve(sb, options.botId, query);
+  return chunks.filter((c) => c.similarity >= MIN_SIMILARITY);
+}
+
+/**
+ * ნაპოვნი კონტექსტის ტექსტად ფორმატირება AI პრომპტისთვის
+ */
+export function formatContextForPrompt(chunks: RetrievedChunk[]): string {
+  if (!chunks || chunks.length === 0) return "";
+  return chunks
+    .map((chunk, i) => `[წყარო ${i + 1}]:\n${chunk.content}`)
+    .join("\n\n");
 }

@@ -29,6 +29,14 @@ export async function POST(req: NextRequest) {
     // NotPaidError-ს, თუ მომხმარებელს აქტიური გამოწერა არ აქვს.
     const botId = await getOrCreateBotForUser(userId);
 
+    // Relay-ის მისამართი აუცილებლად env-იდან, არასდროს hardcode-ული —
+    // იმავე NEXT_PUBLIC_APP_URL-ით, რასაც checkout/route.ts იყენებს
+    // success_url/cancel_url-ისთვის.
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+    if (!appUrl) {
+      throw new Error("NEXT_PUBLIC_APP_URL არ არის დაყენებული — Relay URL ვერ აიგება.");
+    }
+
     const fileList = uploadedFiles.map((file) => file.name).join("\n");
 
     const promptText = `შენ ხარ Senior Full-Stack Engineer და UI/UX დიზაინერი.
@@ -97,7 +105,7 @@ npm install"
 
    გამოიძახე ზუსტად ასე (მოდელის, API key-ის ან Gemini-ის URL-ის ხსენების გარეშე):
    \`\`\`
-   const RELAY_URL = "https://your-domain.com/api/relay/${botId}";
+   const RELAY_URL = "${appUrl}/api/relay/${botId}";
 
    const response = await fetch(RELAY_URL, {
      method: "POST",
@@ -107,7 +115,7 @@ npm install"
    const data = await response.json();
    const reply = data.reply;
    \`\`\`
-   ("your-domain.com" ჩანაცვლდეს ჩვენი რეალური production დომენით — ეს არის ერთადერთი გარე endpoint, რომელსაც გენერირებული ჩატბოტი უნდა მიმართავდეს.)
+   (URL-ში უკვე ჩასმულია ჩვენი რეალური production დომენი — ეს არის ერთადერთი გარე endpoint, რომელსაც გენერირებული ჩატბოტი უნდა მიმართავდეს.)
 
    \`${botId}\` მნიშვნელობა უკვე კონკრეტული, ნამდვილი UUID-ია (არა placeholder) — ის ზუსტად ასეთი, უცვლელი სტრიქონის სახით უნდა ჩაიწეროს გენერირებულ კოდში.
 

@@ -2,126 +2,144 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { CHAT_MODEL } from "@/lib/gemini";
+import { retrieveContext, formatContextForPrompt } from "@/core/retrieval";
+import { relayRateLimit } from "@/lib/rate-limits";
 
-export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
 const supabaseAdmin = createClient(
   process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// ------------------------------------------------------------------
-// მარტივი in-memory rate limiter. გაფრთხილება: serverless გარემოში
-// (Vercel-ის მსგავს) თითოეულ ინსტანციას ცალკე მეხსიერება აქვს, ამიტომ
-// ეს "საუკეთესო ძალისხმევის" (best-effort) დაცვაა, არა გარანტირებული.
-// production-ისთვის რეკომენდირებულია Upstash Redis (@upstash/ratelimit).
-// ------------------------------------------------------------------
-const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX = 20; // მოთხოვნა/წუთი, ერთი botId + IP-ს
-const hits = new Map<string, { count: number; resetAt: number }>();
-
-function checkRateLimit(key: string): boolean {
-  const now = Date.now();
-  const entry = hits.get(key);
-  if (!entry || now > entry.resetAt) {
-    hits.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return true;
+/** origin-ს ინარჩუნებს მხოლოდ schema+host+port-ს, query/path-ის გარეშე. */
+function normalizeOrigin(origin: string | null): string | null {
+  if (!origin) return null;
+  try {
+    const u = new URL(origin);
+    return `${u.protocol}//${u.host}`;
+  } catch {
+    return null;
   }
-  if (entry.count >= RATE_LIMIT_MAX) return false;
-  entry.count++;
-  return true;
 }
 
-// ------------------------------------------------------------------
-// CORS: გენერირებული ჩატბოტები მომხმარებლების საკუთარ დომენებზეა
-// ჩასმული, ამიტომ ეს endpoint cross-origin მისაწვდომი უნდა იყოს.
-// უსაფრთხოებისთვის: production-ში სჯობს '*' ჩანაცვლდეს bot-ის
-// დარეგისტრირებული დომენით (bots.allowed_origin), თუ ასეთი column გაქვთ.
-// ------------------------------------------------------------------
-function corsHeaders(origin: string | null): HeadersInit {
+function corsHeaders(allowedOrigin: string | null): HeadersInit {
   return {
-    "Access-Control-Allow-Origin": origin ?? "*",
+    "Access-Control-Allow-Origin": allowedOrigin ?? "null",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
+    Vary: "Origin",
   };
 }
 
-export async function OPTIONS(req: NextRequest) {
-  return new NextResponse(null, {
-    status: 204,
-    headers: corsHeaders(req.headers.get("origin")),
-  });
+export async function OPTIONS(
+  req: NextRequest,
+  { params }: { params: Promise<{ botId: string }> }
+) {
+  const origin = normalizeOrigin(req.headers.get("origin"));
+  const { botId } = await params;
+
+  if (z.string().uuid().safeParse(botId).success) {
+    const { data: bot } = await supabaseAdmin
+      .from("bots")
+      .select("allowed_origin")
+      .eq("id", botId)
+      .maybeSingle();
+
+    if (bot?.allowed_origin && bot.allowed_origin !== origin) {
+      return new NextResponse(null, { status: 403 });
+    }
+  }
+
+  return new NextResponse(null, { status: 204, headers: corsHeaders(origin) });
 }
 
 const Body = z.object({
   message: z.string().min(1).max(4000),
   history: z
-    .array(
-      z.object({
-        role: z.enum(["user", "model"]),
-        text: z.string(),
-      }),
-    )
+    .array(z.object({ role: z.enum(["user", "model"]), text: z.string() }))
     .max(20)
     .default([]),
 });
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ botId: string }> },
+  { params }: { params: Promise<{ botId: string }> }
 ) {
-  const origin = req.headers.get("origin");
-  const headers = corsHeaders(origin);
+  const origin = normalizeOrigin(req.headers.get("origin"));
   const { botId } = await params;
 
-  // 1) botId ფორმატის ვალიდაცია
   if (!z.string().uuid().safeParse(botId).success) {
-    return NextResponse.json({ error: "invalid bot id" }, { status: 400, headers });
-  }
-
-  // 2) Body ვალიდაცია
-  const json = await req.json().catch(() => null);
-  const parsed = Body.safeParse(json);
-  if (!parsed.success) {
-    return NextResponse.json({ error: "invalid request body" }, { status: 400, headers });
-  }
-  const { message, history } = parsed.data;
-
-  // 3) Rate limit (botId + caller IP)
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-  if (!checkRateLimit(`${botId}:${ip}`)) {
     return NextResponse.json(
-      { error: "ძალიან ბევრი მოთხოვნა. სცადეთ მოგვიანებით." },
-      { status: 429, headers },
+      { error: "invalid bot id" },
+      { status: 400, headers: corsHeaders(origin) }
     );
   }
 
-  // 4) ბოტის არსებობა + subscription სტატუსი
-  //    ⚠️ ვარაუდი: bots.status ('active' | 'suspended' | ...)
-  //    შეცვალეთ თქვენი რეალური schema-ს მიხედვით.
+  const json = await req.json().catch(() => null);
+  const parsed = Body.safeParse(json);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "invalid request body" },
+      { status: 400, headers: corsHeaders(origin) }
+    );
+  }
+  const { message, history } = parsed.data;
+
+  // --- Upstash Redis-ის გლობალური Rate Limit ---
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const { success } = await relayRateLimit.limit(`${botId}:${ip}`);
+  if (!success) {
+    return NextResponse.json(
+      { error: "ძალიან ბევრი მოთხოვნა. სცადეთ მოგვიანებით." },
+      { status: 429, headers: corsHeaders(origin) }
+    );
+  }
+
   const { data: bot, error: botError } = await supabaseAdmin
     .from("bots")
-    .select("id, status, system_prompt")
+    .select("id, status, system_prompt, allowed_origin")
     .eq("id", botId)
     .maybeSingle();
 
   if (botError || !bot) {
-    return NextResponse.json({ error: "bot not found" }, { status: 404, headers });
+    return NextResponse.json(
+      { error: "bot not found" },
+      { status: 404, headers: corsHeaders(origin) }
+    );
   }
   if (bot.status !== "active") {
     return NextResponse.json(
       { error: "ეს ბოტი დროებით მიუწვდომელია (გამოწერა შეჩერებულია ან პაუზაზეა)." },
-      { status: 403, headers },
+      { status: 403, headers: corsHeaders(origin) }
     );
   }
 
-  try {
-    const systemInstruction = bot.system_prompt || "შენ ხარ დამხმარე ასისტენტი.";
+  // --- Origin-ის TOFU შემოწმება/დაფიქსირება ---
+  if (bot.allowed_origin) {
+    if (bot.allowed_origin !== origin) {
+      console.warn(`[relay] origin mismatch for bot ${botId}: expected ${bot.allowed_origin}, got ${origin}`);
+      return NextResponse.json(
+        { error: "ეს ბოტი ამ დომენიდან წვდომისთვის არ არის ავტორიზებული." },
+        { status: 403, headers: corsHeaders(origin) }
+      );
+    }
+  } else if (origin) {
+    await supabaseAdmin.from("bots").update({ allowed_origin: origin }).eq("id", botId);
+  }
 
-    // 5) Gemini REST API-ს პირდაპირი fetch-ით გამოძახება
-    //    (არა @google/genai SDK — Relay-ის მოთხოვნის მიხედვით).
+  try {
+    const chunks = await retrieveContext(message, { botId }, supabaseAdmin);
+    const contextBlock = formatContextForPrompt(chunks);
+
+    const systemInstruction = [
+      bot.system_prompt || "შენ ხარ დამხმარე ასისტენტი.",
+      contextBlock
+        ? `\n\nქვემოთ მოცემულია რელევანტური კონტექსტი კომპანიის ცოდნის ბაზიდან. გამოიყენე ეს ინფორმაცია პასუხის გასაცემად, თუ რელევანტურია:\n\n${contextBlock}`
+        : "",
+    ].join("");
+
     const geminiRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${CHAT_MODEL}:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
@@ -130,14 +148,11 @@ export async function POST(
         body: JSON.stringify({
           systemInstruction: { parts: [{ text: systemInstruction }] },
           contents: [
-            ...history.map((h) => ({
-              role: h.role,
-              parts: [{ text: h.text }],
-            })),
+            ...history.map((h) => ({ role: h.role, parts: [{ text: h.text }] })),
             { role: "user", parts: [{ text: message }] },
           ],
         }),
-      },
+      }
     );
 
     if (!geminiRes.ok) {
@@ -147,32 +162,31 @@ export async function POST(
       if (geminiRes.status === 429) {
         return NextResponse.json(
           { error: "სერვისი დროებით გადატვირთულია. სცადეთ ცოტა ხანში." },
-          { status: 503, headers },
+          { status: 503, headers: corsHeaders(origin) }
         );
       }
       return NextResponse.json(
         { error: "პასუხის გენერაცია ვერ მოხერხდა." },
-        { status: 502, headers },
+        { status: 502, headers: corsHeaders(origin) }
       );
     }
 
     const data = await geminiRes.json();
-    const reply: string | undefined =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const reply: string | undefined = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!reply) {
       return NextResponse.json(
         { error: "ცარიელი პასუხი მოვიდა მოდელისგან." },
-        { status: 502, headers },
+        { status: 502, headers: corsHeaders(origin) }
       );
     }
 
-    return NextResponse.json({ reply }, { headers });
+    return NextResponse.json({ reply }, { headers: corsHeaders(origin) });
   } catch (err) {
     console.error("[relay] unexpected error", err);
     return NextResponse.json(
       { error: "სერვერის შეცდომა." },
-      { status: 500, headers },
+      { status: 500, headers: corsHeaders(origin) }
     );
   }
 }
