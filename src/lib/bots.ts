@@ -64,7 +64,7 @@ export async function getOrCreateBotForUser(clerkUserId: string): Promise<string
 
   const { dbUserId } = userDetails;
 
-  // ვეძებთ ბოტს owner_id-ით (რომელიც Supabase UUID-ია)
+  // ვეძებთ ბოტს owner_id-ით
   const { data: existing, error: selectError } = await supabaseAdmin
     .from("bots")
     .select("id")
@@ -76,11 +76,12 @@ export async function getOrCreateBotForUser(clerkUserId: string): Promise<string
   }
   if (existing) return existing.id;
 
-  // ვქმნით ახალ ბოტს owner_id-ით
+  // ვქმნით ახალ ბოტს owner_id-ით და name-ით
   const { data: created, error: insertError } = await supabaseAdmin
     .from("bots")
     .insert({
       owner_id: dbUserId,
+      name: "AI Assistant", // <-- ჩაემატა სავალდებულო name ველი
       system_prompt: DEFAULT_SYSTEM_PROMPT,
     })
     .select("id")
