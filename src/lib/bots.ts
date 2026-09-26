@@ -21,12 +21,16 @@ export class NotPaidError extends Error {
  * ჯერ ეძებს clerk_id-ით, თუ ვერ იპოვა — email-ით, ხოლო თუ არ არსებობს — ქმნის ახალს.
  */
 async function getUserDetails(clerkUserId: string): Promise<{ dbUserId: string; isPaid: boolean } | null> {
-  // 1. მეთოდი: ეძებს clerk_id-ით (case-insensitive)
-  const { data: userByClerk } = await supabaseAdmin
+  // 1. ვეძებთ clerk_id-ით (Case-Insensitive)
+  const { data: userByClerk, error: clerkErr } = await supabaseAdmin
     .from("users")
     .select("id, is_paid")
     .ilike("clerk_id", clerkUserId)
     .maybeSingle();
+
+  if (clerkErr) {
+    console.error("[getUserDetails] Error finding user by clerk_id:", clerkErr);
+  }
 
   if (userByClerk) {
     return {
@@ -35,19 +39,23 @@ async function getUserDetails(clerkUserId: string): Promise<{ dbUserId: string; 
     };
   }
 
-  // 2. მეთოდი: Clerk-იდან იღებს მომხმარებლის ელფოსტას და ეძებს email-ით
+  // 2. ვეძებთ ელფოსტით (Clerk-ის მონაცემებიდან)
   const clerkUser = await currentUser();
   const primaryEmail = clerkUser?.emailAddresses?.[0]?.emailAddress;
 
   if (primaryEmail) {
-    const { data: userByEmail } = await supabaseAdmin
+    const { data: userByEmail, error: emailErr } = await supabaseAdmin
       .from("users")
       .select("id, is_paid, clerk_id")
       .ilike("email", primaryEmail)
       .maybeSingle();
 
+    if (emailErr) {
+      console.error("[getUserDetails] Error finding user by email:", emailErr);
+    }
+
     if (userByEmail) {
-      // თუ email-ით იპოვა, განაახლებს clerk_id-ს, რომ შემდეგში სწრაფად იპოვოს
+      // ვანახლებთ clerk_id-ს users ცხრილში, თუ ცარიელი იყო
       if (!userByEmail.clerk_id) {
         await supabaseAdmin
           .from("users")
@@ -62,7 +70,8 @@ async function getUserDetails(clerkUserId: string): Promise<{ dbUserId: string; 
     }
   }
 
-  // 3. მეთოდი: თუ ბაზაში საერთოდ არ არის, ქმნის ახალ იუზერს
+  // 3. თუ users ცხრილში საერთოდ ვერ მოიძებნა, ვქმნით ახალ ჩანაწერს
+  console.log(`[getUserDetails] Creating new user record for Clerk ID: ${clerkUserId}`);
   const { data: newUser, error: createErr } = await supabaseAdmin
     .from("users")
     .insert({ 
@@ -74,7 +83,7 @@ async function getUserDetails(clerkUserId: string): Promise<{ dbUserId: string; 
     .single();
 
   if (createErr || !newUser) {
-    console.error("Failed to create user in Supabase:", createErr);
+    console.error("[getUserDetails] Failed to create user in Supabase:", createErr);
     return null;
   }
 
