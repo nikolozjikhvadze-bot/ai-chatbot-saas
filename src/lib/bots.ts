@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { currentUser } from "@clerk/nextjs/server";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -16,30 +17,57 @@ export class NotPaidError extends Error {
 }
 
 /** 
- * იღებს users ცხრილიდან Supabase-ის UUID-ს (id) clerk_id-ის მიხედვით.
- * იყენებს case-insensitive ძებნას (ilike), რომ დიდი/პატარა ასოების აცდენამ პრობლემა არ შექმნას.
+ * იღებს users ცხრილიდან Supabase-ის UUID-ს (id).
+ * ჯერ ეძებს clerk_id-ით, თუ ვერ იპოვა — email-ით, ხოლო თუ არ არსებობს — ქმნის ახალს.
  */
 async function getUserDetails(clerkUserId: string): Promise<{ dbUserId: string; isPaid: boolean } | null> {
-  // 1. ჯერ ვეძებთ არსებულ იუზერს case-insensitive ძებნით
-  let { data: existingUser } = await supabaseAdmin
+  // 1. მეთოდი: ეძებს clerk_id-ით (case-insensitive)
+  const { data: userByClerk } = await supabaseAdmin
     .from("users")
     .select("id, is_paid")
     .ilike("clerk_id", clerkUserId)
     .maybeSingle();
 
-  if (existingUser) {
+  if (userByClerk) {
     return {
-      dbUserId: existingUser.id,
-      isPaid: Boolean(existingUser.is_paid),
+      dbUserId: userByClerk.id,
+      isPaid: Boolean(userByClerk.is_paid),
     };
   }
 
-  // 2. თუ იუზერი მაინც ვერ მოიძებნა, ვქმნით ახალს სავალდებულო ველებით
+  // 2. მეთოდი: Clerk-იდან იღებს მომხმარებლის ელფოსტას და ეძებს email-ით
+  const clerkUser = await currentUser();
+  const primaryEmail = clerkUser?.emailAddresses?.[0]?.emailAddress;
+
+  if (primaryEmail) {
+    const { data: userByEmail } = await supabaseAdmin
+      .from("users")
+      .select("id, is_paid, clerk_id")
+      .ilike("email", primaryEmail)
+      .maybeSingle();
+
+    if (userByEmail) {
+      // თუ email-ით იპოვა, განაახლებს clerk_id-ს, რომ შემდეგში სწრაფად იპოვოს
+      if (!userByEmail.clerk_id) {
+        await supabaseAdmin
+          .from("users")
+          .update({ clerk_id: clerkUserId })
+          .eq("id", userByEmail.id);
+      }
+
+      return {
+        dbUserId: userByEmail.id,
+        isPaid: Boolean(userByEmail.is_paid),
+      };
+    }
+  }
+
+  // 3. მეთოდი: თუ ბაზაში საერთოდ არ არის, ქმნის ახალ იუზერს
   const { data: newUser, error: createErr } = await supabaseAdmin
     .from("users")
     .insert({ 
       clerk_id: clerkUserId, 
-      email: `${clerkUserId}@placeholder.com`, // email ველის შევსება, თუ NOT NULL არის
+      email: primaryEmail || `${clerkUserId}@placeholder.com`,
       is_paid: true 
     })
     .select("id, is_paid")
