@@ -20,14 +20,12 @@ export class NotPaidError extends Error {
  * თუ იუზერი არ არსებობს, ავტომატურად ქმნის მას.
  */
 async function getUserDetails(clerkUserId: string): Promise<{ dbUserId: string; isPaid: boolean } | null> {
-  // 1. ვეძებთ არსებულ ჩანაწერს users ცხრილში
   let { data } = await supabaseAdmin
     .from("users")
     .select("id, is_paid")
     .eq("clerk_id", clerkUserId)
     .maybeSingle();
 
-  // 2. თუ users ცხრილში ჩანაწერი არ არის, ვქმნით ახალს
   if (!data) {
     const { data: newUser, error: createErr } = await supabaseAdmin
       .from("users")
@@ -64,7 +62,6 @@ export async function getOrCreateBotForUser(clerkUserId: string): Promise<string
 
   const { dbUserId } = userDetails;
 
-  // ვეძებთ ბოტს owner_id-ით
   const { data: existing, error: selectError } = await supabaseAdmin
     .from("bots")
     .select("id")
@@ -76,12 +73,12 @@ export async function getOrCreateBotForUser(clerkUserId: string): Promise<string
   }
   if (existing) return existing.id;
 
-  // ვქმნით ახალ ბოტს owner_id-ით და name-ით
+  // insert-ში ემატება სავალდებულო "name" ველი
   const { data: created, error: insertError } = await supabaseAdmin
     .from("bots")
     .insert({
       owner_id: dbUserId,
-      name: "AI Assistant", // <-- ჩაემატა სავალდებულო name ველი
+      name: "AI Assistant",
       system_prompt: DEFAULT_SYSTEM_PROMPT,
     })
     .select("id")
