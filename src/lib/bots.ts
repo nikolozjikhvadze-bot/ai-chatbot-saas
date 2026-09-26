@@ -17,19 +17,15 @@ export class NotPaidError extends Error {
 
 /** 
  * იღებს users ცხრილიდან Supabase-ის UUID-ს (id) clerk_id-ის მიხედვით.
- * თუ იუზერი არ არსებობს, ავტომატურად ქმნის მას users ცხრილში.
+ * იყენებს case-insensitive ძებნას (ilike), რომ დიდი/პატარა ასოების აცდენამ პრობლემა არ შექმნას.
  */
 async function getUserDetails(clerkUserId: string): Promise<{ dbUserId: string; isPaid: boolean } | null> {
-  // 1. ვეძებთ არსებულ ჩანაწერს users ცხრილში
-  const { data: existingUser, error: fetchErr } = await supabaseAdmin
+  // 1. ჯერ ვეძებთ არსებულ იუზერს case-insensitive ძებნით
+  let { data: existingUser } = await supabaseAdmin
     .from("users")
     .select("id, is_paid")
-    .eq("clerk_id", clerkUserId)
+    .ilike("clerk_id", clerkUserId)
     .maybeSingle();
-
-  if (fetchErr) {
-    console.error("Error fetching user:", fetchErr);
-  }
 
   if (existingUser) {
     return {
@@ -38,18 +34,19 @@ async function getUserDetails(clerkUserId: string): Promise<{ dbUserId: string; 
     };
   }
 
-  // 2. თუ users ცხრილში ჩანაწერი არ არის, ვქმნით ახალ იუზერს
+  // 2. თუ იუზერი მაინც ვერ მოიძებნა, ვქმნით ახალს სავალდებულო ველებით
   const { data: newUser, error: createErr } = await supabaseAdmin
     .from("users")
     .insert({ 
       clerk_id: clerkUserId, 
-      is_paid: true // დროებით გადახდილად ვნიშნავთ ტესტირებისთვის
+      email: `${clerkUserId}@placeholder.com`, // email ველის შევსება, თუ NOT NULL არის
+      is_paid: true 
     })
     .select("id, is_paid")
     .single();
 
   if (createErr || !newUser) {
-    console.error("Failed to create user in users table:", createErr);
+    console.error("Failed to create user in Supabase:", createErr);
     return null;
   }
 
@@ -75,7 +72,7 @@ export async function getOrCreateBotForUser(clerkUserId: string): Promise<string
 
   const { dbUserId } = userDetails;
 
-  // 1. ვეძებთ ბოტს owner_id-ით (რომელიც ზუსტად ემთხვევა users.id-ს)
+  // 1. ვეძებთ არსებულ ბოტს
   const { data: existing, error: selectError } = await supabaseAdmin
     .from("bots")
     .select("id")
@@ -87,7 +84,7 @@ export async function getOrCreateBotForUser(clerkUserId: string): Promise<string
   }
   if (existing) return existing.id;
 
-  // 2. ვქმნით ახალ ბოტს owner_id-ით
+  // 2. ვქმნით ახალ ბოტს
   const { data: created, error: insertError } = await supabaseAdmin
     .from("bots")
     .insert({
