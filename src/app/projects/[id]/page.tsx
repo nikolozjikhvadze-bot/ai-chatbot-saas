@@ -19,6 +19,7 @@ export default function ProjectDetailPage() {
   const [project, setProject] = useState<Project | null>(null);
   const [error, setError] = useState('');
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [copiedTerminal, setCopiedTerminal] = useState(false);
 
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -48,6 +49,12 @@ export default function ProjectDetailPage() {
     navigator.clipboard.writeText(content);
     setCopiedIndex(index);
     setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
+  const handleCopyTerminal = (cmd: string) => {
+    navigator.clipboard.writeText(cmd);
+    setCopiedTerminal(true);
+    setTimeout(() => setCopiedTerminal(false), 2000);
   };
 
   const handleSend = async (e: React.FormEvent) => {
@@ -95,6 +102,8 @@ export default function ProjectDetailPage() {
       </div>
     );
   }
+
+  const terminalCommand = "rm -rf .next && npm run dev";
 
   return (
     <div className="min-h-screen w-full bg-[#07060a] text-white p-4 md:p-10 relative overflow-x-hidden">
@@ -162,6 +171,28 @@ export default function ProjectDetailPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* 🛠️ Terminal / Fix Commands Box */}
+        <div className="p-6 rounded-3xl border border-amber-500/30 bg-amber-500/[0.03] backdrop-blur-xl space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-amber-400 font-semibold text-sm">
+              <span>🛠️</span>
+              <h3>თუ კოდის ჩასმის შემდეგ ხარვეზი წარმოიქმნა:</h3>
+            </div>
+            <button
+              onClick={() => handleCopyTerminal(terminalCommand)}
+              className="text-xs px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 transition border border-amber-500/20"
+            >
+              {copiedTerminal ? '✓ დაკოპირდა' : '📋 ბრძანების კოპირება'}
+            </button>
+          </div>
+          <p className="text-xs text-white/60">
+            გახსენით ტერმინალი თქვენს პროექტში, გასწმინდეთ დროებითი ქეში და გადატვირთეთ სერვერი:
+          </p>
+          <div className="p-3.5 rounded-xl bg-black/70 border border-white/10 font-mono text-xs text-amber-300/90 flex items-center justify-between overflow-x-auto">
+            <code>{terminalCommand}</code>
           </div>
         </div>
       </div>
