@@ -39,6 +39,7 @@ export async function OPTIONS(
 ) {
   const origin = normalizeOrigin(req.headers.get("origin"));
   const { botId } = await params;
+  const isLocalhost = origin?.includes("localhost") || origin?.includes("127.0.0.1");
 
   if (z.string().uuid().safeParse(botId).success) {
     const { data: bot } = await supabaseAdmin
@@ -46,9 +47,6 @@ export async function OPTIONS(
       .select("allowed_origin")
       .eq("id", botId)
       .maybeSingle();
-
-    // ვუშვებთ localhost-ს ავტომატურად
-    const isLocalhost = origin?.includes("localhost") || origin?.includes("127.0.0.1");
 
     if (bot?.allowed_origin && bot.allowed_origin !== origin && !isLocalhost) {
       return new NextResponse(null, { status: 403 });
@@ -58,10 +56,6 @@ export async function OPTIONS(
   return new NextResponse(null, { status: 204, headers: corsHeaders(origin) });
 }
 
-// ⚠️ history-ის ფორმატი ემთხვევა Dashboard-ის/გენერირებული ჩატბოტების
-// messages state-ს ({ role: 'user' | 'assistant', content: string }[]),
-// არა Gemini-ის საკუთარ role-სახელებს ("model") — თარგმნა ხდება ქვემოთ,
-// Gemini-ს გამოძახებისას.
 const Body = z.object({
   message: z.string().min(1).max(4000),
   history: z
@@ -82,7 +76,6 @@ export async function POST(
   const origin = normalizeOrigin(req.headers.get("origin"));
   const { botId } = await params;
 
-  // ზოდის მკაცრი UUID შემოწმების ნაცვლად, უბრალოდ ვამოწმებთ, რომ ცარიელი არ არის
   if (!botId || typeof botId !== "string") {
     return NextResponse.json(
       { error: "invalid bot id" },
@@ -127,18 +120,18 @@ export async function POST(
     );
   }
 
-  // --- Origin-ის შემოწმება (localhost-ის მხარდაჭერით) ---
+  // --- Origin-ის შემოწმება (localhost-ის სრული მხარდაჭერით) ---
   const isLocalhost = origin?.includes("localhost") || origin?.includes("127.0.0.1");
 
-  if (bot.allowed_origin) {
-    if (bot.allowed_origin !== origin && !isLocalhost) {
+  if (!isLocalhost && bot.allowed_origin) {
+    if (bot.allowed_origin !== origin) {
       console.warn(`[relay] origin mismatch for bot ${botId}: expected ${bot.allowed_origin}, got ${origin}`);
       return NextResponse.json(
         { error: "ეს ბოტი ამ დომენიდან წვდომისთვის არ არის ავტორიზებული." },
         { status: 403, headers: corsHeaders(origin) },
       );
     }
-  } else if (origin && !isLocalhost) {
+  } else if (origin && !bot.allowed_origin && !isLocalhost) {
     await supabaseAdmin.from("bots").update({ allowed_origin: origin }).eq("id", botId);
   }
 
