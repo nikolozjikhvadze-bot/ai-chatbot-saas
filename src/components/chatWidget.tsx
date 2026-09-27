@@ -9,10 +9,11 @@ interface Message {
 }
 
 interface ChatWidgetProps {
-  projectContext?: string;
+  botId?: string;
 }
 
-export default function ChatWidget({ projectContext }: ChatWidgetProps) {
+// ნაგულისხმევად აყენია შენი Dashboard-ის გამართული ბოტის ID
+export default function ChatWidget({ botId = '3c5f43d0-eb9d-48dc-88f3-708939606dff' }: ChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     { role: 'assistant', content: 'გამარჯობა! მე შენი პროექტის AI ასისტენტი ვარ. რით შემიძლია დაგეხმაროთ?' }
@@ -31,20 +32,25 @@ export default function ChatWidget({ projectContext }: ChatWidgetProps) {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/chat', {
+      // ⚠️ მოთხოვნა იგზავნება Relay ენდპოინტზე სწორი ბოტის ID-ით
+      const res = await fetch(`/api/relay/${botId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          messages: newMessages,
-          projectContext 
+          message: input,
+          history: messages.map(m => ({
+            role: m.role,
+            content: m.content
+          }))
         }),
       });
 
       const data = await res.json();
-      if (data.success) {
+      
+      if (res.ok && data.reply) {
         setMessages([...newMessages, { role: 'assistant', content: data.reply }]);
       } else {
-        setMessages([...newMessages, { role: 'assistant', content: 'შეცდომა მოხდა პასუხის მიღებისას.' }]);
+        setMessages([...newMessages, { role: 'assistant', content: data.error || 'შეცდომა მოხდა პასუხის მიღებისას.' }]);
       }
     } catch (err) {
       console.error(err);

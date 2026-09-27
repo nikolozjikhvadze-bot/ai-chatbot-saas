@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
+import ChatWidget from "@/components/chatWidget"; // 👈 შეამოწმე რომ ფაილის გზა სწორია (მაგ. @/components/ChatWidget)
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,6 +28,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       >
         <body className="min-h-full flex flex-col bg-[#08070c] text-white">
           {children}
+          {/* ლოკალური და პროდაქშენ საიტის გლობალური AI ჩატბოტი */}
+          <ChatWidget botId="3c5f43d0-eb9d-48dc-88f3-708939606dff" />
         </body>
       </html>
     </ClerkProvider>
