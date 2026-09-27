@@ -2,13 +2,18 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
 import { SignInButton, SignUpButton, UserButton, useAuth } from '@clerk/nextjs';
 import HeroTunnel from '@/components/landing/hero-tunnel';
 import FeaturesSection from '@/components/landing/features-section';
 import HowItWorksSection from '@/components/landing/how-it-works-section';
 import PricingSection from '@/components/landing/pricing-section';
 import ContactSection from '@/components/landing/contact-section';
-import ChatbotWidget from '@/components/chatWidget';
+
+// ვტვირთავთ ჩატბოტს მხოლოდ კლიენტის მხარეს (SSR: false), რათა თავიდან ავიცილოთ Hydration შეცდომა
+const ChatbotWidget = dynamic(() => import('@/components/chatWidget'), {
+  ssr: false,
+});
 
 const navItems = [
   { name: 'შესაძლებლობები', href: '#features' },
