@@ -16,129 +16,72 @@ export class NotPaidError extends Error {
   }
 }
 
-/**
- * იღებს users ცხრილიდან Supabase-ის UUID-ს (id).
- * ჯერ ეძებს clerk_id-ით, თუ ვერ იპოვა — email-ით, ხოლო თუ არ არსებობს — ქმნის ახალს.
- */
+/** users ცხრილიდან წამოღება/შექმნა — იგივე ლოგიკა, რაც აქამდე გვქონდა. */
 async function getUserDetails(clerkUserId: string): Promise<{ dbUserId: string; isPaid: boolean } | null> {
-  // 1. ვეძებთ clerk_id-ით (Case-Insensitive)
-  const { data: userByClerk, error: clerkErr } = await supabaseAdmin
+  const { data: userByClerk } = await supabaseAdmin
     .from("users")
     .select("id, is_paid")
     .ilike("clerk_id", clerkUserId)
     .maybeSingle();
 
-  if (clerkErr) {
-    console.error("[getUserDetails] Error finding user by clerk_id:", clerkErr);
-  }
-
   if (userByClerk) {
-    return {
-      dbUserId: userByClerk.id,
-      isPaid: Boolean(userByClerk.is_paid),
-    };
+    return { dbUserId: userByClerk.id, isPaid: Boolean(userByClerk.is_paid) };
   }
 
-  // 2. ვეძებთ ელფოსტით (Clerk-ის მონაცემებიდან)
   const clerkUser = await currentUser();
   const primaryEmail = clerkUser?.emailAddresses?.[0]?.emailAddress;
 
   if (primaryEmail) {
-    const { data: userByEmail, error: emailErr } = await supabaseAdmin
+    const { data: userByEmail } = await supabaseAdmin
       .from("users")
       .select("id, is_paid, clerk_id")
       .ilike("email", primaryEmail)
       .maybeSingle();
 
-    if (emailErr) {
-      console.error("[getUserDetails] Error finding user by email:", emailErr);
-    }
-
     if (userByEmail) {
-      // ვანახლებთ clerk_id-ს users ცხრილში, თუ ცარიელი იყო
       if (!userByEmail.clerk_id) {
-        await supabaseAdmin
-          .from("users")
-          .update({ clerk_id: clerkUserId })
-          .eq("id", userByEmail.id);
+        await supabaseAdmin.from("users").update({ clerk_id: clerkUserId }).eq("id", userByEmail.id);
       }
-
-      return {
-        dbUserId: userByEmail.id,
-        isPaid: Boolean(userByEmail.is_paid),
-      };
+      return { dbUserId: userByEmail.id, isPaid: Boolean(userByEmail.is_paid) };
     }
   }
 
-  // 3. თუ users ცხრილში საერთოდ ვერ მოიძებნა, ვქმნით ახალ ჩანაწერს.
-  //    ⚠️ is_paid აუცილებლად false-ით! ეს ჩანაწერი მხოლოდ Clerk-ავტორიზაციის
-  //    ფაქტს ადასტურებს, არა გადახდას — is_paid-ს true-ზე მხოლოდ Stripe
-  //    webhook-ი (checkout.session.completed) გადაიყვანს.
-  console.log(`[getUserDetails] Creating new user record for Clerk ID: ${clerkUserId}`);
   const { data: newUser, error: createErr } = await supabaseAdmin
     .from("users")
-    .insert({
-      clerk_id: clerkUserId,
-      email: primaryEmail || `${clerkUserId}@placeholder.com`,
-      is_paid: false,
-    })
+    .insert({ clerk_id: clerkUserId, email: primaryEmail || `${clerkUserId}@placeholder.com`, is_paid: false })
     .select("id, is_paid")
     .single();
 
-  if (createErr || !newUser) {
-    console.error("[getUserDetails] Failed to create user in Supabase:", createErr);
-    return null;
-  }
+  if (createErr || !newUser) return null;
+  return { dbUserId: newUser.id, isPaid: Boolean(newUser.is_paid) };
+}
 
-  return {
-    dbUserId: newUser.id,
-    isPaid: Boolean(newUser.is_paid),
-  };
+/** ამოწმებს paywall-ს და აბრუნებს users.id-ს — აგდებს NotPaidError-ს, თუ გადახდილი არ არის. */
+export async function requirePaidDbUserId(clerkUserId: string): Promise<string> {
+  const details = await getUserDetails(clerkUserId);
+  if (!details) throw new Error("მომხმარებელი users ბაზაში ვერ მოიძებნა და ვერც შეიქმნა.");
+  if (!details.isPaid) throw new NotPaidError();
+  return details.dbUserId;
 }
 
 /**
- * აბრუნებს Clerk userId-ზე მიბმულ bot-ის ჩანაწერს, ან ქმნის ახალს.
+ * ყოველთვის ქმნის ახალ ბოტს ერთი კონკრეტული პროექტისთვის — ბოტები აღარ
+ * არის "ერთი მომხმარებელზე ერთი", რადგან თითოეულ პროექტს თავისი, ცალკე
+ * ინგესტირებული ცოდნის ბაზა და ჩატბოტი სჭირდება.
  */
-export async function getOrCreateBotForUser(clerkUserId: string): Promise<string> {
-  const userDetails = await getUserDetails(clerkUserId);
-
-  if (!userDetails) {
-    throw new Error("მომხმარებელი users ბაზაში ვერ მოიძებნა და ვერც შეიქმნა.");
-  }
-
-  if (!userDetails.isPaid) {
-    throw new NotPaidError();
-  }
-
-  const { dbUserId } = userDetails;
-
-  // 1. ვეძებთ არსებულ ბოტს
-  const { data: existing, error: selectError } = await supabaseAdmin
-    .from("bots")
-    .select("id")
-    .eq("owner_id", dbUserId)
-    .maybeSingle();
-
-  if (selectError) {
-    throw new Error(`bots select failed: ${selectError.message}`);
-  }
-  if (existing) return existing.id;
-
-  // 2. ვქმნით ახალ ბოტს. is_active-ს არ ვწერთ — column-ს აქვს
-  //    DEFAULT true, ასე რომ ახალი ბოტი ავტომატურად აქტიურია.
-  const { data: created, error: insertError } = await supabaseAdmin
+export async function createBotForProject(dbUserId: string, title: string): Promise<string> {
+  const { data: created, error } = await supabaseAdmin
     .from("bots")
     .insert({
       owner_id: dbUserId,
-      name: "AI Assistant",
+      name: title,
       system_prompt: DEFAULT_SYSTEM_PROMPT,
     })
     .select("id")
     .single();
 
-  if (insertError || !created) {
-    throw new Error(`bots insert failed: ${insertError?.message}`);
+  if (error || !created) {
+    throw new Error(`bots insert failed: ${error?.message}`);
   }
-
   return created.id;
 }

@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Type } from "@google/genai";
 import { auth } from "@clerk/nextjs/server";
+import { createClient } from "@supabase/supabase-js";
 import { CHAT_MODEL, getGemini, withRetry, isQuotaError } from "@/lib/gemini";
-import { getOrCreateBotForUser, NotPaidError } from "@/lib/bots";
+import { requirePaidDbUserId, createBotForProject, NotPaidError } from "@/lib/bots";
 import { ingestUploadedFiles } from "@/lib/ingest/ingest-uploaded-files";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+);
 
 export async function POST(req: NextRequest) {
   const { userId } = await auth();
@@ -17,6 +23,7 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const uploadedFiles = formData.getAll("files") as File[];
+    const title = (formData.get("title") as string | null)?.trim() || "New Project";
 
     if (!uploadedFiles || uploadedFiles.length === 0) {
       return NextResponse.json(
@@ -25,18 +32,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ამ Clerk მომხმარებელზე მიბმული bot-ის მოძებნა ან შექმნა.
-    // getOrCreateBotForUser შიგნით ამოწმებს users.is_paid-ს და აგდებს
-    // NotPaidError-ს, თუ მომხმარებელს აქტიური გამოწერა არ აქვს.
-    const botId = await getOrCreateBotForUser(userId);
+    // paywall-შემოწმება (aგდებს NotPaidError-ს, თუ გამოწერა არააქტიურია)
+    // და ახალი ბოტის შექმნა ამ კონკრეტული პროექტისთვის — ბოტები აღარ
+    // არის "ერთი მომხმარებელზე ერთი", თითოეულ პროექტს თავისი, ცალკე
+    // ინგესტირებული ცოდნის ბაზა და ჩატბოტი სჭირდება.
+    const dbUserId = await requirePaidDbUserId(userId);
+    const botId = await createBotForProject(dbUserId, title);
 
     // საიტის კოდის/კონტენტის ჩაშენება RAG-ისთვის — ეს ავსებს documents
-   // ცხრილს, რომ Relay-ის უკვე არსებულმა retrieveContext-მა შეძლოს ამ
+    // ცხრილს, რომ Relay-ის უკვე არსებულმა retrieveContext-მა შეძლოს ამ
     // ინფორმაციის საფუძველზე პასუხის გაცემა (არა მხოლოდ ფაილების სახელები).
     const { chunksIngested } = await ingestUploadedFiles(botId, uploadedFiles);
-
-
-
 
     // Relay-ის მისამართი აუცილებლად env-იდან, არასდროს hardcode-ული —
     // იმავე NEXT_PUBLIC_APP_URL-ით, რასაც checkout/route.ts იყენებს
@@ -105,7 +111,7 @@ npm install"
 - **State-ები:** კომპონენტს უნდა ჰქონდეს ზუსტად ეს state-ები — \`isOpen\` (ან \`isChatOpen\`) ჩატის გახსნა/დახურვისთვის, \`messages\` მასივი ტიპით \`{ role: 'user' | 'assistant', content: string }[]\`, საწყისი მისალმების შეტყობინებით ასისტენტისგან, \`inputMessage\` string state ტექსტბოქსისთვის და \`isLoading\` (ან \`isChatLoading\`) ბულეანი.
 - **Loading ინდიკატორი:** პასუხის მოლოდინში გამოჩნდეს პულსირებადი ტექსტი (მაგ. "იწერს..." ან "ასისტენტი აბრუნებს პასუხს..."), ასისტენტის შეტყობინების ბუშტის ადგილას.
 - **ავტომატური სქროლი:** ახალი შეტყობინების დამატებისას ჩატის ფანჯარა ავტომატურად სქროლავდეს ბოლომდე (\`scrollIntoView({ behavior: 'smooth' })\` ან ექვივალენტი).
-- **API გამოძახება:** ფორმის გაგზავნისას გამოიძახოს \`fetch('/api/ai/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message, history }) })\`, სადაც \`history\` არის მთელი \`messages\` მასივი (მათ შორის ახლახან დამატებული user შეტყობინება). პასუხი მოსალოდნელია \`{ success: boolean, reply?: string, error?: string }\` ფორმატში — \`reply\` ველი გამოჩნდეს როგორც ასისტენტის ახალი შეტყობინება.
+- **API გამოძახება:** ფორმის გაგზავნისას გამოიძახოს \`fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message, history }) })\` — **ეს მისამართი ზუსტად უნდა ემთხვეოდეს იმ API Route-ის URL-ს, რომელსაც ამავე მოთხოვნის მე-3 პუნქტში ქმნი** (\`app/api/chat/route.ts\` → URL \`/api/chat\`, ან \`pages/api/chat.ts\` → იგივე URL). სადაც \`history\` არის მთელი \`messages\` მასივი (მათ შორის ახლახან დამატებული user შეტყობინება). პასუხი მოსალოდნელია \`{ success: boolean, reply?: string, error?: string }\` ფორმატში — \`reply\` ველი გამოჩნდეს როგორც ასისტენტის ახალი შეტყობინება.
 - **სტილიზაცია:** გამოიყენე inline style ობიექტები (ან Tailwind კლასები, თუ პროექტში Tailwind უკვე დადასტურებულადაა კონფიგურირებული) ზუსტად ზემოთ აღწერილი ვიზუალის მისაღწევად — არ გამოიგონო ალტერნატიული ფერები, ზომები ან განლაგება.
 
 ## დამატებითი მოთხოვნა — Relay Endpoint-ის გამოყენება და მთავარი ფაილის დაცვა
@@ -181,8 +187,26 @@ npm install"
 
     const parsedData = JSON.parse(response.text);
 
+    // ამ ატვირთვის პროექტად შენახვა Dashboard-ის სიისთვის.
+    const { data: project, error: projectError } = await supabaseAdmin
+      .from("projects")
+      .insert({
+        user_id: userId,
+        bot_id: botId,
+        title,
+        ai_review: parsedData.analysis,
+        generated_code: parsedData.filesToCreate || [],
+      })
+      .select("id")
+      .single();
+
+    if (projectError || !project) {
+      throw new Error(`projects insert failed: ${projectError?.message}`);
+    }
+
     return NextResponse.json({
       success: true,
+      projectId: project.id,
       analysis: parsedData.analysis,
       filesToCreate: parsedData.filesToCreate || [],
     });
