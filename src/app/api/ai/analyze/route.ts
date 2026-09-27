@@ -5,7 +5,7 @@ import { CHAT_MODEL, getGemini, withRetry, isQuotaError } from "@/lib/gemini";
 import { getOrCreateBotForUser, NotPaidError } from "@/lib/bots";
 
 export const runtime = "nodejs";
-export const maxDuration = 30;
+export const maxDuration = 120;
 
 export async function POST(req: NextRequest) {
   const { userId } = await auth();
