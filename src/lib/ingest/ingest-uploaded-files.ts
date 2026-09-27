@@ -24,7 +24,7 @@ export async function ingestUploadedFiles(
 ): Promise<{ chunksIngested: number }> {
   const { data: source, error: sourceError } = await supabaseAdmin
     .from("sources")
-    .insert({ bot_id: botId, type: "file", status: "processing" })
+    .insert({ bot_id: botId, type: "text", status: "processing" })
     .select("id")
     .single();
 
