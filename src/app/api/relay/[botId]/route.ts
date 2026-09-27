@@ -47,7 +47,10 @@ export async function OPTIONS(
       .eq("id", botId)
       .maybeSingle();
 
-    if (bot?.allowed_origin && bot.allowed_origin !== origin) {
+    // ვუშვებთ localhost-ს ავტომატურად
+    const isLocalhost = origin?.includes("localhost") || origin?.includes("127.0.0.1");
+
+    if (bot?.allowed_origin && bot.allowed_origin !== origin && !isLocalhost) {
       return new NextResponse(null, { status: 403 });
     }
   }
@@ -124,16 +127,18 @@ export async function POST(
     );
   }
 
-  // --- Origin-ის TOFU შემოწმება/დაფიქსირება ---
+  // --- Origin-ის შემოწმება (localhost-ის მხარდაჭერით) ---
+  const isLocalhost = origin?.includes("localhost") || origin?.includes("127.0.0.1");
+
   if (bot.allowed_origin) {
-    if (bot.allowed_origin !== origin) {
+    if (bot.allowed_origin !== origin && !isLocalhost) {
       console.warn(`[relay] origin mismatch for bot ${botId}: expected ${bot.allowed_origin}, got ${origin}`);
       return NextResponse.json(
         { error: "ეს ბოტი ამ დომენიდან წვდომისთვის არ არის ავტორიზებული." },
         { status: 403, headers: corsHeaders(origin) },
       );
     }
-  } else if (origin) {
+  } else if (origin && !isLocalhost) {
     await supabaseAdmin.from("bots").update({ allowed_origin: origin }).eq("id", botId);
   }
 
