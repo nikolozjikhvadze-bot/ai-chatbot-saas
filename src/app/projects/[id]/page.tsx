@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 interface GeneratedFile { path: string; content: string; }
@@ -16,8 +16,10 @@ interface Message { role: 'user' | 'assistant'; content: string; }
 
 export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
   const [project, setProject] = useState<Project | null>(null);
   const [error, setError] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [copiedTerminal, setCopiedTerminal] = useState(false);
 
@@ -55,6 +57,31 @@ export default function ProjectDetailPage() {
     navigator.clipboard.writeText(cmd);
     setCopiedTerminal(true);
     setTimeout(() => setCopiedTerminal(false), 2000);
+  };
+
+  const handleDeleteProject = async () => {
+    if (!project) return;
+    const confirmDelete = confirm('ნამდვილად გსურთ პროექტისა და მასთან დაკავშირებული ბოტის წაშლა?');
+    if (!confirmDelete) return;
+
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/projects/${id}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || 'პროექტის წაშლა ვერ მოხერხდა.');
+        setIsDeleting(false);
+        return;
+      }
+
+      router.push('/dashboard');
+    } catch {
+      alert('შეცდომა სერვერთან დაკავშირებისას.');
+      setIsDeleting(false);
+    }
   };
 
   const handleSend = async (e: React.FormEvent) => {
@@ -110,7 +137,7 @@ export default function ProjectDetailPage() {
       {/* ფონის გრადიენტული ეფექტი */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-violet-600/10 blur-[140px] rounded-full pointer-events-none" />
 
-      {/* Header & Back Button */}
+      {/* Header, Back Button & Delete Button */}
       <div className="max-w-6xl mx-auto mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-6">
         <div>
           <Link
@@ -123,6 +150,15 @@ export default function ProjectDetailPage() {
             {project.title}
           </h1>
         </div>
+
+        {/* 🗑️ Delete Project Button */}
+        <button
+          onClick={handleDeleteProject}
+          disabled={isDeleting}
+          className="self-start md:self-auto px-4 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-semibold flex items-center gap-2 transition disabled:opacity-50"
+        >
+          {isDeleting ? '🗑️ იშლება...' : '🗑️ პროექტის წაშლა'}
+        </button>
       </div>
 
       {/* Main Content Area */}

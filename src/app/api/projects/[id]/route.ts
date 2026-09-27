@@ -1,11 +1,45 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
+
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+
+    // 1. ჯერ ამოვიღოთ პროექტის მონაცემები bot_id-ის მისაღებად
+    const { data: project } = await supabase
+      .from('projects')
+      .select('bot_id')
+      .eq('id', id)
+      .single();
+
+    if (project?.bot_id) {
+      // 2. წავშალოთ ბოტი ბაზიდან / Relay სერვისიდან
+      await supabase.from('bots').delete().eq('id', project.bot_id);
+    }
+
+    // 3. წავშალოთ პროექტი
+    const { error } = await supabase.from('projects').delete().eq('id', id);
+
+    if (error) {
+      return NextResponse.json({ error: 'პროექტის წაშლა ვერ მოხერხდა' }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    return NextResponse.json({ error: 'სერვერის შეცდომა' }, { status: 500 });
+  }
+}
 
 export async function GET(
   req: NextRequest,
