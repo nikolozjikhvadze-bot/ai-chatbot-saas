@@ -18,7 +18,7 @@ export async function DELETE(
     }
 
     const params = await context.params;
-    const projectId = params.id;
+    const projectId = params?.id;
 
     // 1. ჯერ ამოვიღოთ პროექტი, რომ გადავამოწმოთ მფლობელობა და bot_id
     const { data: project } = await supabaseAdmin
@@ -72,7 +72,7 @@ export async function GET(
   }
 
   const params = await context.params;
-  const id = params.id;
+  const id = params?.id;
 
   const { data: project, error } = await supabaseAdmin
     .from("projects")
