@@ -27,18 +27,18 @@ export default function ChatWidget() {
     setLoading(true);
 
     try {
-      // 🎯 მოთხოვნა იგზავნება შენს /api/ai/chat ენდპოინტზე
-      const res = await fetch('/api/ai/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          message: input,
-          history: messages.map(m => ({
-            role: m.role,
-            content: m.content
-          }))
-        }),
-      });
+      // 🎯 მოთხოვნა იგზავნება შენს /api/ai/analyze ენდპოინტზე
+      const res = await fetch('/api/ai/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+      message: input,
+      history: messages.map(m => ({
+      role: m.role,
+      content: m.content
+    }))
+  }),
+});
 
       const data = await res.json();
       
