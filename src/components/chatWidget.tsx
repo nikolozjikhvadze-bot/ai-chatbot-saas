@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Message {
@@ -15,41 +15,89 @@ export default function ChatWidget() {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || loading) return;
 
-    const userMessage: Message = { role: 'user', content: input };
-    const newMessages = [...messages, userMessage];
-    setMessages(newMessages);
+    const userText = input;
     setInput('');
+
+    // 1. ვამატებთ მომხმარებლის შეტყობინებას და ცარიელ ასისტენტის პასუხს სტრიმინგისთვის
+    setMessages((prev) => [
+      ...prev,
+      { role: 'user', content: userText },
+      { role: 'assistant', content: '' }
+    ]);
     setLoading(true);
 
     try {
-      // 🎯 მოთხოვნა იგზავნება შენს /api/ai/analyze ენდპოინტზე
-      const res = await fetch('/api/ai/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-      message: input,
-      history: messages.map(m => ({
-      role: m.role,
-      content: m.content
-    }))
-  }),
-});
+      const res = await fetch('/api/widget/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          botKey: 'yourbot-landing-public-key-12345', // Supabase-ის public_key
+          message: userText,
+          visitorId: 'landing-visitor-unique-id'
+        }),
+      });
 
-      const data = await res.json();
-      
-      if (res.ok && data.success) {
-        setMessages([...newMessages, { role: 'assistant', content: data.reply }]);
-      } else {
-        setMessages([...newMessages, { role: 'assistant', content: data.error || 'შეცდომა მოხდა პასუხის მიღებისას.' }]);
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (!reader) throw new Error('Response stream not available');
+
+      let accumulatedText = '';
+
+      // 2. ვკითხულობთ სტრიმს real-time-ში
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const eventData = JSON.parse(line.slice(6));
+
+              if (eventData.type === 'text_delta') {
+                accumulatedText += eventData.text;
+                setMessages((prev) => {
+                  const updated = [...prev];
+                  updated[updated.length - 1] = {
+                    role: 'assistant',
+                    content: accumulatedText,
+                  };
+                  return updated;
+                });
+              }
+            } catch {
+              // არასწორი JSON-ის იგნორირება
+            }
+          }
+        }
       }
     } catch (err) {
-      console.error(err);
-      setMessages([...newMessages, { role: 'assistant', content: 'სერვერთან კავშირის შეცდომა.' }]);
+      console.error('Chat error:', err);
+      setMessages((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1] = {
+          role: 'assistant',
+          content: 'სერვერთან კავშირის შეცდომა. გთხოვთ სცადოთ მოგვიანებით.',
+        };
+        return updated;
+      });
     } finally {
       setLoading(false);
     }
@@ -57,7 +105,7 @@ export default function ChatWidget() {
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      {/* ჩათის გასახსნელი მცურავი ღილაკი */}
+      {/* ჩატის გახსნის ღილაკი */}
       {!isOpen && (
         <motion.button
           initial={{ scale: 0 }}
@@ -70,7 +118,7 @@ export default function ChatWidget() {
         </motion.button>
       )}
 
-      {/* ჩათის ფანჯარა */}
+      {/* ჩატის ფანჯარა */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -83,11 +131,11 @@ export default function ChatWidget() {
             <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                <h3 className="font-semibold text-sm">AI ასისტენტი</h3>
+                <h3 className="font-semibold text-sm text-white">AI ასისტენტი</h3>
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="w-7 h-7 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-xs text-white/60 hover:text-white cursor-pointer"
+                className="w-7 h-7 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-xs text-white/60 hover:text-white cursor-pointer transition"
               >
                 ✕
               </button>
@@ -101,23 +149,19 @@ export default function ChatWidget() {
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[80%] p-3 rounded-2xl leading-relaxed ${
+                    className={`max-w-[85%] p-3 rounded-2xl leading-relaxed ${
                       msg.role === 'user'
                         ? 'bg-violet-600 text-white rounded-br-none'
-                        : 'bg-white/5 border border-white/10 text-white/90 rounded-bl-none font-mono'
+                        : 'bg-white/5 border border-white/10 text-white/90 rounded-bl-none font-sans whitespace-pre-wrap'
                     }`}
                   >
-                    {msg.content}
+                    {msg.content || (loading && idx === messages.length - 1 ? (
+                      <span className="animate-pulse text-violet-400">წერს...</span>
+                    ) : '')}
                   </div>
                 </div>
               ))}
-              {loading && (
-                <div className="flex justify-start">
-                  <div className="bg-white/5 border border-white/10 p-3 rounded-2xl rounded-bl-none text-violet-400 animate-pulse">
-                    პასუხს აგენერირებს...
-                  </div>
-                </div>
-              )}
+              <div ref={messagesEndRef} />
             </div>
 
             {/* Input Area */}
@@ -127,11 +171,12 @@ export default function ChatWidget() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="დაწერეთ შეკითხვა..."
-                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-violet-500"
+                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-violet-500 transition"
               />
               <button
                 type="submit"
-                className="px-4 py-2 rounded-xl bg-violet-600 text-white font-medium hover:bg-violet-500 transition cursor-pointer"
+                disabled={loading || !input.trim()}
+                className="px-4 py-2 rounded-xl bg-violet-600 text-white font-medium hover:bg-violet-500 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 გაგზავნა
               </button>
@@ -141,4 +186,4 @@ export default function ChatWidget() {
       </AnimatePresence>
     </div>
   );
-}
+} 
