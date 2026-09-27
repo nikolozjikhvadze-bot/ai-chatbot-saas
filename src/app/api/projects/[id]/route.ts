@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
-import { supabase } from "@/lib/supabase";
-
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10,34 +8,56 @@ const supabaseAdmin = createClient(
 );
 
 export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "საჭიროა ავტორიზაცია." }, { status: 401 });
+    }
 
-    // 1. ჯერ ამოვიღოთ პროექტის მონაცემები bot_id-ის მისაღებად
-    const { data: project } = await supabase
+    const { id: projectId } = await params;
+
+    // 1. ჯერ ამოვიღოთ პროექტი, რომ გადავამოწმოთ მფლობელობა და bot_id
+    const { data: project } = await supabaseAdmin
       .from('projects')
-      .select('bot_id')
-      .eq('id', id)
+      .select('user_id, bot_id')
+      .eq('id', projectId)
       .single();
 
-    if (project?.bot_id) {
-      // 2. წავშალოთ ბოტი ბაზიდან / Relay სერვისიდან
-      await supabase.from('bots').delete().eq('id', project.bot_id);
+    if (!project) {
+      return NextResponse.json({ error: "პროექტი ვერ მოიძებნა." }, { status: 404 });
     }
 
-    // 3. წავშალოთ პროექტი
-    const { error } = await supabase.from('projects').delete().eq('id', id);
-
-    if (error) {
-      return NextResponse.json({ error: 'პროექტის წაშლა ვერ მოხერხდა' }, { status: 500 });
+    if (project.user_id !== userId) {
+      return NextResponse.json({ error: "წვდომა აკრძალულია." }, { status: 403 });
     }
 
-    return NextResponse.json({ success: true });
+    // 2. წავშალოთ პროექტი
+    const { error: deleteProjectError } = await supabaseAdmin
+      .from('projects')
+      .delete()
+      .eq('id', projectId);
+
+    if (deleteProjectError) {
+      return NextResponse.json(
+        { error: 'პროექტის წაშლა ვერ მოხერხდა' },
+        { status: 500 }
+      );
+    }
+
+    // 3. თუ პროექტს ჰქონდა bot_id, წავშალოთ ბოტიც
+    if (project.bot_id) {
+      await supabaseAdmin.from('bots').delete().eq('id', project.bot_id);
+    }
+
+    return NextResponse.json({ success: true, message: 'პროექტი წარმატებით წაიშალა' });
   } catch (err) {
-    return NextResponse.json({ error: 'სერვერის შეცდომა' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'სერვერული შეცდომა წაშლისას' },
+      { status: 500 }
+    );
   }
 }
 
@@ -60,7 +80,8 @@ export async function GET(
   if (error || !project) {
     return NextResponse.json({ error: "პროექტი ვერ მოიძებნა." }, { status: 404 });
   }
-  // მფლობელობის შემოწმება — RLS-ის ნაცვლად, service-role client-ით ხელით.
+
+  // მფლობელობის შემოწმება
   if (project.user_id !== userId) {
     return NextResponse.json({ error: "წვდომა აკრძალულია." }, { status: 403 });
   }
