@@ -17,6 +17,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "YourBot — AI ასისტენტი თქვენი ბიზნესისთვის",
   description: "შექმენით თქვენი AI ბოტი მარტივად",
+  icons: {
+    icon: '/icon.svg',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
