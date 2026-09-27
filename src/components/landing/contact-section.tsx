@@ -2,14 +2,15 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Send, Sparkles, ArrowUpRight } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Sparkles, ArrowUpRight, Loader2 } from 'lucide-react';
+import { sendEmailAction } from '@/app/actions/send-email';
 
 const contactInfo = [
   {
     icon: Mail,
     title: 'ელ.ფოსტა',
-    value: 'support@yourbot.ge',
-    href: 'mailto:support@yourbot.ge',
+    value: 'yourbot95@gmail.com',
+    href: 'mailto:yourbot95@gmail.com',
   },
   {
     icon: Phone,
@@ -26,12 +27,27 @@ const contactInfo = [
 ];
 
 export default function ContactSection() {
-  const [submitted, setSubmitted] = useState(false);
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({
+    type: null,
+    message: '',
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 5000);
+    setLoading(true);
+    setStatus({ type: null, message: '' });
+
+    const res = await sendEmailAction(formData);
+
+    setLoading(false);
+    if (res.success) {
+      setStatus({ type: 'success', message: 'შეტყობინება წარმატებით გაიგზავნა!' });
+      setFormData({ name: '', email: '', message: '' });
+    } else {
+      setStatus({ type: 'error', message: res.error || 'დაფიქსირდა შეცდომა.' });
+    }
   };
 
   return (
@@ -133,6 +149,8 @@ export default function ContactSection() {
                   <input
                     type="text"
                     required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="გიორგი გიორგაძე"
                     className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 sm:py-3 text-sm text-white placeholder-white/20 outline-none transition duration-200 focus:border-violet-500 focus:bg-white/[0.05]"
                   />
@@ -142,6 +160,8 @@ export default function ContactSection() {
                   <input
                     type="email"
                     required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="giorgi@company.ge"
                     className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 sm:py-3 text-sm text-white placeholder-white/20 outline-none transition duration-200 focus:border-violet-500 focus:bg-white/[0.05]"
                   />
@@ -153,18 +173,42 @@ export default function ContactSection() {
                 <textarea
                   rows={4}
                   required
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   placeholder="გამარჯობა, მაინტერესებს YourBot-ის ინტეგრაცია ჩემს ვებსაიტზე..."
                   className="mt-1.5 w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 sm:py-3 text-sm text-white placeholder-white/20 outline-none transition duration-200 focus:border-violet-500 focus:bg-white/[0.05]"
                 />
               </div>
 
+              {/* Status Message */}
+              {status.message && (
+                <div
+                  className={`rounded-xl p-3 text-xs font-medium ${
+                    status.type === 'success'
+                      ? 'border border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+                      : 'border border-rose-500/30 bg-rose-500/10 text-rose-400'
+                  }`}
+                >
+                  {status.message}
+                </div>
+              )}
+
               <button
                 type="submit"
-                className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-violet-600 p-px font-medium text-white shadow-lg transition duration-300 hover:shadow-violet-500/25"
+                disabled={loading}
+                className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-violet-600 p-px font-medium text-white shadow-lg transition duration-300 hover:shadow-violet-500/25 disabled:opacity-50"
               >
                 <span className="flex w-full items-center justify-center gap-2 rounded-[11px] bg-[#0d0c14] px-6 py-3 text-sm transition duration-300 group-hover:bg-transparent">
-                  {submitted ? 'გაგზავნილია!' : 'შეტყობინების გაგზავნა'}
-                  <Send className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" /> იგზავნება...
+                    </>
+                  ) : (
+                    <>
+                      შეტყობინების გაგზავნა
+                      <Send className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                    </>
+                  )}
                 </span>
               </button>
             </form>
