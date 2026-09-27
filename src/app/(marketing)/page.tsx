@@ -9,6 +9,7 @@ import FeaturesSection from '@/components/landing/features-section';
 import HowItWorksSection from '@/components/landing/how-it-works-section';
 import PricingSection from '@/components/landing/pricing-section';
 import ContactSection from '@/components/landing/contact-section';
+import Logo from '@/components/Logo';
 
 // ვტვირთავთ ჩატბოტს მხოლოდ კლიენტის მხარეს (SSR: false), რათა თავიდან ავიცილოთ Hydration შეცდომა
 const ChatbotWidget = dynamic(() => import('@/components/chatWidget'), {
@@ -30,12 +31,12 @@ export default function LandingPage() {
     <main className="bg-[#08070c] text-white antialiased selection:bg-violet-500/40">
       {/* NAV */}
       <nav className="fixed inset-x-0 top-0 z-50 flex items-center justify-between border-b border-white/5 bg-[#08070c]/60 px-6 py-4 backdrop-blur-xl md:px-12">
-        {/* ლოგო / ტექსტი — დაჭერისას რიფრეში და მთავარზე დაბრუნება */}
+        {/* ლოგო — დაჭერისას მთავარზე დაბრუნება */}
         <a
           href="/"
-          className="cursor-pointer text-lg font-semibold tracking-tight transition hover:opacity-80"
+          className="flex items-center cursor-pointer transition hover:opacity-80"
         >
-          YourBot
+          <Logo variant="full" className="h-8 w-auto" />
         </a>
 
         {/* Dynamic Hover Line Nav Items */}
