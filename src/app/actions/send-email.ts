@@ -2,36 +2,35 @@
 
 import { Resend } from 'resend';
 
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 export async function sendEmailAction(formData: { name: string; email: string; message: string }) {
-  console.log('1. Server Action დაიწყო');
-  
-  const apiKey = process.env.RESEND_API_KEY;
-  const myEmail = process.env.MY_EMAIL;
-
-  console.log('2. API Key:', apiKey ? 'არსებობს' : 'არ არის!');
-  console.log('3. MY_EMAIL:', myEmail);
-
-  if (!apiKey) {
-    return { success: false, error: 'API Key არ არის მითითებული .env.local-ში' };
-  }
-
-  const resend = new Resend(apiKey);
-
   try {
-    console.log('4. Resend-ზე მოთხოვნა იგზავნება...');
-    
-    const data = await resend.emails.send({
+    const { name, email, message } = formData;
+
+    // იღებს .env.local-იდან MY_EMAIL-ს, ხოლოდ თუ ვერ წაიკითხა, იყენებს სათადარიგოს
+    const recipientEmail = process.env.MY_EMAIL || 'nikolozjikhvadze@gmail.com';
+
+    await resend.emails.send({
       from: 'YourBot <onboarding@resend.dev>',
-      to: myEmail || '',
-      subject: `ახალი შეტყობინება: ${formData.name}`,
-      replyTo: formData.email,
-      html: `<p><strong>${formData.name}</strong> (${formData.email}):</p><p>${formData.message}</p>`,
+      to: recipientEmail, // წერილი მოდის შენთან
+      replyTo: email,     // პასუხის გაცემისას პასუხი მიდის მომხმარებელთან
+      subject: `ახალი შეტყობინება YourBot-ზე: ${name}`,
+      html: `
+        <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+          <h2 style="color: #6d28d9;">ახალი შეტყობინება საიტიდან</h2>
+          <p><strong>სახელი:</strong> ${name}</p>
+          <p><strong>მომხმარებლის ელ.ფოსტა:</strong> ${email}</p>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 15px 0;" />
+          <p><strong>შეტყობინება:</strong></p>
+          <p style="background: #f9fafb; padding: 12px; border-radius: 8px;">${message}</p>
+        </div>
+      `,
     });
 
-    console.log('5. Resend-ის პასუხი:', data);
     return { success: true };
   } catch (error: any) {
-    console.error('6. შეცდომა Resend-ში:', error);
-    return { success: false, error: error?.message || 'შეცდომა გაგზავნისას' };
+    console.error('Resend Error:', error);
+    return { success: false, error: error?.message || 'გაგზავნა ვერ მოხერხდა' };
   }
 }
