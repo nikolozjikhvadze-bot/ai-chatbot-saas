@@ -6,18 +6,32 @@ import { handleMessage, type ChatEvent } from "@/core/handle-message";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
+/** origin-ს ინარჩუნებს მხოლოდ schema+host+port-ს */
+function normalizeOrigin(origin: string | null): string | null {
+  if (!origin) return null;
+  try {
+    const u = new URL(origin);
+    return `${u.protocol}//${u.host}`;
+  } catch {
+    return null;
+  }
+}
+
 /** CORS Headers საჯარო ვიჯეტისთვის */
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
+function getCorsHeaders(origin: string | null): HeadersInit {
+  return {
+    "Access-Control-Allow-Origin": origin ?? "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  };
+}
 
 /** Preflight მოთხოვნების მართვა ბრაუზერებისთვის */
-export async function OPTIONS() {
+export async function OPTIONS(req: Request) {
+  const origin = normalizeOrigin(req.headers.get("origin"));
   return new NextResponse(null, {
-    status: 200,
-    headers: corsHeaders,
+    status: 204,
+    headers: getCorsHeaders(origin),
   });
 }
 
@@ -29,12 +43,15 @@ const Body = z.object({
 });
 
 export async function POST(req: Request) {
+  const origin = normalizeOrigin(req.headers.get("origin") || req.headers.get("referer"));
+  const cors = getCorsHeaders(origin);
+
   const json = await req.json().catch(() => null);
   const parsed = Body.safeParse(json);
   if (!parsed.success) {
     return NextResponse.json(
       { error: "არასწორი მოთხოვნა" },
-      { status: 400, headers: corsHeaders }
+      { status: 400, headers: cors }
     );
   }
   const { botKey, message, visitorId, conversationId } = parsed.data;
@@ -42,15 +59,35 @@ export async function POST(req: Request) {
   const sb = createAdminClient();
   const { data: bot } = await sb
     .from("bots")
-    .select("id,is_active")
+    .select("id, is_active, allowed_origin, allowed_domains")
     .eq("public_key", botKey)
     .maybeSingle();
 
   if (!bot || !bot.is_active) {
     return NextResponse.json(
       { error: "ბოტი ვერ მოიძებნა ან არააქტიურია" },
-      { status: 404, headers: corsHeaders }
+      { status: 404, headers: cors }
     );
+  }
+
+  // --- Origin / Domain შემოწმება (Localhost-ის სრული მხარდაჭერით) ---
+  const isLocalhost = origin?.includes("localhost") || origin?.includes("127.0.0.1");
+
+  if (!isLocalhost) {
+    const allowedOrigin = bot.allowed_origin;
+    const allowedDomains: string[] = bot.allowed_domains || [];
+
+    const originMatches = allowedOrigin ? allowedOrigin === origin : true;
+    const domainMatches = allowedDomains.length > 0
+      ? allowedDomains.some((dom) => origin && origin.includes(dom))
+      : true;
+
+    if (!originMatches || !domainMatches) {
+      return NextResponse.json(
+        { error: "ეს ბოტი ამ დომენიდან წვდომისთვის არ არის ავტორიზებული." },
+        { status: 403, headers: cors }
+      );
+    }
   }
 
   const encoder = new TextEncoder();
@@ -93,7 +130,7 @@ export async function POST(req: Request) {
 
   return new Response(stream, {
     headers: {
-      ...corsHeaders,
+      ...cors,
       "Content-Type": "text/event-stream; charset=utf-8",
       "Cache-Control": "no-cache, no-transform",
       Connection: "keep-alive",
