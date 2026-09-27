@@ -138,7 +138,7 @@ export async function POST(
   }
 
   try {
-    const chunks = await retrieveContext(message, { botId });
+    const chunks = await retrieveContext(message, { botId }, supabaseAdmin);
     const contextBlock = formatContextForPrompt(chunks);
 
     const systemInstruction = [
