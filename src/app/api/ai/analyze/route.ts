@@ -3,9 +3,10 @@ import { Type } from "@google/genai";
 import { auth } from "@clerk/nextjs/server";
 import { CHAT_MODEL, getGemini, withRetry, isQuotaError } from "@/lib/gemini";
 import { getOrCreateBotForUser, NotPaidError } from "@/lib/bots";
+import { ingestUploadedFiles } from "@/lib/ingest/ingest-uploaded-files";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+export const maxDuration = 300;
 
 export async function POST(req: NextRequest) {
   const { userId } = await auth();
@@ -28,6 +29,14 @@ export async function POST(req: NextRequest) {
     // getOrCreateBotForUser შიგნით ამოწმებს users.is_paid-ს და აგდებს
     // NotPaidError-ს, თუ მომხმარებელს აქტიური გამოწერა არ აქვს.
     const botId = await getOrCreateBotForUser(userId);
+
+    // საიტის კოდის/კონტენტის ჩაშენება RAG-ისთვის — ეს ავსებს documents
+   // ცხრილს, რომ Relay-ის უკვე არსებულმა retrieveContext-მა შეძლოს ამ
+    // ინფორმაციის საფუძველზე პასუხის გაცემა (არა მხოლოდ ფაილების სახელები).
+    const { chunksIngested } = await ingestUploadedFiles(botId, uploadedFiles);
+
+
+
 
     // Relay-ის მისამართი აუცილებლად env-იდან, არასდროს hardcode-ული —
     // იმავე NEXT_PUBLIC_APP_URL-ით, რასაც checkout/route.ts იყენებს
