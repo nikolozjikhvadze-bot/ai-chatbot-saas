@@ -121,18 +121,22 @@ export async function POST(
   }
 
   // --- Origin-ის შემოწმება (localhost-ის სრული მხარდაჭერით) ---
+  // --- Origin-ის შემოწმება (ლოკალის სრული პריორიტეტით) ---
   const isLocalhost = origin?.includes("localhost") || origin?.includes("127.0.0.1");
 
-  if (!isLocalhost && bot.allowed_origin) {
-    if (bot.allowed_origin !== origin) {
+  if (isLocalhost) {
+    // თუ ლოკალური ჰოსტია, საერთოდ არ ვამოწმებთ ბაზაში ჩაწერილ დომენს და ვუშვებთ!
+    console.log(`[relay] Localhost request allowed: ${origin}`);
+  } else {
+    if (bot.allowed_origin && bot.allowed_origin !== origin) {
       console.warn(`[relay] origin mismatch for bot ${botId}: expected ${bot.allowed_origin}, got ${origin}`);
       return NextResponse.json(
         { error: "ეს ბოტი ამ დომენიდან წვდომისთვის არ არის ავტორიზებული." },
         { status: 403, headers: corsHeaders(origin) },
       );
+    } else if (origin && !bot.allowed_origin) {
+      await supabaseAdmin.from("bots").update({ allowed_origin: origin }).eq("id", botId);
     }
-  } else if (origin && !bot.allowed_origin && !isLocalhost) {
-    await supabaseAdmin.from("bots").update({ allowed_origin: origin }).eq("id", botId);
   }
 
   try {
