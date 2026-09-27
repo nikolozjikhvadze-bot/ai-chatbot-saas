@@ -24,7 +24,6 @@ export default function DashboardPage() {
       try {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('success') === 'true') {
-          await fetch('/api/user/update-status', { method: 'POST' });
           window.history.replaceState({}, document.title, '/dashboard');
         }
         const res = await fetch('/api/user/status');

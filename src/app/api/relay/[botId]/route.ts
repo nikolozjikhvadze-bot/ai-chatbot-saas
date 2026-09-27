@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { CHAT_MODEL } from "@/lib/gemini";
 import { retrieveContext, formatContextForPrompt } from "@/core/retrieval";
-import { relayRateLimit } from "@/lib/rate-limits";
+import { checkRateLimits, getClientIp, rateLimitResponse } from "@/lib/rate-limits";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -38,6 +38,11 @@ export async function OPTIONS(
   { params }: { params: Promise<{ botId: string }> },
 ) {
   const origin = normalizeOrigin(req.headers.get("origin"));
+  const rateLimit = await checkRateLimits([
+    { policy: "preflight", key: getClientIp(req) },
+  ]);
+  if (!rateLimit.success) return rateLimitResponse(rateLimit.retryAfter, corsHeaders(origin));
+
   const { botId } = await params;
   const isLocalhost = origin?.includes("localhost") || origin?.includes("127.0.0.1");
 
@@ -62,11 +67,19 @@ const Body = z.object({
     .array(
       z.object({
         role: z.enum(["user", "assistant"]),
-        content: z.string(),
+        content: z.string().max(4000),
       }),
     )
     .max(20)
     .default([]),
+}).superRefine((body, context) => {
+  const totalChars = body.message.length + body.history.reduce(
+    (total, entry) => total + entry.content.length,
+    0,
+  );
+  if (totalChars > 20_000) {
+    context.addIssue({ code: "custom", message: "conversation is too long", path: ["history"] });
+  }
 });
 
 export async function POST(
@@ -82,6 +95,12 @@ export async function POST(
       { status: 400, headers: corsHeaders(origin) },
     );
   }
+  const ip = getClientIp(req);
+  const ipLimit = await checkRateLimits([
+    { policy: "relayIp", key: ip },
+  ]);
+  if (!ipLimit.success) return rateLimitResponse(ipLimit.retryAfter, corsHeaders(origin));
+
   const json = await req.json().catch(() => null);
   const parsed = Body.safeParse(json);
   if (!parsed.success) {
@@ -92,14 +111,11 @@ export async function POST(
   }
   const { message, history } = parsed.data;
 
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-  const { success } = await relayRateLimit.limit(`${botId}:${ip}`);
-  if (!success) {
-    return NextResponse.json(
-      { error: "ძალიან ბევრი მოთხოვნა. სცადეთ მოგვიანებით." },
-      { status: 429, headers: corsHeaders(origin) },
-    );
-  }
+  const rateLimit = await checkRateLimits([
+    { policy: "relayClient", key: `${botId}:${ip}` },
+    { policy: "relayBot", key: botId },
+  ]);
+  if (!rateLimit.success) return rateLimitResponse(rateLimit.retryAfter, corsHeaders(origin));
 
   const { data: bot, error: botError } = await supabaseAdmin
     .from("bots")

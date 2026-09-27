@@ -17,7 +17,6 @@ export default function PricingSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isAnnual, setIsAnnual] = useState(false);
 
-  // სქროლის პროგრესის თრექინგი Pinned კონტეინერისთვის
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end end'],
@@ -29,30 +28,28 @@ export default function PricingSection() {
     restDelta: 0.001,
   });
 
-  // კვადრატის და მბზინავი ხაზის ანიმაცია (საათის ისრის მიმართულებით)
   const strokeDashoffset = useTransform(smoothProgress, [0, 1], [1000, 0]);
   const offsetDistance = useTransform(smoothProgress, [0, 1], ['0%', '100%']);
 
   return (
-    <div id="pricing" ref={containerRef} className="relative h-[250vh] bg-[#08070c]">
-      <div className="sticky top-0 flex h-screen w-full flex-col items-center justify-center overflow-hidden px-6">
+    <div id="pricing" ref={containerRef} className="relative h-auto py-16 md:h-[250vh] md:py-0 bg-[#08070c]">
+      <div className="relative flex min-h-screen w-full flex-col items-center justify-center px-4 sm:px-6 md:sticky md:top-0 md:h-screen md:overflow-hidden">
         
         {/* Ambient background */}
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-1/2 h-[500px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-600/15 blur-[140px]" />
-          <div className="absolute bottom-10 right-10 h-[350px] w-[400px] rounded-full bg-fuchsia-500/10 blur-[120px]" />
+          <div className="absolute left-1/2 top-1/2 h-[300px] sm:h-[500px] w-full max-w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-600/15 blur-[140px]" />
+          <div className="absolute bottom-10 right-10 h-[250px] w-[250px] sm:w-[400px] rounded-full bg-fuchsia-500/10 blur-[120px]" />
         </div>
 
         <div className="relative mx-auto w-full max-w-4xl">
           
-          {/* SVG Border Frame & Glowing Tracer ჩარჩო */}
-          <div className="pointer-events-none absolute -inset-4 z-0">
+          {/* SVG Border Frame (desktop only) */}
+          <div className="pointer-events-none absolute -inset-4 z-0 hidden md:block">
             <svg
               className="h-full w-full"
               viewBox="0 0 100 100"
               preserveAspectRatio="none"
             >
-              {/* მუქი ფონური ჩარჩოს ხაზი */}
               <rect
                 x="0.5"
                 y="0.5"
@@ -63,7 +60,6 @@ export default function PricingSection() {
                 stroke="rgba(255, 255, 255, 0.08)"
                 strokeWidth="0.5"
               />
-              {/* აქტიური მბზინავი ხაზი */}
               <motion.rect
                 x="0.5"
                 y="0.5"
@@ -85,7 +81,6 @@ export default function PricingSection() {
               </defs>
             </svg>
 
-            {/* მბზინავი კვადრატი */}
             <motion.div
               className="absolute h-3 w-3 rounded-sm bg-violet-400 shadow-[0_0_15px_#a855f7]"
               style={{
@@ -101,40 +96,40 @@ export default function PricingSection() {
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-xs font-medium text-violet-300"
+              className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-300 sm:px-4 sm:py-1.5"
             >
               <Sparkles className="h-3.5 w-3.5 text-fuchsia-400" />
               <span>მარტივი და გამჭვირვალე ტარიფი</span>
             </motion.div>
 
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-white sm:text-3xl md:text-4xl">
               შეარჩიე შენზე მორგებული გეგმა
             </h2>
-            <p className="mt-2 text-base text-white/60">
+            <p className="mt-1.5 text-xs text-white/60 sm:text-base">
               გადაიხადე მხოლოდ იმისთვის, რაც რეალურად სჭირდება შენს ბიზნესს
             </p>
 
-            {/* Toggle Switch (თვიური / წლიური) */}
-            <div className="mt-8 flex items-center justify-center gap-4">
-              <span className={`text-sm font-medium ${!isAnnual ? 'text-white' : 'text-white/40'}`}>
+            {/* Toggle Switch */}
+            <div className="mt-6 flex items-center justify-center gap-3 sm:gap-4">
+              <span className={`text-xs sm:text-sm font-medium ${!isAnnual ? 'text-white' : 'text-white/40'}`}>
                 თვიური
               </span>
               <button
                 type="button"
                 onClick={() => setIsAnnual(!isAnnual)}
-                className="relative h-7 w-14 rounded-full bg-white/10 p-1 transition-colors duration-300 hover:bg-white/20"
+                className="relative h-6 w-12 sm:h-7 sm:w-14 rounded-full bg-white/10 p-1 transition-colors duration-300 hover:bg-white/20"
               >
                 <motion.div
-                  className="h-5 w-5 rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 shadow-md"
-                  animate={{ x: isAnnual ? 28 : 0 }}
+                  className="h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 shadow-md"
+                  animate={{ x: isAnnual ? (typeof window !== 'undefined' && window.innerWidth < 640 ? 24 : 28) : 0 }}
                   transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                 />
               </button>
               <div className="flex items-center gap-2">
-                <span className={`text-sm font-medium ${isAnnual ? 'text-white' : 'text-white/40'}`}>
+                <span className={`text-xs sm:text-sm font-medium ${isAnnual ? 'text-white' : 'text-white/40'}`}>
                   წლიური
                 </span>
-                <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-semibold text-emerald-400">
+                <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] sm:text-xs font-semibold text-emerald-400">
                   დაზოგე $100
                 </span>
               </div>
@@ -142,16 +137,16 @@ export default function PricingSection() {
           </div>
 
           {/* Pricing Card */}
-          <div className="relative z-10 mt-10 rounded-2xl border border-white/10 bg-white/[0.02] p-8 backdrop-blur-xl sm:p-10">
-            <div className="flex flex-col items-center justify-between gap-6 border-b border-white/10 pb-8 md:flex-row">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-2xl font-bold text-white">Pro Plan</h3>
-                  <span className="inline-flex items-center gap-1 rounded-md bg-violet-500/20 border border-violet-500/40 px-2.5 py-0.5 text-xs font-medium text-violet-300">
+          <div className="relative z-10 mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur-xl sm:mt-10 sm:p-10">
+            <div className="flex flex-col items-center justify-between gap-4 border-b border-white/10 pb-6 md:flex-row md:gap-6 md:pb-8">
+              <div className="text-center md:text-left">
+                <div className="flex items-center justify-center gap-2 md:justify-start">
+                  <h3 className="text-xl font-bold text-white sm:text-2xl">Pro Plan</h3>
+                  <span className="inline-flex items-center gap-1 rounded-md bg-violet-500/20 border border-violet-500/40 px-2 py-0.5 text-[10px] sm:text-xs font-medium text-violet-300">
                     <Zap className="h-3 w-3" /> პოპულარული
                   </span>
                 </div>
-                <p className="mt-1 text-sm text-white/50">
+                <p className="mt-1 text-xs text-white/50 sm:text-sm">
                   სრული ავტომატიზაცია მცირე და საშუალო ბიზნესისთვის
                 </p>
               </div>
@@ -159,38 +154,38 @@ export default function PricingSection() {
               {/* Price display */}
               <div className="text-center md:text-right">
                 <div className="flex items-baseline justify-center md:justify-end gap-1">
-                  <span className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
+                  <span className="text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
                     ${isAnnual ? '1,100' : '100'}
                   </span>
-                  <span className="text-white/50">{isAnnual ? '/წელი' : '/თვე'}</span>
+                  <span className="text-xs text-white/50 sm:text-sm">{isAnnual ? '/წელი' : '/თვე'}</span>
                 </div>
-                <p className="mt-1 text-xs text-white/40">
+                <p className="mt-0.5 text-[11px] text-white/40 sm:text-xs">
                   {isAnnual ? '$91.6/თვეში (ერთჯერადი გადახდა)' : 'გაუქმება ნებისმიერ დროს'}
                 </p>
               </div>
             </div>
 
             {/* Features List */}
-            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
               {features.map((feature) => (
-                <div key={feature} className="flex items-center gap-3">
-                  <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-violet-500/20 text-violet-400">
-                    <Check className="h-3.5 w-3.5" />
+                <div key={feature} className="flex items-center gap-2.5">
+                  <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-violet-500/20 text-violet-400 sm:h-5 sm:w-5">
+                    <Check className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                   </div>
-                  <span className="text-sm text-white/80">{feature}</span>
+                  <span className="text-xs text-white/80 sm:text-sm">{feature}</span>
                 </div>
               ))}
             </div>
 
             {/* CTA Button */}
-            <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
+            <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row sm:pt-8">
               <div className="flex items-center gap-2 text-xs text-white/50">
                 <ShieldCheck className="h-4 w-4 text-emerald-400" />
                 <span>14 დღიანი უფასო საცდელი პერიოდი</span>
               </div>
 
               <button className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-violet-600 p-px font-medium text-white shadow-lg transition duration-300 hover:shadow-violet-500/25 sm:w-auto">
-                <span className="flex w-full items-center justify-center gap-2 rounded-[11px] bg-[#0d0c14] px-8 py-3.5 transition duration-300 group-hover:bg-transparent">
+                <span className="flex w-full items-center justify-center gap-2 rounded-[11px] bg-[#0d0c14] px-6 py-3 text-sm transition duration-300 group-hover:bg-transparent sm:px-8 sm:py-3.5">
                   დაიწყე ახლავე
                   <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </span>

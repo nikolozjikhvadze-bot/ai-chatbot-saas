@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { handleMessage, type ChatEvent } from "@/core/handle-message";
+import { checkRateLimits, getClientIp, rateLimitResponse } from "@/lib/rate-limits";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -29,6 +30,11 @@ function getCorsHeaders(origin: string | null): HeadersInit {
 /** Preflight მოთხოვნების მართვა ბრაუზერებისთვის */
 export async function OPTIONS(req: Request) {
   const origin = normalizeOrigin(req.headers.get("origin"));
+  const rateLimit = await checkRateLimits([
+    { policy: "preflight", key: getClientIp(req) },
+  ]);
+  if (!rateLimit.success) return rateLimitResponse(rateLimit.retryAfter, getCorsHeaders(origin));
+
   return new NextResponse(null, {
     status: 204,
     headers: getCorsHeaders(origin),
@@ -46,6 +52,11 @@ export async function POST(req: Request) {
   const origin = normalizeOrigin(req.headers.get("origin") || req.headers.get("referer"));
   const cors = getCorsHeaders(origin);
 
+  const ipLimit = await checkRateLimits([
+    { policy: "publicChatIp", key: getClientIp(req) },
+  ]);
+  if (!ipLimit.success) return rateLimitResponse(ipLimit.retryAfter, cors);
+
   const json = await req.json().catch(() => null);
   const parsed = Body.safeParse(json);
   if (!parsed.success) {
@@ -55,6 +66,12 @@ export async function POST(req: Request) {
     );
   }
   const { botKey, message, visitorId, conversationId } = parsed.data;
+
+  const chatLimit = await checkRateLimits([
+    { policy: "publicChatVisitor", key: `${botKey}:${visitorId}` },
+    { policy: "publicChatBot", key: botKey },
+  ]);
+  if (!chatLimit.success) return rateLimitResponse(chatLimit.retryAfter, cors);
 
   const sb = createAdminClient();
   const { data: bot } = await sb

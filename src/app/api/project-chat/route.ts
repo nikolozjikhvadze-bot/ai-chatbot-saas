@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { GoogleGenAI } from '@google/genai';
+import { checkRateLimits, rateLimitResponse } from '@/lib/rate-limits';
 
 export const runtime = 'nodejs';
 
@@ -34,7 +35,8 @@ function isValidMessage(value: unknown): value is IncomingMessage {
   return (
     (v.role === 'user' || v.role === 'assistant') &&
     typeof v.content === 'string' &&
-    v.content.trim().length > 0
+    v.content.trim().length > 0 &&
+    v.content.length <= MAX_MESSAGE_LENGTH
   );
 }
 
@@ -51,6 +53,12 @@ export async function POST(req: Request) {
     if (!userId) {
       return NextResponse.json({ success: false, error: 'არ ხართ ავტორიზებული' }, { status: 401 });
     }
+
+    const rateLimit = await checkRateLimits([
+      { policy: 'projectChatMinute', key: userId },
+      { policy: 'projectChatDay', key: userId },
+    ]);
+    if (!rateLimit.success) return rateLimitResponse(rateLimit.retryAfter);
 
     let body: { message?: unknown; history?: unknown; projectContext?: unknown };
     try {
@@ -70,6 +78,15 @@ export async function POST(req: Request) {
     const rawHistory = Array.isArray(body.history) ? body.history : [];
     const validHistory = rawHistory.filter(isValidMessage).slice(-MAX_HISTORY_MESSAGES);
     const projectContext = typeof body.projectContext === 'string' ? body.projectContext : '';
+    if (
+      validHistory.reduce((total, message) => total + message.content.length, 0) > 20_000 ||
+      projectContext.length > 12_000
+    ) {
+      return NextResponse.json(
+        { success: false, error: 'მოთხოვნის კონტექსტი ძალიან დიდია.' },
+        { status: 400 },
+      );
+    }
 
     const historyForModel = [...validHistory];
     while (historyForModel[0]?.role === 'assistant') historyForModel.shift();

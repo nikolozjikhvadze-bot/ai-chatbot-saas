@@ -6,7 +6,6 @@ import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 export default function FeaturesSection() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // სქროლის პროგრესის თრექინგი Pinned კონტეინერისთვის
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end end'],
@@ -18,30 +17,27 @@ export default function FeaturesSection() {
     restDelta: 0.001,
   });
 
-  // კვადრატის/წერტილის პოზიცია SVG Path-ზე
   const strokeDashoffset = useTransform(smoothProgress, [0, 1], [1000, 0]);
 
   return (
-    // h-[250vh] უზრუნველყოფს იმას, რომ სექციაზე სქროლვა დაპაუზდეს და ანიმაციამ ჩაიაროს
-    <div id="features" ref={containerRef} className="relative h-[250vh] bg-[#08070c]">
-      <div className="sticky top-0 flex h-screen w-full flex-col items-center justify-center overflow-hidden px-6 md:px-12">
+    <div id="features" ref={containerRef} className="relative h-auto py-16 md:h-[250vh] md:py-0 bg-[#08070c]">
+      <div className="relative flex min-h-screen w-full flex-col items-center justify-center px-4 sm:px-6 md:sticky md:top-0 md:h-screen md:overflow-hidden md:px-12">
         
         {/* სათაური */}
-        <h2 className="mb-12 text-center text-3xl font-semibold tracking-tight md:text-4xl">
+        <h2 className="mb-8 text-center text-2xl font-semibold tracking-tight sm:text-3xl md:mb-12 md:text-4xl">
           ყველაფერი, რაც გჭირდებათ ერთ პლატფორმაზე
         </h2>
 
-        {/* BENTO GRID Wrapper ერთიან ჩარჩოსთან ერთად */}
+        {/* BENTO GRID Wrapper */}
         <div className="relative mx-auto w-full max-w-5xl p-1">
           
-          {/* SVG Border Frame & Glowing Tracer */}
-          <div className="pointer-events-none absolute -inset-2">
+          {/* SVG Border Frame & Glowing Tracer (desktop-ზე ჩანს უკეთესად) */}
+          <div className="pointer-events-none absolute -inset-2 hidden md:block">
             <svg
               className="h-full w-full"
               viewBox="0 0 100 100"
               preserveAspectRatio="none"
             >
-              {/* მუქი ფონური ხაზი */}
               <rect
                 x="0.5"
                 y="0.5"
@@ -52,7 +48,6 @@ export default function FeaturesSection() {
                 stroke="rgba(255, 255, 255, 0.08)"
                 strokeWidth="0.5"
               />
-              {/* აქტიური მბზინავი ხაზი, რომელიც სქროლთან ერთად ივსება */}
               <motion.rect
                 x="0.5"
                 y="0.5"
@@ -74,7 +69,6 @@ export default function FeaturesSection() {
               </defs>
             </svg>
 
-            {/* მბზინავი კვადრატი/Glowing Square Tracer */}
             <motion.div
               className="absolute h-3 w-3 rounded-sm bg-violet-400 shadow-[0_0_15px_#a855f7]"
               style={{
@@ -128,13 +122,13 @@ function BentoCard({
 }) {
   return (
     <div
-      className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-sm transition hover:border-white/20 ${className}`}
+      className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6 backdrop-blur-sm transition hover:border-white/20 ${className}`}
     >
       <div
         className={`pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gradient-to-br ${glow} to-transparent opacity-0 blur-2xl transition group-hover:opacity-100`}
       />
-      <h3 className="text-lg font-medium">{title}</h3>
-      <p className="mt-2 text-sm text-white/50">{description}</p>
+      <h3 className="text-base font-medium sm:text-lg">{title}</h3>
+      <p className="mt-2 text-xs text-white/50 sm:text-sm">{description}</p>
     </div>
   );
 }

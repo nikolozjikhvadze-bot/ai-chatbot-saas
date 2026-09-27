@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import Stripe from 'stripe';
+import { checkRateLimits, rateLimitResponse } from '@/lib/rate-limits';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -10,6 +11,11 @@ export async function POST(req: Request) {
     if (!userId) {
       return NextResponse.json({ error: 'არ ხართ ავტორიზებული' }, { status: 401 });
     }
+
+    const rateLimit = await checkRateLimits([
+      { policy: 'checkoutHour', key: userId },
+    ]);
+    if (!rateLimit.success) return rateLimitResponse(rateLimit.retryAfter);
 
     const { billingCycle } = await req.json();
 

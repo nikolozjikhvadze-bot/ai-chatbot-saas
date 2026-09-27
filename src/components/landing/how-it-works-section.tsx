@@ -89,7 +89,6 @@ const cardVariants: Variants = {
 export default function HowItWorksSection() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // სქროლის პროგრესის თრექინგი Pinned კონტეინერისთვის
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end end'],
@@ -101,31 +100,28 @@ export default function HowItWorksSection() {
     restDelta: 0.001,
   });
 
-  // ჩვეულებრივი მიმართულება (0-დან 1000-მდე და 0%-დან 100%-მდე)
   const strokeDashoffset = useTransform(smoothProgress, [0, 1], [1000, 0]);
   const offsetDistance = useTransform(smoothProgress, [0, 1], ['0%', '100%']);
 
   return (
-    // h-[250vh] აჩერებს სექციას სქროლვისას
-    <div id="how-it-works" ref={containerRef} className="relative h-[250vh] bg-[#08070c]">
-      <div className="sticky top-0 flex h-screen w-full flex-col items-center justify-center overflow-hidden px-6">
+    <div id="how-it-works" ref={containerRef} className="relative h-auto py-16 md:h-[250vh] md:py-0 bg-[#08070c]">
+      <div className="relative flex min-h-screen w-full flex-col items-center justify-center px-4 sm:px-6 md:sticky md:top-0 md:h-screen md:overflow-hidden">
         
         {/* ambient background */}
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-600/20 blur-[140px]" />
-          <div className="absolute bottom-0 right-0 h-[400px] w-[500px] translate-x-1/4 translate-y-1/4 rounded-full bg-fuchsia-500/10 blur-[120px]" />
+          <div className="absolute left-1/2 top-0 h-[300px] sm:h-[500px] w-full max-w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-600/20 blur-[140px]" />
+          <div className="absolute bottom-0 right-0 h-[300px] w-[300px] sm:w-[500px] translate-x-1/4 translate-y-1/4 rounded-full bg-fuchsia-500/10 blur-[120px]" />
         </div>
 
         <div className="relative mx-auto w-full max-w-6xl">
           
-          {/* SVG Border Frame & Glowing Tracer ჩარჩო */}
-          <div className="pointer-events-none absolute -inset-4 z-0">
+          {/* SVG Border Frame (desktop only) */}
+          <div className="pointer-events-none absolute -inset-4 z-0 hidden md:block">
             <svg
               className="h-full w-full"
               viewBox="0 0 100 100"
               preserveAspectRatio="none"
             >
-              {/* მუქი ფონური ჩარჩოს ხაზი */}
               <rect
                 x="0.5"
                 y="0.5"
@@ -136,7 +132,6 @@ export default function HowItWorksSection() {
                 stroke="rgba(255, 255, 255, 0.08)"
                 strokeWidth="0.5"
               />
-              {/* აქტიური მბზინავი ხაზი */}
               <motion.rect
                 x="0.5"
                 y="0.5"
@@ -158,7 +153,6 @@ export default function HowItWorksSection() {
               </defs>
             </svg>
 
-            {/* მბზინავი კვადრატი ჩვეულებრივი მიმართულებით ('0%' -> '100%') */}
             <motion.div
               className="absolute h-3 w-3 rounded-sm bg-violet-400 shadow-[0_0_15px_#a855f7]"
               style={{
@@ -176,14 +170,14 @@ export default function HowItWorksSection() {
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="relative z-10 mx-auto max-w-2xl text-center"
           >
-            <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+            <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl md:text-4xl">
               როგორ ავტომატიზებს{' '}
               <span className="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
                 YourBot
               </span>{' '}
               შენს ბიზნესს?
             </h2>
-            <p className="mt-4 text-base leading-relaxed text-white/60 sm:text-lg">
+            <p className="mt-3 text-sm leading-relaxed text-white/60 sm:text-base">
               ნულოვანი კოდი. AI თავად იბარებს ტექნიკურ ნაწილს, აწყობს
               ავტომატიზაციებს და 3 მარტივ ნაბიჯში ინტეგრირდება შენს სისტემაში.
             </p>
@@ -195,9 +189,8 @@ export default function HowItWorksSection() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="relative z-10 mt-16 grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-6"
+            className="relative z-10 mt-8 grid grid-cols-1 gap-6 md:mt-16 md:grid-cols-3"
           >
-            {/* connecting line (desktop only) */}
             <div className="pointer-events-none absolute left-0 right-0 top-10 hidden h-px md:block">
               <div className="absolute inset-0 bg-white/10" />
             </div>
@@ -210,7 +203,6 @@ export default function HowItWorksSection() {
                   variants={cardVariants}
                   className="group relative"
                 >
-                  {/* node on the line */}
                   <div className="relative z-10 mb-8 hidden md:block">
                     <div className="flex h-20 w-20 items-center justify-center">
                       <div className="absolute h-20 w-20 rounded-full bg-violet-500/10 blur-xl transition-opacity duration-300 group-hover:bg-fuchsia-500/20" />
@@ -220,12 +212,12 @@ export default function HowItWorksSection() {
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-7 backdrop-blur-md transition-colors duration-300 group-hover:border-violet-400/25 group-hover:bg-white/[0.04]">
-                    <div className="mb-4 flex items-center gap-3 md:hidden">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/10 bg-[#0d0c14]">
+                  <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5 sm:p-7 backdrop-blur-md transition-colors duration-300 group-hover:border-violet-400/25 group-hover:bg-white/[0.04]">
+                    <div className="mb-3 flex items-center gap-3 md:hidden">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-[#0d0c14]">
                         <StepIcon className="h-5 w-5 text-violet-300" />
                       </div>
-                      <span className="font-mono text-sm text-white/30">
+                      <span className="font-mono text-xs text-white/30">
                         {step.index}
                       </span>
                     </div>
@@ -233,22 +225,22 @@ export default function HowItWorksSection() {
                     <span className="hidden font-mono text-sm text-white/30 md:block">
                       {step.index}
                     </span>
-                    <h3 className="mt-2 text-lg font-medium text-white">
+                    <h3 className="mt-1 text-base font-medium text-white sm:text-lg">
                       {step.title}
                     </h3>
-                    <p className="mt-3 text-sm leading-relaxed text-white/55">
+                    <p className="mt-2 text-xs leading-relaxed text-white/55 sm:text-sm">
                       {step.description}
                     </p>
 
-                    <div className="mt-5 flex flex-wrap gap-2">
+                    <div className="mt-4 flex flex-wrap gap-1.5 sm:gap-2">
                       {step.chips.map((chip) => {
                         const ChipIcon = chip.icon;
                         return (
                           <span
                             key={chip.label}
-                            className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-white/60"
+                            className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] text-white/60 sm:text-xs"
                           >
-                            <ChipIcon className="h-3.5 w-3.5" />
+                            <ChipIcon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                             {chip.label}
                           </span>
                         );
@@ -257,8 +249,8 @@ export default function HowItWorksSection() {
                   </div>
 
                   {step.index !== '03' && (
-                    <div className="mt-6 flex justify-center md:hidden">
-                      <ArrowRight className="h-5 w-5 rotate-90 text-white/20" />
+                    <div className="mt-4 flex justify-center md:hidden">
+                      <ArrowRight className="h-4 w-4 rotate-90 text-white/20" />
                     </div>
                   )}
                 </motion.div>

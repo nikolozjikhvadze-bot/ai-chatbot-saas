@@ -20,6 +20,10 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## API rate limiting
+
+API limits are shared across instances through Upstash Redis. Configure the server-side environment variables `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` in local development and production. Requests over a route's budget receive HTTP `429` with a `Retry-After` header. If Redis is unavailable, protected API requests fail closed rather than allowing unmetered AI or ingestion usage.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

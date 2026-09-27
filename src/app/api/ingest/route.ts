@@ -8,6 +8,7 @@ import { chunkPage } from "@/lib/ingest/chunk";
 import { embedDocuments } from "@/lib/ingest/embed";
 import { isQuotaError } from "@/lib/gemini";
 import { IngestError } from "@/lib/ingest/errors";
+import { checkRateLimits, rateLimitResponse } from "@/lib/rate-limits";
 
 export const runtime = "nodejs";
 // MVP: ინგესტი სინქრონულია. ფაზა 1-ში გადაიტანე ფონურ job-ში (Inngest),
@@ -49,6 +50,12 @@ export async function POST(req: Request) {
   if (!user) {
     return NextResponse.json({ error: "საჭიროა ავტორიზაცია" }, { status: 401 });
   }
+
+  const rateLimit = await checkRateLimits([
+    { policy: "ingestHour", key: user.id },
+    { policy: "ingestDay", key: user.id },
+  ]);
+  if (!rateLimit.success) return rateLimitResponse(rateLimit.retryAfter);
 
   const { data: bot } = await supabase
     .from("bots")

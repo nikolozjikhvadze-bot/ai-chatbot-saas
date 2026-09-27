@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import Stripe from 'stripe';
 import { supabase } from '@/lib/supabase';
+import { checkRateLimits, getClientIp, rateLimitResponse } from '@/lib/rate-limits';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-02-28.acacia' as any,
@@ -35,6 +36,11 @@ async function getDbUserIdByCustomerId(customerId: string): Promise<string | nul
 }
 
 export async function POST(req: Request) {
+  const rateLimit = await checkRateLimits([
+    { policy: 'stripeWebhookIp', key: getClientIp(req) },
+  ]);
+  if (!rateLimit.success) return rateLimitResponse(rateLimit.retryAfter);
+
   const body = await req.text();
   const signature = (await headers()).get('stripe-signature') as string;
 

@@ -5,9 +5,12 @@ import { createClient } from "@supabase/supabase-js";
 import { CHAT_MODEL, getGemini, withRetry, isQuotaError } from "@/lib/gemini";
 import { requirePaidDbUserId, createBotForProject, NotPaidError } from "@/lib/bots";
 import { ingestUploadedFiles } from "@/lib/ingest/ingest-uploaded-files";
+import { checkRateLimits, rateLimitResponse } from "@/lib/rate-limits";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
+const MAX_UPLOAD_BYTES = 20_000_000;
+const MAX_UPLOAD_FILES = 100;
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -20,9 +23,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "საჭიროა ავტორიზაცია." }, { status: 401 });
   }
 
+  const rateLimit = await checkRateLimits([
+    { policy: "aiAnalyzeHour", key: userId },
+    { policy: "aiAnalyzeDay", key: userId },
+  ]);
+  if (!rateLimit.success) return rateLimitResponse(rateLimit.retryAfter);
+
   try {
+    const contentLength = Number(req.headers.get("content-length") ?? 0);
+    if (Number.isFinite(contentLength) && contentLength > MAX_UPLOAD_BYTES) {
+      return NextResponse.json({ error: "ატვირთული ფაილები ძალიან დიდია." }, { status: 413 });
+    }
+
     const formData = await req.formData();
-    const uploadedFiles = formData.getAll("files") as File[];
+    const fileEntries = formData.getAll("files");
+    if (fileEntries.some((entry) => typeof entry === "string")) {
+      return NextResponse.json({ error: "ფაილის ფორმატი არასწორია." }, { status: 400 });
+    }
+    const uploadedFiles = fileEntries as File[];
     const title = (formData.get("title") as string | null)?.trim() || "New Project";
 
     if (!uploadedFiles || uploadedFiles.length === 0) {
@@ -30,6 +48,12 @@ export async function POST(req: NextRequest) {
         { error: "ფაილები ვერ მოიძებნა." },
         { status: 400 }
       );
+    }
+    if (
+      uploadedFiles.length > MAX_UPLOAD_FILES ||
+      uploadedFiles.reduce((total, file) => total + file.size, 0) > MAX_UPLOAD_BYTES
+    ) {
+      return NextResponse.json({ error: "ფაილების რაოდენობა ან ჯამური ზომა დასაშვებ ზღვარს აჭარბებს." }, { status: 413 });
     }
 
     // paywall-შემოწმება (aგდებს NotPaidError-ს, თუ გამოწერა არააქტიურია)
