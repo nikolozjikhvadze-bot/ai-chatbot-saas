@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 async function safeJsonFetch(url: string, options: RequestInit): Promise<any> {
   const res = await fetch(url, options);
@@ -26,7 +27,7 @@ export default function NewProjectPage() {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     if (!title.trim()) {
-      setError('jer პროექტს დაარქვით სახელი.');
+      setError('ჯერ პროექტს დაარქვით სახელი.');
       return;
     }
 
@@ -66,39 +67,74 @@ export default function NewProjectPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07060a] text-white p-6 md:p-12 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">ახალი პროექტი</h1>
+    <div className="min-h-screen w-full bg-[#07060a] text-white flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden">
+      {/* ფონის გრადიენტული ეფექტი */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-violet-600/10 blur-[120px] rounded-full pointer-events-none" />
 
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="პროექტის სახელი (მაგ. Max's Blog)"
-        className="w-full mb-6 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/40 focus:outline-none focus:border-violet-500"
-      />
+      {/* უკან დაბრუნების ღილაკი */}
+      <Link
+        href="/dashboard"
+        className="absolute top-6 left-6 md:top-8 md:left-8 text-sm text-white/60 hover:text-white flex items-center gap-2 transition"
+      >
+        ← დაშბორდზე დაბრუნება
+      </Link>
 
-      <div className="p-8 rounded-3xl border border-dashed border-violet-500/30 bg-violet-500/[0.02] flex flex-col items-center justify-center text-center relative hover:border-violet-500/60 transition group">
-        <input
-          type="file"
-          multiple
-          // @ts-ignore
-          webkitdirectory=""
-          directory=""
-          onChange={handleFileUpload}
-          disabled={isUploading}
-          className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed"
-        />
-        <div className="w-12 h-12 rounded-2xl bg-violet-500/10 text-violet-400 flex items-center justify-center mb-4 group-hover:scale-110 transition">
-          📁
+      <div className="w-full max-w-xl bg-white/[0.03] border border-white/10 rounded-3xl p-6 md:p-10 backdrop-blur-xl relative z-10 boxShadow-2xl">
+        <h1 className="text-2xl font-bold text-center mb-2 bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
+          ახალი პროექტის დამატება
+        </h1>
+        <p className="text-xs text-white/50 text-center mb-8">
+          ატვირთეთ პროექტის ფოლდერი AI ანალიზისა და კოდის გენერაციისთვის
+        </p>
+
+        <div className="space-y-6">
+          <div>
+            <label className="block text-xs font-medium text-white/70 mb-2">
+              პროექტის სახელი
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="მაგ. Max's Portfolio"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-violet-500 transition"
+            />
+          </div>
+
+          <div className="p-8 rounded-2xl border border-dashed border-violet-500/40 bg-violet-500/[0.03] flex flex-col items-center justify-center text-center relative hover:border-violet-500 hover:bg-violet-500/[0.05] transition cursor-pointer group">
+            <input
+              type="file"
+              multiple
+              // @ts-ignore
+              webkitdirectory=""
+              directory=""
+              onChange={handleFileUpload}
+              disabled={isUploading}
+              className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed z-20"
+            />
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-violet-600 to-fuchsia-600 flex items-center justify-center mb-4 shadow-lg shadow-violet-500/20 group-hover:scale-110 transition">
+              📁
+            </div>
+            <h3 className="font-semibold text-base mb-1">აირჩიეთ პროექტის ფოლდერი</h3>
+            <p className="text-xs text-white/50 max-w-xs">
+              დააჭირეთ აქ და აირჩიეთ საქაღალდე
+            </p>
+
+            {isUploading && (
+              <div className="mt-4 flex items-center gap-2 text-violet-400 text-xs animate-pulse">
+                <span>⚡</span>
+                <span>მიმდინარეობს ანალიზი და AI კოდის გენერაცია...</span>
+              </div>
+            )}
+          </div>
+
+          {error && (
+            <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs text-center">
+              {error}
+            </div>
+          )}
         </div>
-        <h3 className="font-semibold text-base mb-1">დააჭირეთ და აირჩიეთ პროექტის ფოლდერი</h3>
-        <p className="text-xs text-white/50 max-w-sm">ავტომატურად გააანალიზებს კოდს და შექმნის ახალ პროექტს.</p>
-        {isUploading && (
-          <p className="text-xs text-violet-400 mt-4 animate-pulse">მიმდინარეობს ანალიზი და AI კოდის გენერაცია...</p>
-        )}
       </div>
-
-      {error && <p className="text-red-400 text-sm mt-4">{error}</p>}
     </div>
   );
 }
