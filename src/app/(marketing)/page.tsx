@@ -8,6 +8,7 @@ import FeaturesSection from '@/components/landing/features-section';
 import HowItWorksSection from '@/components/landing/how-it-works-section';
 import PricingSection from '@/components/landing/pricing-section';
 import ContactSection from '@/components/landing/contact-section';
+import ChatbotWidget from '@/components/chatWidget';
 
 const navItems = [
   { name: 'შესაძლებლობები', href: '#features' },
@@ -105,6 +106,8 @@ export default function LandingPage() {
 
       {/* 5. CONTACT & FOOTER */}
       <ContactSection />
+
+      <ChatbotWidget />
     </main>
   );
 }
