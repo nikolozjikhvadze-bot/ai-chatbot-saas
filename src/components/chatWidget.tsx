@@ -9,11 +9,10 @@ interface Message {
 }
 
 interface ChatWidgetProps {
-  botId?: string;
+  projectContext?: string;
 }
 
-// ნაგულისხმევად აყენია შენი Dashboard-ის გამართული ბოტის ID
-export default function ChatWidget({ botId = '3c5f43d0-eb9d-48dc-88f3-708939606dff' }: ChatWidgetProps) {
+export default function ChatWidget({ projectContext }: ChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     { role: 'assistant', content: 'გამარჯობა! მე შენი პროექტის AI ასისტენტი ვარ. რით შემიძლია დაგეხმაროთ?' }
@@ -32,25 +31,20 @@ export default function ChatWidget({ botId = '3c5f43d0-eb9d-48dc-88f3-708939606d
     setLoading(true);
 
     try {
-      // ⚠️ მოთხოვნა იგზავნება Relay ენდპოინტზე სწორი ბოტის ID-ით
-      const res = await fetch(`/api/relay/${botId}`, {
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          message: input,
-          history: messages.map(m => ({
-            role: m.role,
-            content: m.content
-          }))
+          messages: newMessages,
+          projectContext 
         }),
       });
 
       const data = await res.json();
-      
-      if (res.ok && data.reply) {
+      if (data.success) {
         setMessages([...newMessages, { role: 'assistant', content: data.reply }]);
       } else {
-        setMessages([...newMessages, { role: 'assistant', content: data.error || 'შეცდომა მოხდა პასუხის მიღებისას.' }]);
+        setMessages([...newMessages, { role: 'assistant', content: 'შეცდომა მოხდა პასუხის მიღებისას.' }]);
       }
     } catch (err) {
       console.error(err);
