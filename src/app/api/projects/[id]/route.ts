@@ -19,7 +19,6 @@ export async function DELETE(
 
     const { id: projectId } = await context.params;
 
-    // 1. ჯერ ამოვიღოთ პროექტი, რომ გადავამოწმოთ მფლობელობა და bot_id
     const { data: project } = await supabaseAdmin
       .from('projects')
       .select('user_id, bot_id')
@@ -34,7 +33,6 @@ export async function DELETE(
       return NextResponse.json({ error: "წვდომა აკრძალულია." }, { status: 403 });
     }
 
-    // 2. წავშალოთ პროექტი
     const { error: deleteProjectError } = await supabaseAdmin
       .from('projects')
       .delete()
@@ -47,7 +45,6 @@ export async function DELETE(
       );
     }
 
-    // 3. თუ პროექტს ჰქონდა bot_id, წავშალოთ ბოტიც
     if (project.bot_id) {
       await supabaseAdmin.from('bots').delete().eq('id', project.bot_id);
     }
@@ -82,7 +79,6 @@ export async function GET(
     return NextResponse.json({ error: "პროექტი ვერ მოიძებნა." }, { status: 404 });
   }
 
-  // მფლობელობის შემოწმება
   if (project.user_id !== userId) {
     return NextResponse.json({ error: "წვდომა აკრძალულია." }, { status: 403 });
   }
