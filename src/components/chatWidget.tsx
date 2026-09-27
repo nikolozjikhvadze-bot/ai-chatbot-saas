@@ -48,7 +48,13 @@ export default function ChatWidget() {
         }),
       });
 
-      const data = await res.json();
+      const responseText = await res.text();
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        throw new Error(`სერვერის შეცდომა (HTML პასუხი): ${responseText.slice(0, 100)}...`);
+      }
 
       if (!res.ok) {
         throw new Error(data.error || `HTTP error! status: ${res.status}`);
