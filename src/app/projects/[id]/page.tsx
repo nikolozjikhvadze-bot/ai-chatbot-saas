@@ -137,32 +137,35 @@ export default function ProjectDetailPage() {
       {/* ფონის გრადიენტული ეფექტი */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-violet-600/10 blur-[140px] rounded-full pointer-events-none" />
 
-      {/* Header, Back Button & Delete Button */}
-      <div className="max-w-6xl mx-auto mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-6">
-        <div>
+      {/* Main Container */}
+      <div className="max-w-6xl mx-auto space-y-8 relative z-10">
+        
+        {/* Navigation & Actions Top Bar */}
+        <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <Link
             href="/dashboard"
-            className="text-xs text-white/50 hover:text-white flex items-center gap-2 mb-3 transition"
+            className="text-xs text-white/60 hover:text-white flex items-center gap-2 transition"
           >
             ← დაშბორდზე დაბრუნება
           </Link>
-          <h1 className="text-3xl font-extrabold bg-gradient-to-r from-white via-white/90 to-white/60 bg-clip-text text-transparent">
+
+          {/* 🗑️ წაშლის ღილაკი */}
+          <button
+            onClick={handleDeleteProject}
+            disabled={isDeleting}
+            className="px-4 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-semibold flex items-center gap-2 transition disabled:opacity-50 cursor-pointer"
+          >
+            {isDeleting ? '🗑️ იშლება...' : '🗑️ პროექტის წაშლა'}
+          </button>
+        </div>
+
+        {/* Project Title */}
+        <div>
+          <h1 className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-white via-white/90 to-white/60 bg-clip-text text-transparent">
             {project.title}
           </h1>
         </div>
 
-        {/* 🗑️ Delete Project Button */}
-        <button
-          onClick={handleDeleteProject}
-          disabled={isDeleting}
-          className="self-start md:self-auto px-4 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-semibold flex items-center gap-2 transition disabled:opacity-50"
-        >
-          {isDeleting ? '🗑️ იშლება...' : '🗑️ პროექტის წაშლა'}
-        </button>
-      </div>
-
-      {/* Main Content Area */}
-      <div className="max-w-6xl mx-auto space-y-8 relative z-10">
         {/* AI Review Box */}
         <div className="p-6 md:p-8 rounded-3xl border border-violet-500/30 bg-gradient-to-b from-violet-950/20 to-violet-900/10 backdrop-blur-xl shadow-xl">
           <div className="flex items-center gap-2 text-violet-400 font-semibold text-base mb-4">
@@ -193,7 +196,7 @@ export default function ProjectDetailPage() {
                   </span>
                   <button
                     onClick={() => handleCopyCode(file.content, idx)}
-                    className="text-xs px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition flex items-center gap-1.5"
+                    className="text-xs px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition flex items-center gap-1.5 cursor-pointer"
                   >
                     {copiedIndex === idx ? '✓ დაკოპირდა' : '📋 Copy'}
                   </button>
@@ -219,7 +222,7 @@ export default function ProjectDetailPage() {
             </div>
             <button
               onClick={() => handleCopyTerminal(terminalCommand)}
-              className="text-xs px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 transition border border-amber-500/20"
+              className="text-xs px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 transition border border-amber-500/20 cursor-pointer"
             >
               {copiedTerminal ? '✓ დაკოპირდა' : '📋 ბრძანების კოპირება'}
             </button>
@@ -243,7 +246,7 @@ export default function ProjectDetailPage() {
               </span>
               <button
                 onClick={() => setIsChatOpen(false)}
-                className="text-white/70 hover:text-white text-xs p-1"
+                className="text-white/70 hover:text-white text-xs p-1 cursor-pointer"
               >
                 ✕
               </button>
@@ -283,7 +286,7 @@ export default function ProjectDetailPage() {
               <button
                 type="submit"
                 disabled={isChatLoading}
-                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-xs font-medium hover:opacity-90 transition disabled:opacity-50"
+                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-xs font-medium hover:opacity-90 transition disabled:opacity-50 cursor-pointer"
               >
                 გაგზავნა
               </button>
@@ -293,7 +296,7 @@ export default function ProjectDetailPage() {
 
         <button
           onClick={() => setIsChatOpen(!isChatOpen)}
-          className="w-14 h-14 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 shadow-[0_0_30px_rgba(139,92,246,0.6)] flex items-center justify-center text-xl text-white hover:scale-105 active:scale-95 transition"
+          className="w-14 h-14 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 shadow-[0_0_30px_rgba(139,92,246,0.6)] flex items-center justify-center text-xl text-white hover:scale-105 active:scale-95 transition cursor-pointer"
         >
           {isChatOpen ? '✕' : '💬'}
         </button>
