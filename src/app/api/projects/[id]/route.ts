@@ -9,7 +9,7 @@ const supabaseAdmin = createClient(
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> | { id: string } }
+  context: any
 ) {
   try {
     const { userId } = await auth();
@@ -17,8 +17,8 @@ export async function DELETE(
       return NextResponse.json({ error: "საჭიროა ავტორიზაცია." }, { status: 401 });
     }
 
-    const resolvedParams = await context.params;
-    const projectId = resolvedParams.id;
+    const params = await context.params;
+    const projectId = params.id;
 
     // 1. ჯერ ამოვიღოთ პროექტი, რომ გადავამოწმოთ მფლობელობა და bot_id
     const { data: project } = await supabaseAdmin
@@ -64,15 +64,15 @@ export async function DELETE(
 
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> | { id: string } }
+  context: any
 ) {
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.json({ error: "საჭიროა ავტორიზაცია." }, { status: 401 });
   }
 
-  const resolvedParams = await context.params;
-  const id = resolvedParams.id;
+  const params = await context.params;
+  const id = params.id;
 
   const { data: project, error } = await supabaseAdmin
     .from("projects")
