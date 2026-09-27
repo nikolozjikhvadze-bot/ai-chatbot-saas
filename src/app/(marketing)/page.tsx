@@ -10,6 +10,7 @@ import HowItWorksSection from '@/components/landing/how-it-works-section';
 import PricingSection from '@/components/landing/pricing-section';
 import ContactSection from '@/components/landing/contact-section';
 import Logo from '@/components/Logo';
+import Footer from '@/components/landing/footer';
 
 // ვტვირთავთ ჩატბოტს მხოლოდ კლიენტის მხარეს (SSR: false), რათა თავიდან ავიცილოთ Hydration შეცდომა
 const ChatbotWidget = dynamic(() => import('@/components/chatWidget'), {
@@ -112,6 +113,10 @@ export default function LandingPage() {
 
       {/* 5. CONTACT & FOOTER */}
       <ContactSection />
+
+      <Footer />
+
+      {/* ჩატბოტი */}
 
       <ChatbotWidget />
     </main>
