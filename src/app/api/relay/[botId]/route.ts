@@ -79,13 +79,13 @@ export async function POST(
   const origin = normalizeOrigin(req.headers.get("origin"));
   const { botId } = await params;
 
-  if (!z.string().uuid().safeParse(botId).success) {
+  // ზოდის მკაცრი UUID შემოწმების ნაცვლად, უბრალოდ ვამოწმებთ, რომ ცარიელი არ არის
+  if (!botId || typeof botId !== "string") {
     return NextResponse.json(
       { error: "invalid bot id" },
       { status: 400, headers: corsHeaders(origin) },
     );
   }
-
   const json = await req.json().catch(() => null);
   const parsed = Body.safeParse(json);
   if (!parsed.success) {
