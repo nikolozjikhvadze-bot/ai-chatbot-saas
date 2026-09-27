@@ -8,14 +8,10 @@ interface Message {
   content: string;
 }
 
-interface ChatWidgetProps {
-  projectContext?: string;
-}
-
-export default function ChatWidget({ projectContext }: ChatWidgetProps) {
+export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'გამარჯობა! მე შენი პროექტის AI ასისტენტი ვარ. რით შემიძლია დაგეხმაროთ?' }
+    { role: 'assistant', content: 'გამარჯობა! მე YourBot-ის AI ასისტენტი ვარ. რით შემიძლია დაგეხმაროთ?' }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -31,20 +27,25 @@ export default function ChatWidget({ projectContext }: ChatWidgetProps) {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/chat', {
+      // 🎯 მოთხოვნა იგზავნება შენს /api/ai/chat ენდპოინტზე
+      const res = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          messages: newMessages,
-          projectContext 
+          message: input,
+          history: messages.map(m => ({
+            role: m.role,
+            content: m.content
+          }))
         }),
       });
 
       const data = await res.json();
-      if (data.success) {
+      
+      if (res.ok && data.success) {
         setMessages([...newMessages, { role: 'assistant', content: data.reply }]);
       } else {
-        setMessages([...newMessages, { role: 'assistant', content: 'შეცდომა მოხდა პასუხის მიღებისას.' }]);
+        setMessages([...newMessages, { role: 'assistant', content: data.error || 'შეცდომა მოხდა პასუხის მიღებისას.' }]);
       }
     } catch (err) {
       console.error(err);
