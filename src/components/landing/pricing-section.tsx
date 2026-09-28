@@ -29,7 +29,8 @@ export default function PricingSection() {
   });
 
   const strokeDashoffset = useTransform(smoothProgress, [0, 1], [1000, 0]);
-  const offsetDistance = useTransform(smoothProgress, [0, 1], ['0%', '100%']);
+  const tracerGlowOffset = useTransform(smoothProgress, [0, 1], [8, -992]);
+  const tracerCoreOffset = useTransform(smoothProgress, [0, 1], [4, -996]);
 
   return (
     <div id="pricing" ref={containerRef} className="relative h-auto py-16 md:h-[250vh] md:py-0 bg-[#08070c]">
@@ -43,10 +44,10 @@ export default function PricingSection() {
 
         <div className="relative mx-auto w-full max-w-4xl">
           
-          {/* SVG Border Frame (desktop only) */}
+          {/* SVG Border Frame & Synced Glowing Tracer */}
           <div className="pointer-events-none absolute -inset-4 z-0 hidden md:block">
             <svg
-              className="h-full w-full"
+              className="h-full w-full overflow-visible"
               viewBox="0 0 100 100"
               preserveAspectRatio="none"
             >
@@ -72,6 +73,38 @@ export default function PricingSection() {
                 pathLength="1000"
                 style={{ strokeDasharray: 1000, strokeDashoffset }}
               />
+
+              {/* სინქრონული მანათობელი გარეთა წერტილი */}
+              <motion.rect
+                x="0.5"
+                y="0.5"
+                width="99"
+                height="99"
+                rx="2"
+                fill="none"
+                stroke="#c084fc"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                pathLength="1000"
+                style={{ strokeDasharray: '16 1000', strokeDashoffset: tracerGlowOffset }}
+                className="drop-shadow-[0_0_12px_#a855f7]"
+              />
+
+              {/* სინქრონული შიდა თეთრი გული */}
+              <motion.rect
+                x="0.5"
+                y="0.5"
+                width="99"
+                height="99"
+                rx="2"
+                fill="none"
+                stroke="#ffffff"
+                strokeWidth="2"
+                strokeLinecap="round"
+                pathLength="1000"
+                style={{ strokeDasharray: '8 1000', strokeDashoffset: tracerCoreOffset }}
+              />
+
               <defs>
                 <linearGradient id="glow-gradient-pricing" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor="#a855f7" />
@@ -80,14 +113,6 @@ export default function PricingSection() {
                 </linearGradient>
               </defs>
             </svg>
-
-            <motion.div
-              className="absolute h-3 w-3 rounded-sm bg-violet-400 shadow-[0_0_15px_#a855f7]"
-              style={{
-                offsetPath: 'rect(0% 100% 100% 0% round 20px)',
-                offsetDistance,
-              }}
-            />
           </div>
 
           {/* Header */}

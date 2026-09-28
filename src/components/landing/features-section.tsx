@@ -18,6 +18,8 @@ export default function FeaturesSection() {
   });
 
   const strokeDashoffset = useTransform(smoothProgress, [0, 1], [1000, 0]);
+  const tracerGlowOffset = useTransform(smoothProgress, [0, 1], [8, -992]);
+  const tracerCoreOffset = useTransform(smoothProgress, [0, 1], [4, -996]);
 
   return (
     <div id="features" ref={containerRef} className="relative h-auto py-16 md:h-[250vh] md:py-0 bg-[#08070c]">
@@ -31,10 +33,10 @@ export default function FeaturesSection() {
         {/* BENTO GRID Wrapper */}
         <div className="relative mx-auto w-full max-w-5xl p-1">
           
-          {/* SVG Border Frame & Glowing Tracer (desktop-ზე ჩანს უკეთესად) */}
+          {/* SVG Border Frame & Synced Glowing Tracer */}
           <div className="pointer-events-none absolute -inset-2 hidden md:block">
             <svg
-              className="h-full w-full"
+              className="h-full w-full overflow-visible"
               viewBox="0 0 100 100"
               preserveAspectRatio="none"
             >
@@ -60,6 +62,38 @@ export default function FeaturesSection() {
                 pathLength="1000"
                 style={{ strokeDasharray: 1000, strokeDashoffset }}
               />
+
+              {/* სინქრონული მანათობელი გარეთა წერტილი */}
+              <motion.rect
+                x="0.5"
+                y="0.5"
+                width="99"
+                height="99"
+                rx="1.5"
+                fill="none"
+                stroke="#c084fc"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                pathLength="1000"
+                style={{ strokeDasharray: '16 1000', strokeDashoffset: tracerGlowOffset }}
+                className="drop-shadow-[0_0_12px_#a855f7]"
+              />
+
+              {/* სინქრონული შიდა თეთრი გული */}
+              <motion.rect
+                x="0.5"
+                y="0.5"
+                width="99"
+                height="99"
+                rx="1.5"
+                fill="none"
+                stroke="#ffffff"
+                strokeWidth="2"
+                strokeLinecap="round"
+                pathLength="1000"
+                style={{ strokeDasharray: '8 1000', strokeDashoffset: tracerCoreOffset }}
+              />
+
               <defs>
                 <linearGradient id="glow-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor="#a855f7" />
@@ -68,14 +102,6 @@ export default function FeaturesSection() {
                 </linearGradient>
               </defs>
             </svg>
-
-            <motion.div
-              className="absolute h-3 w-3 rounded-sm bg-violet-400 shadow-[0_0_15px_#a855f7]"
-              style={{
-                offsetPath: 'rect(0% 100% 100% 0% round 16px)',
-                offsetDistance: useTransform(smoothProgress, [0, 1], ['0%', '100%']),
-              }}
-            />
           </div>
 
           {/* BENTO GRID CARDS */}
@@ -122,12 +148,12 @@ function BentoCard({
 }) {
   return (
     <div
-      className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6 backdrop-blur-sm transition hover:border-white/20 ${className}`}
+      className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-[#08070c]/80 p-5 sm:p-6 backdrop-blur-sm transition hover:border-white/20 ${className}`}
     >
       <div
         className={`pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gradient-to-br ${glow} to-transparent opacity-0 blur-2xl transition group-hover:opacity-100`}
       />
-      <h3 className="text-base font-medium sm:text-lg">{title}</h3>
+      <h3 className="text-base font-medium sm:text-lg text-white">{title}</h3>
       <p className="mt-2 text-xs text-white/50 sm:text-sm">{description}</p>
     </div>
   );
