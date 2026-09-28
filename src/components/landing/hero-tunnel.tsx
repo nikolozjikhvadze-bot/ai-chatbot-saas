@@ -2,9 +2,9 @@
 
 import { useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
 
-// R3F/Three.js მხოლოდ client-ზე. ეს ფაილი თავად 'use client' არის,
-// ამიტომ ssr: false აქ ვალიდურია (App Router-ის შეზღუდვის გვერდის ავლა).
+// R3F/Three.js მხოლოდ client-ზე.
 const HeroTunnelScene = dynamic(() => import('@/components/landing/hero-tunnel-scene'), {
   ssr: false,
 });
@@ -14,11 +14,24 @@ function clamp(v: number, min: number, max: number) {
 }
 
 export default function HeroTunnel() {
+  const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef(0);
   const textRef = useRef<HTMLDivElement>(null);
   const flashRef = useRef<HTMLDivElement>(null);
-  const rafRef = useRef<number | undefined>(undefined);
+  const rafRef = useRef<number | null>(null);
+
+  // ღილაკზე დაჭერის ლოგიკა (Dashboard / Register)
+  const handleCreateBot = () => {
+    // აქ ჩასვი შენი ავტორიზაციის სტატუსი (მაგ: useUser(), useAuth(), ან session)
+    const isAuthenticated = false; // შეცვალე შენი Auth ცვლადით
+
+    if (isAuthenticated) {
+      router.push('/dashboard');
+    } else {
+      router.push('/register');
+    }
+  };
 
   useEffect(() => {
     const update = () => {
@@ -44,9 +57,13 @@ export default function HeroTunnel() {
       }
       rafRef.current = requestAnimationFrame(update);
     };
+
     rafRef.current = requestAnimationFrame(update);
+
     return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+      }
     };
   }, []);
 
@@ -63,7 +80,7 @@ export default function HeroTunnel() {
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#08070c] via-[#08070c]/30 to-[#08070c]/70" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#08070c]/40 via-transparent to-[#08070c]" />
 
-        {/* პორტალის ფლეშ-ეფექტი (CSS radial-gradient, არა WebGL post-processing — მსუბუქია) */}
+        {/* პორტალის ფლეშ-ეფექტი */}
         <div
           ref={flashRef}
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,#e9d5ff_0%,transparent_70%)] opacity-0"
@@ -91,10 +108,12 @@ export default function HeroTunnel() {
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4">
-            <button className="rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-6 py-3 text-sm font-medium text-white shadow-[0_0_40px_-10px_rgba(139,92,246,0.7)] transition hover:opacity-90">
+            <button
+              onClick={handleCreateBot}
+              className="rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-6 py-3 text-sm font-medium text-white shadow-[0_0_40px_-10px_rgba(139,92,246,0.7)] transition hover:opacity-90 active:scale-95"
+            >
               შექმენი შენი ბოტი
             </button>
-
           </div>
         </div>
 
