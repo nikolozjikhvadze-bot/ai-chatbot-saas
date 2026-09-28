@@ -3,8 +3,9 @@
 import { useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
+import { useUser, useClerk } from '@clerk/nextjs';
 
-// R3F/Three.js მხოლოდ client-ზე.
+// R3F/Three.js მხოლოდ client-ზე
 const HeroTunnelScene = dynamic(() => import('@/components/landing/hero-tunnel-scene'), {
   ssr: false,
 });
@@ -15,21 +16,21 @@ function clamp(v: number, min: number, max: number) {
 
 export default function HeroTunnel() {
   const router = useRouter();
+  const { isSignedIn } = useUser();
+  const { openSignUp } = useClerk();
+
   const containerRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef(0);
   const textRef = useRef<HTMLDivElement>(null);
   const flashRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
 
-  // ღილაკზე დაჭერის ლოგიკა (Dashboard / Register)
+  // ღილაკზე დაჭერის ლოგიკა Clerk-ის მოდალით
   const handleCreateBot = () => {
-    // აქ ჩასვი შენი ავტორიზაციის სტატუსი (მაგ: useUser(), useAuth(), ან session)
-    const isAuthenticated = false; // შეცვალე შენი Auth ცვლადით
-
-    if (isAuthenticated) {
+    if (isSignedIn) {
       router.push('/dashboard');
     } else {
-      router.push('/register');
+      openSignUp();
     }
   };
 
@@ -110,7 +111,7 @@ export default function HeroTunnel() {
           <div className="mt-10 flex flex-wrap gap-4">
             <button
               onClick={handleCreateBot}
-              className="rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-6 py-3 text-sm font-medium text-white shadow-[0_0_40px_-10px_rgba(139,92,246,0.7)] transition hover:opacity-90 active:scale-95"
+              className="rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-6 py-3 text-sm font-medium text-white shadow-[0_0_40px_-10px_rgba(139,92,246,0.7)] transition hover:opacity-90 active:scale-95 cursor-pointer"
             >
               შექმენი შენი ბოტი
             </button>
