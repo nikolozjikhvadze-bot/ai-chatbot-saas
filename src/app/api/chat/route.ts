@@ -74,9 +74,11 @@ export async function POST(req: Request) {
   if (!chatLimit.success) return rateLimitResponse(chatLimit.retryAfter, cors);
 
   const sb = createAdminClient();
+
+  // 1. დავამატეთ telegram_chat_id-ს წამოღება Supabase-იდან
   const { data: bot } = await sb
     .from("bots")
-    .select("id, is_active, allowed_origin, allowed_domains")
+    .select("id, is_active, allowed_origin, allowed_domains, telegram_chat_id")
     .eq("public_key", botKey)
     .maybeSingle();
 
@@ -107,6 +109,54 @@ export async function POST(req: Request) {
     }
   }
 
+  // 2. თუ conversationId არსებობს, ვამოწმებთ ხომ არ არის HUMAN_MODE-ში
+  if (conversationId) {
+    const { data: conv } = await sb
+      .from("conversations")
+      .select("status")
+      .eq("id", conversationId)
+      .maybeSingle();
+
+    if (conv?.status === "HUMAN_MODE") {
+      // ვინახავთ მომხმარებლის შეტყობინებას ბაზაში
+      await sb.from("messages").insert({
+        conversation_id: conversationId,
+        sender: "user",
+        content: message,
+      });
+
+      // ვაბრუნებთ სตรีმინგ პასუხს, რომ ოპერატორი მალე უპასუხებს (AI-ს გამოძახების გარეშე)
+      const encoder = new TextEncoder();
+      const humanStream = new ReadableStream({
+        start(controller) {
+          const send = (event: any) => {
+            controller.enqueue(
+              encoder.encode(`data: ${JSON.stringify(event)}\n\n`)
+            );
+          };
+          send({
+            type: "text_delta",
+            content: "თქვენი შეტყობინება მიღებულია. ოპერატორი მალე გიპასუხებთ.",
+          });
+          send({ type: "done", conversationId });
+          controller.close();
+        },
+      });
+
+      return new Response(humanStream, {
+        headers: {
+          ...cors,
+          "Content-Type": "text/event-stream; charset=utf-8",
+          "Cache-Control": "no-cache, no-transform",
+          Connection: "keep-alive",
+          "X-Accel-Buffering": "no",
+          "Content-Encoding": "none",
+        },
+      });
+    }
+  }
+
+  // 3. ჩვეულებრივი AI სตรีმი handleMessage-ის მეშვეობით
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
@@ -128,7 +178,10 @@ export async function POST(req: Request) {
             externalUserId: visitorId,
             text: message,
             conversationId,
-            metadata: { user_agent: req.headers.get("user-agent") },
+            metadata: {
+              user_agent: req.headers.get("user-agent"),
+              telegram_chat_id: bot.telegram_chat_id, // გადავეცით telegram_chat_id metadata-ში
+            },
           },
           sb,
           req.signal

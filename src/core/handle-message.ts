@@ -70,6 +70,7 @@ export async function* handleMessage(
   try {
     let conversationId = input.conversationId;
 
+    // 1. კონვერსაციის შექმნა ან მოძიება
     if (!conversationId) {
       const { data: conv } = await supabase
         .from("conversations")
@@ -84,10 +85,19 @@ export async function* handleMessage(
       if (conv) conversationId = conv.id;
     }
 
-    // 1. ბაზიდან წამოვიღებთ ბოტის პარამეტრებს
+    // 2. მომხმარებლის შეტყობინების შენახვა ბაზაში
+    if (conversationId) {
+      await supabase.from("messages").insert({
+        conversation_id: conversationId,
+        sender: "user",
+        content: input.text,
+      });
+    }
+
+    // 3. ბაზიდან წამოვიღებთ ბოტის პარამეტრებს (telegram_chat_id-ს ჩათვლით)
     const { data: bot, error: botErr } = await supabase
       .from("bots")
-      .select("name, tone, system_prompt")
+      .select("name, tone, system_prompt, telegram_chat_id")
       .eq("id", input.botId)
       .single();
 
@@ -95,13 +105,13 @@ export async function* handleMessage(
       throw new Error(`Bot not found: ${input.botId}`);
     }
 
-    // 2. ენის დეტექცია
+    // 4. ენის დეტექცია
     const language = detectLanguage(input.text);
 
-    // 3. RAG Search (კონტექსტის ამოღება pgvector / hybrid_search-ით)
+    // 5. RAG Search (კონტექსტის ამოღება pgvector / hybrid_search-ით)
     const { chunks } = await retrieve(supabase, input.botId, input.text);
 
-    // 4. System Prompt-ის აგება
+    // 6. System Prompt-ის აგება
     const systemInstruction = buildSystemPrompt({
       botName: bot.name ?? "Assistant",
       tone: bot.tone ?? "helpful and professional",
@@ -114,9 +124,12 @@ export async function* handleMessage(
       botId: input.botId,
       conversationId: conversationId || "",
       supabase,
+      userMessage: input.text,
+      telegramChatId: (input.metadata?.telegram_chat_id as string) || bot.telegram_chat_id,
+      metadata: input.metadata,
     };
 
-    // 5. Gemini API-ის გამოძახება systemInstruction-ით
+    // 7. Gemini API-ის გამოძახება systemInstruction-ით
     const responseStream = await ai.models.generateContentStream({
       model: CHAT_MODEL,
       contents: [
@@ -131,7 +144,9 @@ export async function* handleMessage(
       },
     });
 
-    // 6. Streaming & Function Calling
+    let fullAssistantResponse = "";
+
+    // 8. Streaming & Function Calling
     for await (const chunk of responseStream) {
       const candidates = chunk.candidates;
       if (!candidates || candidates.length === 0) continue;
@@ -140,6 +155,7 @@ export async function* handleMessage(
 
       for (const part of parts) {
         if (part.text) {
+          fullAssistantResponse += part.text;
           yield { type: "text_delta", text: part.text };
         }
 
@@ -152,10 +168,26 @@ export async function* handleMessage(
           if (name === "log_knowledge_gap") {
             await logKnowledgeGap(call.args as any, toolCtx);
           } else if (name === "request_human") {
+            // ოპერატორის მოთხოვნისას ჩატის სტატუსი გადაგვყავს HUMAN_MODE-ში
+            if (conversationId) {
+              await supabase
+                .from("conversations")
+                .update({ status: "HUMAN_MODE" })
+                .eq("id", conversationId);
+            }
             await requestHuman(call.args as any, toolCtx);
           }
         }
       }
+    }
+
+    // 9. ასისტენტის პასუხის შენახვა ბაზაში
+    if (conversationId && fullAssistantResponse.trim()) {
+      await supabase.from("messages").insert({
+        conversation_id: conversationId,
+        sender: "assistant",
+        content: fullAssistantResponse,
+      });
     }
 
     yield { type: "done" };
