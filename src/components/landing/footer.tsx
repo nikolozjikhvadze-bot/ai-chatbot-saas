@@ -64,17 +64,17 @@ export default function Footer() {
             </h4>
             <ul className="mt-3 space-y-2 text-xs text-white/60">
               <li>
-                <a href="#" className="transition hover:text-white">
+                <a href="/privacy" className="transition hover:text-white">
                   კონფიდენციალურობა
                 </a>
               </li>
               <li>
-                <a href="#" className="transition hover:text-white">
+                <a href="/terms" className="transition hover:text-white">
                   მოხმარების პირობები
                 </a>
               </li>
               <li>
-                <a href="#" className="transition hover:text-white">
+                <a href="/cookies" className="transition hover:text-white">
                   Cookie პოლიტიკა
                 </a>
               </li>

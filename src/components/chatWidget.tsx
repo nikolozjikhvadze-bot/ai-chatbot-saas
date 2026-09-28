@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -149,8 +150,9 @@ export default function ChatWidget() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="w-[360px] h-[500px] rounded-3xl border border-white/10 bg-[#0d0c14]/90 backdrop-blur-xl shadow-2xl flex flex-col overflow-hidden"
+            className="w-[360px] h-[520px] rounded-3xl border border-white/10 bg-[#0d0c14]/90 backdrop-blur-xl shadow-2xl flex flex-col overflow-hidden"
           >
+            {/* Header */}
             <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -164,6 +166,7 @@ export default function ChatWidget() {
               </button>
             </div>
 
+            {/* Messages */}
             <div className="flex-1 p-4 overflow-y-auto space-y-3 text-xs">
               {messages.map((msg, idx) => (
                 <div
@@ -191,22 +194,37 @@ export default function ChatWidget() {
               <div ref={messagesEndRef} />
             </div>
 
-            <form onSubmit={sendMessage} className="p-3 border-t border-white/10 bg-white/[0.02] flex gap-2">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="დაწერეთ შეკითხვა..."
-                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-violet-500 transition"
-              />
-              <button
-                type="submit"
-                disabled={loading || !input.trim()}
-                className="px-4 py-2 rounded-xl bg-violet-600 text-white font-medium hover:bg-violet-500 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                გაგზავნა
-              </button>
-            </form>
+            {/* Footer with Form & Disclaimer */}
+            <div className="p-3 border-t border-white/10 bg-white/[0.02] flex flex-col gap-2">
+              <form onSubmit={sendMessage} className="flex gap-2">
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="დაწერეთ შეკითხვა..."
+                  className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-violet-500 transition"
+                />
+                <button
+                  type="submit"
+                  disabled={loading || !input.trim()}
+                  className="px-4 py-2 rounded-xl bg-violet-600 text-white font-medium hover:bg-violet-500 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed text-xs"
+                >
+                  გაგზავნა
+                </button>
+              </form>
+
+              {/* AI Disclaimer & Privacy Link */}
+              <p className="text-[10px] text-center text-white/40 leading-tight pt-1">
+                AI-ს შეუძლია დაუშვას შეცდომები.{' '}
+                <Link
+                  href="/privacy"
+                  target="_blank"
+                  className="underline hover:text-white/70 transition"
+                >
+                  კონფიდენციალურობის პოლიტიკა
+                </Link>
+              </p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

@@ -79,7 +79,7 @@ export async function POST(req: Request) {
   const { data: bot } = await sb
     .from("bots")
     .select("id, is_active, allowed_origin, allowed_domains, telegram_chat_id")
-    .eq("public_key", botKey)
+    .eq("id", botKey)
     .maybeSingle();
 
   if (!bot || !bot.is_active) {

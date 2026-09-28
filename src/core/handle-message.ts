@@ -129,20 +129,50 @@ export async function* handleMessage(
       metadata: input.metadata,
     };
 
-    // 7. Gemini API-ის გამოძახება systemInstruction-ით
-    const responseStream = await ai.models.generateContentStream({
-      model: CHAT_MODEL,
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: input.text }],
-        },
-      ],
-      config: {
-        systemInstruction: systemInstruction,
-        tools: toolsDefinition as any,
-      },
-    });
+    // 7. Gemini API-ის გამოძახება Fallback & Retry ლოგიკით
+    const FALLBACK_MODEL = "gemini-2.0-flash";
+    const modelsToTry = Array.from(new Set([CHAT_MODEL, FALLBACK_MODEL]));
+
+    let responseStream: any = null;
+    let lastError: any = null;
+
+    modelLoop: for (const modelName of modelsToTry) {
+      const retriesPerModel = 2;
+      for (let attempt = 1; attempt <= retriesPerModel; attempt++) {
+        try {
+          responseStream = await ai.models.generateContentStream({
+            model: modelName,
+            contents: [
+              {
+                role: "user",
+                parts: [{ text: input.text }],
+              },
+            ],
+            config: {
+              systemInstruction: systemInstruction,
+              tools: toolsDefinition as any,
+            },
+          });
+
+          // წარმატებით გამოძახებისას გამოვდივართ ორივე ციკლიდან
+          lastError = null;
+          break modelLoop;
+        } catch (err: any) {
+          lastError = err;
+          console.warn(
+            `Gemini API error with model [${modelName}] (Attempt ${attempt}/${retriesPerModel}):`,
+            err?.message
+          );
+          // 1.5 წამიანი დაყოვნება ხელახალ ცდამდე
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+        }
+      }
+    }
+
+    // თუ არცერთმა მოდელმა არ უპასუხა, ვისვრით ბოლო შეცდომას
+    if (!responseStream && lastError) {
+      throw lastError;
+    }
 
     let fullAssistantResponse = "";
 
