@@ -13,7 +13,7 @@ export async function sendEmailAction(formData: { name: string; email: string; m
 
     await resend.emails.send({
       from: 'YourBot <onboarding@resend.dev>',
-      to: recipientEmail, // წერილი მოდის შენთან
+      to: 'yourbot95@gmail.com', // წერილი მოდის შენთან
       replyTo: email,     // პასუხის გაცემისას პასუხი მიდის მომხმარებელთან
       subject: `ახალი შეტყობინება YourBot-ზე: ${name}`,
       html: `
