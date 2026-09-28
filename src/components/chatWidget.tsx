@@ -8,64 +8,121 @@ interface Message {
   content: string;
 }
 
-// შენი ბოტის UUID, რომელიც Supabase-ში ჩავწერეთ
-const BOT_ID = '11111111-1111-1111-1111-111111111111';
+// შენი ბოტის Public Key / ID
+const BOT_KEY = '11111111-1111-1111-1111-111111111111';
 
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'გამარჯობა! მე YourBot-ის AI ასისტენტი ვარ. რით შემიძლია დაგეხმაროთ?' }
+    { role: 'assistant', content: 'გამარჯობა! მე AI ასისტენტი ვარ. რით შემიძლია დაგეხმაროთ?' }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [conversationId, setConversationId] = useState<string | undefined>(undefined);
+  const [visitorId, setVisitorId] = useState<string>('');
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // 1. Visitor ID-ის გენერაცია ან წამოღება localStorage-იდან
+  useEffect(() => {
+    let vid = localStorage.getItem('chat_visitor_id');
+    if (!vid) {
+      vid = 'v_' + Math.random().toString(36).substring(2, 11) + Date.now().toString(36);
+      localStorage.setItem('chat_visitor_id', vid);
+    }
+    setVisitorId(vid);
+  }, []);
+
+  // 2. ჩატის ავტომატური ჩამოქაჩვა ბოლო შეტყობინებაზე
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, loading]);
 
-  const sendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const sendMessage = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault(); // ინარჩუნებს გვერდს გადატვირთვისგან
     if (!input.trim() || loading) return;
 
-    const userText = input;
+    const userMsg = input.trim();
     setInput('');
-
-    const newMessages: Message[] = [...messages, { role: 'user', content: userText }];
-    setMessages(newMessages);
     setLoading(true);
 
+    // მომხმარებლის შეტყობინების დამატება ეკრანზე
+    const newMessages = [...messages, { role: 'user' as const, content: userMsg }];
+    setMessages(newMessages);
+
     try {
-      const res = await fetch(`/api/relay/${BOT_ID}`, {
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: userText,
-          history: messages.map(m => ({
-            role: m.role,
-            content: m.content
-          }))
+          botKey: BOT_KEY,
+          message: userMsg,
+          visitorId: visitorId || 'anonymous_visitor',
+          conversationId: conversationId,
         }),
       });
 
-      const responseText = await res.text();
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch {
-        throw new Error(`სერვერის შეცდომა (HTML პასუხი): ${responseText.slice(0, 100)}...`);
-      }
-
       if (!res.ok) {
-        throw new Error(data.error || `HTTP error! status: ${res.status}`);
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `HTTP error! status: ${res.status}`);
       }
 
-      setMessages([...newMessages, { role: 'assistant', content: data.reply }]);
-    } catch (err: any) {
-      console.error('Chat error:', err);
-      setMessages([
-        ...newMessages,
-        { role: 'assistant', content: err.message || 'სერვერთან კავშირის შეცდომა.' }
+      if (!res.body) {
+        throw new Error('სერვერიდან პასუხის ნაკადი ვერ მიიღო');
+      }
+
+      // ასისტენტის ცარიელი შეტყობინების მომზადება სตรีმისთვის
+      setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedResponse = '';
+      let buffer = '';
+
+      // SSE Stream-ის წაკითხვა Real-time-ში
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ''; // არასრული ხაზის შენახვა ბუფერში
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const event = JSON.parse(line.slice(6));
+
+              if (event.type === 'text_delta') {
+                accumulatedResponse += event.text;
+
+                // ბოლო (ასისტენტის) შეტყობინების განახლება
+                setMessages((prev) => {
+                  const updated = [...prev];
+                  updated[updated.length - 1] = {
+                    role: 'assistant',
+                    content: accumulatedResponse,
+                  };
+                  return updated;
+                });
+              } else if (event.type === 'done') {
+                if (event.conversationId) {
+                  setConversationId(event.conversationId);
+                }
+              } else if (event.type === 'error') {
+                throw new Error(event.message);
+              }
+            } catch (e) {
+              console.error('SSE JSON parsing error:', e);
+            }
+          }
+        }
+      }
+    } catch (error: any) {
+      console.error('Chat error:', error);
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: error.message || 'შეცდომა შეტყობინების გაგზავნისას.' },
       ]);
     } finally {
       setLoading(false);
