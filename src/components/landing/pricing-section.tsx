@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
-import { Check, Sparkles, Zap, ShieldCheck, ArrowRight, Loader2 } from 'lucide-react';
+import { Check, Sparkles, Zap, ShieldCheck, ArrowRight } from 'lucide-react';
 
 const features = [
   'ყველა AI მოდელთან წვდომა (GPT-4o, Claude 3.5)',
@@ -16,35 +16,7 @@ const features = [
 export default function PricingSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isAnnual, setIsAnnual] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  const handleCheckout = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          billingCycle: isAnnual ? 'yearly' : 'monthly',
-        }),
-      });
-
-      const data = await res.json();
-
-      if (data.url) {
-        window.location.href = data.url; // გადამისამართება Flitt-ის გადახდის გვერდზე
-      } else {
-        alert(data.error || 'გადახდის ინიციალიზაცია ვერ მოხერხდა');
-      }
-    } catch (error) {
-      console.error('Checkout error:', error);
-      alert('დაფიქსირდა შეცდომა');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ... (შენი არსებული animation და hook-ები უცვლელად რჩება)
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end end'],
@@ -72,12 +44,86 @@ export default function PricingSection() {
 
         <div className="relative mx-auto w-full max-w-4xl">
           
+          {/* SVG Border Frame & Synced Glowing Tracer */}
+          <div className="pointer-events-none absolute -inset-4 z-0 hidden md:block">
+            <svg
+              className="h-full w-full overflow-visible"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+            >
+              <rect
+                x="0.5"
+                y="0.5"
+                width="99"
+                height="99"
+                rx="2"
+                fill="none"
+                stroke="rgba(255, 255, 255, 0.08)"
+                strokeWidth="0.5"
+              />
+              <motion.rect
+                x="0.5"
+                y="0.5"
+                width="99"
+                height="99"
+                rx="2"
+                fill="none"
+                stroke="url(#glow-gradient-pricing)"
+                strokeWidth="1"
+                pathLength="1000"
+                style={{ strokeDasharray: 1000, strokeDashoffset }}
+              />
+
+              <motion.rect
+                x="0.5"
+                y="0.5"
+                width="99"
+                height="99"
+                rx="2"
+                fill="none"
+                stroke="#c084fc"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                pathLength="1000"
+                style={{ strokeDasharray: '16 1000', strokeDashoffset: tracerGlowOffset }}
+                className="drop-shadow-[0_0_12px_#a855f7]"
+              />
+
+              <motion.rect
+                x="0.5"
+                y="0.5"
+                width="99"
+                height="99"
+                rx="2"
+                fill="none"
+                stroke="#ffffff"
+                strokeWidth="2"
+                strokeLinecap="round"
+                pathLength="1000"
+                style={{ strokeDasharray: '8 1000', strokeDashoffset: tracerCoreOffset }}
+              />
+
+              <defs>
+                <linearGradient id="glow-gradient-pricing" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#a855f7" />
+                  <stop offset="50%" stopColor="#ec4899" />
+                  <stop offset="100%" stopColor="#3b82f6" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+
           {/* Header */}
           <div className="relative z-10 text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-300 sm:px-4 sm:py-1.5">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-300 sm:px-4 sm:py-1.5"
+            >
               <Sparkles className="h-3.5 w-3.5 text-fuchsia-400" />
               <span>მარტივი და გამჭვირვალე ტარიფი</span>
-            </div>
+            </motion.div>
 
             <h2 className="mt-3 text-2xl font-semibold tracking-tight text-white sm:text-3xl md:text-4xl">
               შეარჩიე შენზე მორგებული გეგმა
@@ -98,7 +144,7 @@ export default function PricingSection() {
               >
                 <motion.div
                   className="h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 shadow-md"
-                  animate={{ x: isAnnual ? 28 : 0 }}
+                  animate={{ x: isAnnual ? (typeof window !== 'undefined' && window.innerWidth < 640 ? 24 : 28) : 0 }}
                   transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                 />
               </button>
@@ -107,7 +153,7 @@ export default function PricingSection() {
                   წლიური
                 </span>
                 <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] sm:text-xs font-semibold text-emerald-400">
-                  დაზოგე
+                  დაზოგე $100
                 </span>
               </div>
             </div>
@@ -132,10 +178,13 @@ export default function PricingSection() {
               <div className="text-center md:text-right">
                 <div className="flex items-baseline justify-center md:justify-end gap-1">
                   <span className="text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
-                    {isAnnual ? '100₾' : '10₾'}
+                    ${isAnnual ? '1,100' : '100'}
                   </span>
                   <span className="text-xs text-white/50 sm:text-sm">{isAnnual ? '/წელი' : '/თვე'}</span>
                 </div>
+                <p className="mt-0.5 text-[11px] text-white/40 sm:text-xs">
+                  {isAnnual ? '$91.6/თვეში (ერთჯერადი გადახდა)' : 'გაუქმება ნებისმიერ დროს'}
+                </p>
               </div>
             </div>
 
@@ -155,23 +204,13 @@ export default function PricingSection() {
             <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row sm:pt-8">
               <div className="flex items-center gap-2 text-xs text-white/50">
                 <ShieldCheck className="h-4 w-4 text-emerald-400" />
-                <span>უსაფრთხო გადახდა ადგილობრივი ბარათებით</span>
+                <span>14 დღიანი უფასო საცდელი პერიოდი</span>
               </div>
 
-              <button
-                onClick={handleCheckout}
-                disabled={loading}
-                className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-violet-600 p-px font-medium text-white shadow-lg transition duration-300 hover:shadow-violet-500/25 sm:w-auto disabled:opacity-50"
-              >
+              <button className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-violet-600 p-px font-medium text-white shadow-lg transition duration-300 hover:shadow-violet-500/25 sm:w-auto">
                 <span className="flex w-full items-center justify-center gap-2 rounded-[11px] bg-[#0d0c14] px-6 py-3 text-sm transition duration-300 group-hover:bg-transparent sm:px-8 sm:py-3.5">
-                  {loading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <>
-                      დაიწყე ახლავე
-                      <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                    </>
-                  )}
+                  დაიწყე ახლავე
+                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </span>
               </button>
             </div>
