@@ -40,14 +40,13 @@ export default function ChatWidget() {
   }, [messages, loading]);
 
   const sendMessage = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault(); // ინარჩუნებს გვერდს გადატვირთვისგან
+    if (e) e.preventDefault();
     if (!input.trim() || loading) return;
 
     const userMsg = input.trim();
     setInput('');
     setLoading(true);
 
-    // მომხმარებლის შეტყობინების დამატება ეკრანზე
     const newMessages = [...messages, { role: 'user' as const, content: userMsg }];
     setMessages(newMessages);
 
@@ -72,7 +71,6 @@ export default function ChatWidget() {
         throw new Error('სერვერიდან პასუხის ნაკადი ვერ მიიღო');
       }
 
-      // ასისტენტის ცარიელი შეტყობინების მომზადება სთრიმისთვის
       setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
 
       const reader = res.body.getReader();
@@ -80,24 +78,23 @@ export default function ChatWidget() {
       let accumulatedResponse = '';
       let buffer = '';
 
-      // SSE Stream-ის წაკითხვა Real-time-ში
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
-        buffer = lines.pop() || ''; // არასრული ხაზის შენახვა ბუფერში
+        buffer = lines.pop() || '';
 
         for (const line of lines) {
           if (line.startsWith('data: ')) {
             try {
               const event = JSON.parse(line.slice(6));
 
-              if (event.type === 'text_delta' && event.content) {
-                accumulatedResponse += event.content;
+              // აქ გასწორდა event.content -> event.text
+              if (event.type === 'text_delta' && event.text) {
+                accumulatedResponse += event.text;
 
-                // ბოლო (ასისტენტის) შეტყობინების განახლება
                 setMessages((prev) => {
                   const updated = [...prev];
                   updated[updated.length - 1] = {
