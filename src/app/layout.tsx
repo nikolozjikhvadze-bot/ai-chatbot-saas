@@ -59,9 +59,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <ClerkProvider>
       <html
         lang="ka"
-        className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
+        className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark overflow-x-hidden`}
       >
-        <body className="min-h-full flex flex-col bg-[#08070c] text-white">
+        <body className="min-h-full flex flex-col bg-[#08070c] text-white overflow-x-hidden relative">
           {children}
           {/* გლობალური AI ჩატბოტი */}
           <ChatWidget />
