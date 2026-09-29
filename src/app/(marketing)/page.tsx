@@ -29,9 +29,9 @@ export default function LandingPage() {
   const { isSignedIn } = useAuth();
 
   return (
-    <main className="bg-[#08070c] text-white antialiased selection:bg-violet-500/40">
+    <main className="bg-[#08070c] text-white antialiased selection:bg-violet-500/40 w-full overflow-x-hidden">
       {/* NAV */}
-      <nav className="fixed inset-x-0 top-0 z-50 flex items-center justify-between border-b border-white/5 bg-[#08070c]/60 px-6 py-4 backdrop-blur-xl md:px-12">
+      <nav className="fixed inset-x-0 top-0 z-50 flex items-center justify-between border-b border-white/5 bg-[#08070c]/60 px-6 py-4 backdrop-blur-xl md:px-12 w-full">
         {/* ლოგო — დაჭერისას მთავარზე დაბრუნება */}
         <a
           href="/"
@@ -100,24 +100,32 @@ export default function LandingPage() {
       </nav>
 
       {/* 1. HERO TUNNEL */}
-      <HeroTunnel />
+      <div className="w-full overflow-hidden">
+        <HeroTunnel />
+      </div>
 
       {/* 2. FEATURES */}
-      <FeaturesSection />
+      <div className="w-full overflow-hidden">
+        <FeaturesSection />
+      </div>
 
       {/* 3. HOW IT WORKS */}
-      <HowItWorksSection />
+      <div className="w-full overflow-hidden">
+        <HowItWorksSection />
+      </div>
 
       {/* 4. PRICING */}
-      <PricingSection />
+      <div className="w-full overflow-hidden">
+        <PricingSection />
+      </div>
 
       {/* 5. CONTACT & FOOTER */}
-      <ContactSection />
-
-      <Footer />
+      <div className="w-full overflow-hidden">
+        <ContactSection />
+        <Footer />
+      </div>
 
       {/* ჩატბოტი */}
-
       <ChatbotWidget />
     </main>
   );
