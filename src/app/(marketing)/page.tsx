@@ -29,9 +29,9 @@ export default function LandingPage() {
   const { isSignedIn } = useAuth();
 
   return (
-    <main className="bg-[#08070c] text-white antialiased selection:bg-violet-500/40 w-full overflow-x-hidden">
+    <main className="bg-[#08070c] text-white antialiased selection:bg-violet-500/40">
       {/* NAV */}
-      <nav className="fixed inset-x-0 top-0 z-50 flex items-center justify-between border-b border-white/5 bg-[#08070c]/60 px-6 py-4 backdrop-blur-xl md:px-12 w-full">
+      <nav className="fixed inset-x-0 top-0 z-50 flex items-center justify-between border-b border-white/5 bg-[#08070c]/60 px-6 py-4 backdrop-blur-xl md:px-12">
         {/* ლოგო — დაჭერისას მთავარზე დაბრუნება */}
         <a
           href="/"
@@ -113,6 +113,7 @@ export default function LandingPage() {
 
       {/* 5. CONTACT & FOOTER */}
       <ContactSection />
+
       <Footer />
 
       {/* ჩატბოტი */}
