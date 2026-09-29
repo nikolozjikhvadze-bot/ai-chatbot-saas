@@ -1,6 +1,5 @@
 import { ai, CHAT_MODEL } from "@/lib/gemini";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { retrieve } from "./retrieval";
 import { buildSystemPrompt } from "./prompt";
 import { detectLanguage } from "./language";
 import { logKnowledgeGap } from "./tools/log-knowledge-gap";
@@ -108,20 +107,8 @@ export async function* handleMessage(
     // 4. ენის დეტექცია
     const language = detectLanguage(input.text);
 
-    // 5. RAG Search
-    const { chunks, topSimilarity } = await retrieve(
-      supabase,
-      input.botId,
-      input.text
-    );
-
-    // დროებითი დიაგნოსტიკა (პრობლემის მოგვარების შემდეგ წაშალე)
-    console.log("RAG debug:", {
-      botId: input.botId,
-      query: input.text,
-      chunkCount: chunks.length,
-      topSimilarity,
-    });
+    // 5. RAG Search გათიშულია (ძველი ლოგიკა)
+    const chunks: any[] = [];
 
     // 6. System Prompt
     const systemInstruction = buildSystemPrompt({
@@ -226,7 +213,7 @@ export async function* handleMessage(
 
           yield { type: "tool_call", name, args: call.args };
 
-          if (name === "log_knowledge_gap") {
+        if (name === "log_knowledge_gap") {
             await logKnowledgeGap(call.args as any, toolCtx);
           } else if (name === "request_human") {
             if (conversationId) {
