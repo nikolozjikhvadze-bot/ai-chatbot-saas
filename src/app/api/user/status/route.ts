@@ -11,34 +11,28 @@ const supabase = createClient(
 export async function GET() {
   try {
     const { userId } = await auth();
+    console.log("LOG - Current Clerk userId from auth():", userId);
 
     if (!userId) {
       return NextResponse.json({ isPaid: false }, { status: 401 });
     }
 
-    const rateLimit = await checkRateLimits([
-      { policy: 'authenticatedRead', key: userId },
-    ]);
-    if (!rateLimit.success) return rateLimitResponse(rateLimit.retryAfter);
-
     const { data, error } = await supabase
       .from('users')
-      .select('is_paid')
+      .select('*')
       .eq('clerk_id', userId)
-      .maybeSingle(); // .single()-ის ნაცვლად ვიყენებთ maybeSingle()-ს
+      .maybeSingle();
 
-    if (error) {
-      console.error('Supabase error:', error);
-      return NextResponse.json({ isPaid: false });
-    }
+    console.log("LOG - Supabase query result data:", data);
+    console.log("LOG - Supabase query error:", error);
 
-    if (!data) {
+    if (error || !data) {
       return NextResponse.json({ isPaid: false });
     }
 
     return NextResponse.json({ isPaid: !!data.is_paid });
   } catch (err) {
-    console.error('Status check catch error:', err);
+    console.error("LOG - Catch error:", err);
     return NextResponse.json({ isPaid: false });
   }
 }
