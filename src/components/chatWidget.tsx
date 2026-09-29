@@ -95,18 +95,18 @@ export default function ChatWidget() {
               const event = JSON.parse(line.slice(6));
 
               if (event.type === 'text_delta') {
-                accumulatedResponse += event.text;
+  accumulatedResponse += event.content; // event.text-ის მაგივრად უნდა იყოს event.content
 
-                // ბოლო (ასისტენტის) შეტყობინების განახლება
-                setMessages((prev) => {
-                  const updated = [...prev];
-                  updated[updated.length - 1] = {
-                    role: 'assistant',
-                    content: accumulatedResponse,
-                  };
-                  return updated;
-                });
-              } else if (event.type === 'done') {
+              // ბოლო (ასისტენტის) შეტყობინების განახლება
+              setMessages((prev) => {
+                const updated = [...prev];
+                updated[updated.length - 1] = {
+                  role: 'assistant',
+                  content: accumulatedResponse,
+                };
+                return updated;
+              });
+            } else if (event.type === 'done') {
                 if (event.conversationId) {
                   setConversationId(event.conversationId);
                 }
