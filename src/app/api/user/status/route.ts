@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 import { checkRateLimits, rateLimitResponse } from '@/lib/rate-limits';
 
@@ -31,14 +31,18 @@ export async function GET() {
       return NextResponse.json({ isPaid: false });
     }
 
-    // თუ მომხმარებელი არ არსებობს ბაზაში, ავტომატურად ვქმნით
+    // თუ მომხმარებელი არ არსებობს ბაზაში, ვქაჩავთ მის მეილს კლერკიდან და ვარეგისტრირებთ
     if (!data) {
+      const clerkUser = await currentUser();
+      const userEmail = clerkUser?.emailAddresses[0]?.emailAddress || null;
+
       const { data: newData, error: insertError } = await supabase
         .from('users')
         .upsert(
           [
             {
               clerk_id: userId,
+              email: userEmail,
               is_paid: false,
             }
           ],
@@ -53,7 +57,7 @@ export async function GET() {
       }
 
       data = newData;
-      console.log("LOG - New user automatically created in Supabase:", data);
+      console.log("LOG - New user automatically created in Supabase with email:", data);
     }
 
     if (!data) {
