@@ -17,7 +17,7 @@ export async function GET() {
       return NextResponse.json({ isPaid: false }, { status: 401 });
     }
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('users')
       .select('*')
       .eq('clerk_id', userId)
@@ -26,7 +26,37 @@ export async function GET() {
     console.log("LOG - Supabase query result data:", data);
     console.log("LOG - Supabase query error:", error);
 
-    if (error || !data) {
+    if (error) {
+      console.error("LOG - Database select error:", error);
+      return NextResponse.json({ isPaid: false });
+    }
+
+    // თუ მომხმარებელი არ არსებობს ბაზაში, ავტომატურად ვქმნით
+    if (!data) {
+      const { data: newData, error: insertError } = await supabase
+        .from('users')
+        .upsert(
+          [
+            {
+              clerk_id: userId,
+              is_paid: false,
+            }
+          ],
+          { onConflict: 'clerk_id' }
+        )
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error("LOG - Database upsert error:", insertError);
+        return NextResponse.json({ isPaid: false });
+      }
+
+      data = newData;
+      console.log("LOG - New user automatically created in Supabase:", data);
+    }
+
+    if (!data) {
       return NextResponse.json({ isPaid: false });
     }
 
