@@ -12,10 +12,11 @@ export async function logKnowledgeGap(
   try {
     const { error } = await ctx.supabase.from("knowledge_gaps").insert({
       bot_id: ctx.botId,
-      conversation_id: ctx.conversationId,
+      conversation_id: ctx.conversationId || null,
       question: args.question,
+      reason: "no_answer_in_knowledge_base",
       category: args.category || "general",
-      status: "unresolved",
+      status: "open",
     });
 
     if (error) {

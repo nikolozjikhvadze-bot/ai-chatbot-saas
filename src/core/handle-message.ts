@@ -9,7 +9,7 @@ import { requestHuman } from "./tools/request-human";
 export type ChatEvent =
   | { type: "text_delta"; text: string }
   | { type: "tool_call"; name: string; args: unknown }
-  | { type: "done" }
+  | { type: "done"; conversationId?: string }
   | { type: "error"; message: string };
 
 interface MessageInput {
@@ -94,7 +94,7 @@ export async function* handleMessage(
       });
     }
 
-    // 3. ბაზიდან წამოვიღებთ ბოტის პარამეტრებს (telegram_chat_id-ს ჩათვლით)
+    // 3. ბოტის პარამეტრები
     const { data: bot, error: botErr } = await supabase
       .from("bots")
       .select("name, tone, system_prompt, telegram_chat_id")
@@ -108,10 +108,22 @@ export async function* handleMessage(
     // 4. ენის დეტექცია
     const language = detectLanguage(input.text);
 
-    // 5. RAG Search (კონტექსტის ამოღება pgvector / hybrid_search-ით)
-    const { chunks } = await retrieve(supabase, input.botId, input.text);
+    // 5. RAG Search
+    const { chunks, topSimilarity } = await retrieve(
+      supabase,
+      input.botId,
+      input.text
+    );
 
-    // 6. System Prompt-ის აგება
+    // დროებითი დიაგნოსტიკა (პრობლემის მოგვარების შემდეგ წაშალე)
+    console.log("RAG debug:", {
+      botId: input.botId,
+      query: input.text,
+      chunkCount: chunks.length,
+      topSimilarity,
+    });
+
+    // 6. System Prompt
     const systemInstruction = buildSystemPrompt({
       botName: bot.name ?? "Assistant",
       tone: bot.tone ?? "helpful and professional",
@@ -125,11 +137,38 @@ export async function* handleMessage(
       conversationId: conversationId || "",
       supabase,
       userMessage: input.text,
-      telegramChatId: (input.metadata?.telegram_chat_id as string) || bot.telegram_chat_id,
+      telegramChatId:
+        (input.metadata?.telegram_chat_id as string) || bot.telegram_chat_id,
       metadata: input.metadata,
     };
 
-    // 7. Gemini API-ის გამოძახება Fallback & Retry ლოგიკით
+    // 7. საუბრის ისტორია (ბოლო 12 შეტყობინება; მიმდინარე უკვე შენახულია)
+    let contents: any[] = [{ role: "user", parts: [{ text: input.text }] }];
+
+    if (conversationId) {
+      const { data: history } = await supabase
+        .from("messages")
+        .select("sender, content")
+        .eq("conversation_id", conversationId)
+        .order("created_at", { ascending: false })
+        .limit(12);
+
+      if (history && history.length > 0) {
+        const mapped = history.reverse().map((m: any) => ({
+          role: m.sender === "user" ? "user" : "model",
+          parts: [{ text: m.content as string }],
+        }));
+
+        // Gemini-სთვის საუბარი "user" შეტყობინებით უნდა იწყებოდეს
+        while (mapped.length > 0 && mapped[0].role !== "user") {
+          mapped.shift();
+        }
+
+        if (mapped.length > 0) contents = mapped;
+      }
+    }
+
+    // 8. Gemini API-ის გამოძახება Fallback & Retry ლოგიკით
     const FALLBACK_MODEL = "gemini-2.0-flash";
     const modelsToTry = Array.from(new Set([CHAT_MODEL, FALLBACK_MODEL]));
 
@@ -142,19 +181,13 @@ export async function* handleMessage(
         try {
           responseStream = await ai.models.generateContentStream({
             model: modelName,
-            contents: [
-              {
-                role: "user",
-                parts: [{ text: input.text }],
-              },
-            ],
+            contents,
             config: {
               systemInstruction: systemInstruction,
               tools: toolsDefinition as any,
             },
           });
 
-          // წარმატებით გამოძახებისას გამოვდივართ ორივე ციკლიდან
           lastError = null;
           break modelLoop;
         } catch (err: any) {
@@ -163,20 +196,18 @@ export async function* handleMessage(
             `Gemini API error with model [${modelName}] (Attempt ${attempt}/${retriesPerModel}):`,
             err?.message
           );
-          // 1.5 წამიანი დაყოვნება ხელახალ ცდამდე
           await new Promise((resolve) => setTimeout(resolve, 1500));
         }
       }
     }
 
-    // თუ არცერთმა მოდელმა არ უპასუხა, ვისვრით ბოლო შეცდომას
     if (!responseStream && lastError) {
       throw lastError;
     }
 
     let fullAssistantResponse = "";
 
-    // 8. Streaming & Function Calling
+    // 9. Streaming & Function Calling
     for await (const chunk of responseStream) {
       const candidates = chunk.candidates;
       if (!candidates || candidates.length === 0) continue;
@@ -198,7 +229,6 @@ export async function* handleMessage(
           if (name === "log_knowledge_gap") {
             await logKnowledgeGap(call.args as any, toolCtx);
           } else if (name === "request_human") {
-            // ოპერატორის მოთხოვნისას ჩატის სტატუსი გადაგვყავს HUMAN_MODE-ში
             if (conversationId) {
               await supabase
                 .from("conversations")
@@ -211,7 +241,7 @@ export async function* handleMessage(
       }
     }
 
-    // 9. ასისტენტის პასუხის შენახვა ბაზაში
+    // 10. ასისტენტის პასუხის შენახვა ბაზაში
     if (conversationId && fullAssistantResponse.trim()) {
       await supabase.from("messages").insert({
         conversation_id: conversationId,
@@ -220,7 +250,7 @@ export async function* handleMessage(
       });
     }
 
-    yield { type: "done" };
+    yield { type: "done", conversationId };
   } catch (err: any) {
     console.error("handleMessage Error:", err);
     yield {
