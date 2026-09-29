@@ -72,7 +72,7 @@ export default function ChatWidget() {
         throw new Error('სერვერიდან პასუხის ნაკადი ვერ მიიღო');
       }
 
-      // ასისტენტის ცარიელი შეტყობინების მომზადება სตรีმისთვის
+      // ასისტენტის ცარიელი შეტყობინების მომზადება სთრიმისთვის
       setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
 
       const reader = res.body.getReader();
@@ -94,22 +94,24 @@ export default function ChatWidget() {
             try {
               const event = JSON.parse(line.slice(6));
 
-              if (event.type === 'text_delta') {
-  accumulatedResponse += event.content; // event.text-ის მაგივრად უნდა იყოს event.content
+              if (event.type === 'text_delta' && event.content) {
+                accumulatedResponse += event.content;
 
-              // ბოლო (ასისტენტის) შეტყობინების განახლება
-              setMessages((prev) => {
-                const updated = [...prev];
-                updated[updated.length - 1] = {
-                  role: 'assistant',
-                  content: accumulatedResponse,
-                };
-                return updated;
-              });
-            } else if (event.type === 'done') {
+                // ბოლო (ასისტენტის) შეტყობინების განახლება
+                setMessages((prev) => {
+                  const updated = [...prev];
+                  updated[updated.length - 1] = {
+                    role: 'assistant',
+                    content: accumulatedResponse,
+                  };
+                  return updated;
+                });
+              } else if (event.type === 'done') {
                 if (event.conversationId) {
                   setConversationId(event.conversationId);
                 }
+              } else if (event.type === 'tool_call') {
+                console.log('AI Tool call:', event.name);
               } else if (event.type === 'error') {
                 throw new Error(event.message);
               }
@@ -119,6 +121,18 @@ export default function ChatWidget() {
           }
         }
       }
+
+      if (!accumulatedResponse) {
+        setMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            role: 'assistant',
+            content: 'ამ კითხვაზე ზუსტი ინფორმაცია ვერ მოიძებნა.',
+          };
+          return updated;
+        });
+      }
+
     } catch (error: any) {
       console.error('Chat error:', error);
       setMessages((prev) => [
