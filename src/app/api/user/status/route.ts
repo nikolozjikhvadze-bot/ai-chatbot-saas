@@ -25,14 +25,20 @@ export async function GET() {
       .from('users')
       .select('is_paid')
       .eq('clerk_id', userId)
-      .single();
+      .maybeSingle(); // .single()-ის ნაცვლად ვიყენებთ maybeSingle()-ს
 
-    if (error || !data) {
+    if (error) {
+      console.error('Supabase error:', error);
       return NextResponse.json({ isPaid: false });
     }
 
-    return NextResponse.json({ isPaid: data.is_paid });
+    if (!data) {
+      return NextResponse.json({ isPaid: false });
+    }
+
+    return NextResponse.json({ isPaid: !!data.is_paid });
   } catch (err) {
+    console.error('Status check catch error:', err);
     return NextResponse.json({ isPaid: false });
   }
 }
