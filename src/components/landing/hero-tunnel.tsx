@@ -71,9 +71,9 @@ export default function HeroTunnel() {
   return (
     // 400vh: sticky ბავშვის "ვირტუალური pin" + საკმარისი დისტანცია
     // ტუნელის სრული გავლისთვის, სანამ ჩვეულებრივი სქროლი გაგრძელდება
-    <div ref={containerRef} className="relative h-[400vh]">
+    <div ref={containerRef} className="relative h-[400vh] w-full overflow-x-hidden">
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#08070c]">
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 overflow-hidden">
           <HeroTunnelScene progressRef={progressRef} />
         </div>
 
