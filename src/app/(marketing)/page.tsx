@@ -100,30 +100,20 @@ export default function LandingPage() {
       </nav>
 
       {/* 1. HERO TUNNEL */}
-      <div className="w-full overflow-hidden">
-        <HeroTunnel />
-      </div>
+      <HeroTunnel />
 
       {/* 2. FEATURES */}
-      <div className="w-full overflow-hidden">
-        <FeaturesSection />
-      </div>
+      <FeaturesSection />
 
       {/* 3. HOW IT WORKS */}
-      <div className="w-full overflow-hidden">
-        <HowItWorksSection />
-      </div>
+      <HowItWorksSection />
 
       {/* 4. PRICING */}
-      <div className="w-full overflow-hidden">
-        <PricingSection />
-      </div>
+      <PricingSection />
 
       {/* 5. CONTACT & FOOTER */}
-      <div className="w-full overflow-hidden">
-        <ContactSection />
-        <Footer />
-      </div>
+      <ContactSection />
+      <Footer />
 
       {/* ჩატბოტი */}
       <ChatbotWidget />
