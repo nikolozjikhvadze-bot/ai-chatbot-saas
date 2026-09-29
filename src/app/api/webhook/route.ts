@@ -1,50 +1,57 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { auth } from '@clerk/nextjs/server';
+import { createClient } from '@supabase/supabase-js';
 
-async function getDbUserIdByClerkId(clerkId: string): Promise<string | null> {
-  const { data, error } = await supabase
-    .from('users')
-    .select('id')
-    .eq('clerk_id', clerkId)
-    .maybeSingle();
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
-  if (error || !data) return null;
-  return data.id;
-}
-
-export async function POST(req: Request) {
+export async function GET() {
   try {
-    const body = await req.json();
+    const { userId } = await auth();
+    console.log("LOG - Current Clerk userId from auth():", userId);
 
-    // Flitt-ის ქოლბექის მონაცემები
-    const { status, order_id, user_id, transaction_id } = body;
+    if (!userId) {
+      return NextResponse.json({ isPaid: false }, { status: 401 });
+    }
 
-    // ვამოწმებთ, რომ გადახდა წარმატებულია
-    if (status === 'success' || status === 'completed') {
-      const clerkId = user_id;
+    // ვცდილობთ მოვძებნოთ მომხმარებელი ბაზაში
+    let { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('clerk_id', userId)
+      .maybeSingle();
 
-      if (clerkId) {
-        // ვაახლებთ მომხმარებლის სტატუსს Supabase-ში
-        await supabase.from('users').upsert(
+    console.log("LOG - Supabase query result data:", data);
+    console.log("LOG - Supabase query error:", error);
+
+    // თუ მომხმარებელი საერთოდ არ არსებობს ბაზაში, ავტომატურად ვარეგისტრირებთ (ვამატებთ)
+    if (!data && !error) {
+      const { data: newData, error: insertError } = await supabase
+        .from('users')
+        .insert([
           {
-            clerk_id: clerkId,
-            is_paid: true,
-            subscription_id: transaction_id || order_id,
-          },
-          { onConflict: 'clerk_id' }
-        );
+            clerk_id: userId,
+            is_paid: false, // თავიდან არის ფოლსი, სანამ არ გადაიხდის
+          }
+        ])
+        .select()
+        .single();
 
-        // ვპოულობთ ბაზის მომხმარებელს და ვუაქტიურებთ ბოტებს
-        const dbUserId = await getDbUserIdByClerkId(clerkId);
-        if (dbUserId) {
-          await supabase.from('bots').update({ is_active: true }).eq('owner_id', dbUserId);
-        }
+      if (!insertError && newData) {
+        data = newData;
+        console.log("LOG - New user automatically created in Supabase:", data);
       }
     }
 
-    return NextResponse.json({ received: true });
-  } catch (error: any) {
-    console.error('Flitt Webhook Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error || !data) {
+      return NextResponse.json({ isPaid: false });
+    }
+
+    return NextResponse.json({ isPaid: !!data.is_paid });
+  } catch (err) {
+    console.error("LOG - Catch error:", err);
+    return NextResponse.json({ isPaid: false });
   }
 }
