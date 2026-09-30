@@ -11,6 +11,7 @@ import PricingSection from '@/components/landing/pricing-section';
 import ContactSection from '@/components/landing/contact-section';
 import Logo from '@/components/Logo';
 import Footer from '@/components/landing/footer';
+import LanguageSwitcher from '@/components/LanguageSwitcher'; // ენის გადამრთველის იმპორტი
 
 // ვტვირთავთ ჩატბოტს მხოლოდ კლიენტის მხარეს (SSR: false), რათა თავიდან ავიცილოთ Hydration შეცდომა
 const ChatbotWidget = dynamic(() => import('@/components/chatWidget'), {
@@ -69,8 +70,11 @@ export default function LandingPage() {
           ))}
         </div>
 
-        {/* Auth Buttons / User Profile */}
+        {/* Auth Buttons / User Profile & Language Switcher */}
         <div className="flex items-center gap-4">
+          {/* ენის გადამრთველი */}
+          <LanguageSwitcher />
+
           {!isSignedIn ? (
             <>
               <SignInButton mode="modal">

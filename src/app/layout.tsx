@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import ChatWidget from "@/components/chatWidget"; // შეამოწმე ფაილის გზა
 import "./globals.css";
+import {  LanguageProvider } from "@/context/LanguageContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -58,6 +59,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider>
+      <LanguageProvider>
       <html
         lang="ka"
         className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
@@ -83,6 +85,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ChatWidget />
         </body>
       </html>
+      </LanguageProvider>
     </ClerkProvider>
+
   );
 }
