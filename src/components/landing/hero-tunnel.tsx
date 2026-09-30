@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useUser, useClerk } from '@clerk/nextjs';
+import { useTranslation } from '@/context/LanguageContext';
 
 // R3F/Three.js მხოლოდ client-ზე
 const HeroTunnelScene = dynamic(() => import('@/components/landing/hero-tunnel-scene'), {
@@ -18,6 +19,7 @@ export default function HeroTunnel() {
   const router = useRouter();
   const { isSignedIn } = useUser();
   const { openSignUp } = useClerk();
+  const { t } = useTranslation();
 
   const containerRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef(0);
@@ -94,18 +96,17 @@ export default function HeroTunnel() {
         >
           <span className="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            RAG-powered · Multi-channel
+            {t('heroBadge')}
           </span>
 
           <h1 className="text-5xl font-semibold leading-[1.05] tracking-tight text-white md:text-6xl lg:text-7xl">
-            The AI Core
+            {t('heroTitleLine1')}
             <br />
-            For Your Business
+            {t('heroTitleLine2')}
           </h1>
 
           <p className="mt-6 max-w-md text-lg text-white/50">
-            ერთი ჩატბოტი, რომელიც ცნობს თქვენს ბიზნესს — ვებსაიტიდან WhatsApp-მდე,
-            რეალურ დოკუმენტებზე დაყრდნობით.
+            {t('heroDescription')}
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4">
@@ -113,13 +114,13 @@ export default function HeroTunnel() {
               onClick={handleCreateBot}
               className="rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-6 py-3 text-sm font-medium text-white shadow-[0_0_40px_-10px_rgba(139,92,246,0.7)] transition hover:opacity-90 active:scale-95 cursor-pointer"
             >
-              შექმენი შენი ბოტი
+              {t('heroCtaButton')}
             </button>
           </div>
         </div>
 
         <div className="pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 text-xs uppercase tracking-widest text-white/30">
-          Scroll
+          {t('heroScrollLabel')}
         </div>
       </div>
     </div>

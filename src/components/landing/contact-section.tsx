@@ -4,35 +4,37 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, Sparkles, ArrowUpRight, Loader2 } from 'lucide-react';
 import { sendEmailAction } from '@/app/actions/send-email';
-
-const contactInfo = [
-  {
-    icon: Mail,
-    title: 'ელ.ფოსტა',
-    value: 'yourbot95@gmail.com',
-    href: 'mailto:yourbot95@gmail.com',
-  },
-  {
-    icon: Phone,
-    title: 'ტელეფონი',
-    value: '+995 555 00 00 00',
-    href: 'tel:+995555000000',
-  },
-  {
-    icon: MapPin,
-    title: 'ოფისი',
-    value: 'თბილისი, საქართველო',
-    href: '#',
-  },
-];
+import { useTranslation } from '@/context/LanguageContext';
 
 export default function ContactSection() {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({
     type: null,
     message: '',
   });
+
+  const contactInfo = [
+    {
+      icon: Mail,
+      title: t('contactEmailTitle'),
+      value: 'yourbot95@gmail.com',
+      href: 'mailto:yourbot95@gmail.com',
+    },
+    {
+      icon: Phone,
+      title: t('contactPhoneTitle'),
+      value: '+995 555 00 00 00',
+      href: 'tel:+995555000000',
+    },
+    {
+      icon: MapPin,
+      title: t('contactOfficeTitle'),
+      value: t('contactOfficeValue'),
+      href: '#',
+    },
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,10 +45,10 @@ export default function ContactSection() {
 
     setLoading(false);
     if (res.success) {
-      setStatus({ type: 'success', message: 'შეტყობინება წარმატებით გაიგზავნა!' });
+      setStatus({ type: 'success', message: t('contactSuccess') });
       setFormData({ name: '', email: '', message: '' });
     } else {
-      setStatus({ type: 'error', message: res.error || 'დაფიქსირდა შეცდომა.' });
+      setStatus({ type: 'error', message: res.error || t('contactError') });
     }
   };
 
@@ -69,18 +71,18 @@ export default function ContactSection() {
         >
           <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-xs font-medium text-violet-300">
             <Sparkles className="h-3.5 w-3.5 text-fuchsia-400" />
-            <span>დაგვიკავშირდით</span>
+            <span>{t('contactBadge')}</span>
           </div>
 
           <h2 className="mt-4 text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">
-            მზად ხართ{' '}
+            {t('contactTitle1')}{' '}
             <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
-              გააზრდოთ ბიზნესი
+              {t('contactTitleHighlight')}
             </span>{' '}
-            AI-თან ერთად?
+            {t('contactTitle2')}
           </h2>
           <p className="mt-3 text-xs sm:text-base text-white/60">
-            მოგვწერეთ ნებისმიერი კითხვა ან მოითხოვეთ პერსონალური დემო პრეზენტაცია.
+            {t('contactSubtitle')}
           </p>
         </motion.div>
 
@@ -127,9 +129,9 @@ export default function ContactSection() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="rounded-2xl border border-violet-500/20 bg-gradient-to-b from-violet-500/10 to-transparent p-5 backdrop-blur-md"
             >
-              <h4 className="text-xs sm:text-sm font-semibold text-violet-300">24/7 მხარდაჭერის გუნდი</h4>
+              <h4 className="text-xs sm:text-sm font-semibold text-violet-300">{t('supportBoxTitle')}</h4>
               <p className="mt-1 text-[11px] sm:text-xs leading-relaxed text-white/60">
-                ჩვენი ტექნიკური გუნდი მზადაა დაგეხმაროთ AI ასისტენტის გამართვასა და ბიზნეს-პროცესების ავტომატიზაციაში.
+                {t('supportBoxText')}
               </p>
             </motion.div>
           </div>
@@ -145,18 +147,18 @@ export default function ContactSection() {
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
                 <div>
-                  <label className="block text-xs font-medium text-white/60">თქვენი სახელი</label>
+                  <label className="block text-xs font-medium text-white/60">{t('formNameLabel')}</label>
                   <input
                     type="text"
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="გიორგი გიორგაძე"
+                    placeholder={t('formNamePlaceholder')}
                     className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 sm:py-3 text-sm text-white placeholder-white/20 outline-none transition duration-200 focus:border-violet-500 focus:bg-white/[0.05]"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-white/60">ელ.ფოსტა</label>
+                  <label className="block text-xs font-medium text-white/60">{t('formEmailLabel')}</label>
                   <input
                     type="email"
                     required
@@ -169,13 +171,13 @@ export default function ContactSection() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-white/60">შეტყობინება</label>
+                <label className="block text-xs font-medium text-white/60">{t('formMessageLabel')}</label>
                 <textarea
                   rows={4}
                   required
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  placeholder="გამარჯობა, მაინტერესებს YourBot-ის ინტეგრაცია ჩემს ვებსაიტზე..."
+                  placeholder={t('formMessagePlaceholder')}
                   className="mt-1.5 w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 sm:py-3 text-sm text-white placeholder-white/20 outline-none transition duration-200 focus:border-violet-500 focus:bg-white/[0.05]"
                 />
               </div>
@@ -201,11 +203,11 @@ export default function ContactSection() {
                 <span className="flex w-full items-center justify-center gap-2 rounded-[11px] bg-[#0d0c14] px-6 py-3 text-sm transition duration-300 group-hover:bg-transparent">
                   {loading ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin" /> იგზავნება...
+                      <Loader2 className="h-4 w-4 animate-spin" /> {t('formSending')}
                     </>
                   ) : (
                     <>
-                      შეტყობინების გაგზავნა
+                      {t('formSubmit')}
                       <Send className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                     </>
                   )}

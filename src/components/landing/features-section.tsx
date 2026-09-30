@@ -2,8 +2,10 @@
 
 import { useRef } from 'react';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import { useTranslation } from '@/context/LanguageContext';
 
 export default function FeaturesSection() {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -26,8 +28,8 @@ export default function FeaturesSection() {
       <div className="relative flex min-h-screen w-full flex-col items-center justify-center px-4 sm:px-6 md:sticky md:top-0 md:h-screen md:overflow-hidden md:px-12">
         
         {/* სათაური */}
-        <h2 className="mb-8 text-center text-2xl font-semibold tracking-tight sm:text-3xl md:mb-12 md:text-4xl">
-          ყველაფერი, რაც გჭირდებათ ერთ პლატფორმაზე
+        <h2 className="mb-8 text-center text-2xl font-semibold tracking-tight sm:text-3xl md:mb-12 md:text-4xl text-white">
+          {t('featuresMainTitle')}
         </h2>
 
         {/* BENTO GRID Wrapper */}
@@ -108,24 +110,24 @@ export default function FeaturesSection() {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:grid-rows-2">
             <BentoCard
               className="md:col-span-2"
-              title="Retrieval-Augmented Generation"
-              description="თქვენი Knowledge Base ავტომატურად ინდექსირდება pgvector-ში და ყოველ პასუხს ეხმარება რეალურ დოკუმენტებზე დაყრდნობით."
+              title={t('feature1Title')}
+              description={t('feature1Desc')}
               glow="from-violet-500/20"
             />
             <BentoCard
-              title="Omnichannel Sync"
-              description="ერთი საუბრის ისტორია ყველა არხზე."
+              title={t('feature2Title')}
+              description={t('feature2Desc')}
               glow="from-cyan-400/20"
             />
             <BentoCard
-              title="Human Handoff"
-              description="საჭიროებისას ავტომატურად გადადის ცოცხალ ოპერატორზე."
+              title={t('feature3Title')}
+              description={t('feature3Desc')}
               glow="from-emerald-400/20"
             />
             <BentoCard
               className="md:col-span-2"
-              title="Knowledge Gap Detection"
-              description="ბოტი აღნიშნავს კითხვებს, რომლებზეც ცოდნა აკლია, რომ მუდმივად გაუმჯობესდეს."
+              title={t('feature4Title')}
+              description={t('feature4Desc')}
               glow="from-amber-400/20"
             />
           </div>

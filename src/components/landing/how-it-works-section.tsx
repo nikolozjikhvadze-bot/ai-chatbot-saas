@@ -15,16 +15,17 @@ import {
   ArrowRight,
   type LucideIcon,
 } from 'lucide-react';
+import { useTranslation } from '@/context/LanguageContext';
 
 interface Chip {
-  label: string;
+  labelKey: string;
   icon: LucideIcon;
 }
 
 interface Step {
   index: string;
-  title: string;
-  description: string;
+  titleKey: string;
+  descKey: string;
   icon: LucideIcon;
   chips: Chip[];
 }
@@ -32,37 +33,34 @@ interface Step {
 const steps: Step[] = [
   {
     index: '01',
-    title: 'AI სწავლობს შენს ბიზნესს',
-    description:
-      'მიუთითე ვებსაიტი ან ატვირთე დოკუმენტები — AI ავტომატურად გადაიკითხავს და ისწავლის შენს პროდუქტებსა და სერვისებს 1 წუთში.',
+    titleKey: 'howStep1Title',
+    descKey: 'howStep1Desc',
     icon: Globe2,
     chips: [
-      { label: 'ვებსაიტის სკანირება', icon: Globe2 },
-      { label: 'დოკუმენტების ატვირთვა', icon: FileUp },
+      { labelKey: 'howChip1_1', icon: Globe2 },
+      { labelKey: 'howChip1_2', icon: FileUp },
     ],
   },
   {
     index: '02',
-    title: 'ავტომატური ინტეგრაცია',
-    description:
-      'AI თავად აერთებს ჩატბოტს Web, WhatsApp, Instagram და Telegram არხებზე — ერთი დაწკაპუნებით, ყოველგვარი კოდის გარეშე.',
+    titleKey: 'howStep2Title',
+    descKey: 'howStep2Desc',
     icon: Webhook,
     chips: [
-      { label: 'WhatsApp', icon: MessagesSquare },
-      { label: 'Instagram', icon: Share2 },
-      { label: 'Telegram', icon: Send },
+      { labelKey: 'howChip2_1', icon: MessagesSquare },
+      { labelKey: 'howChip2_2', icon: Share2 },
+      { labelKey: 'howChip2_3', icon: Send },
     ],
   },
   {
     index: '03',
-    title: 'ბიზნეს პროცესების ავტომატიზაცია',
-    description:
-      'ავტომატური ჯავშნები და შეხვედრები, ლიდების შეგროვება CRM-ში, შეკვეთების მიღება და 24/7 მხარდაჭერა — ყველაფერი თავისით მუშაობს.',
+    titleKey: 'howStep3Title',
+    descKey: 'howStep3Desc',
     icon: CalendarCheck2,
     chips: [
-      { label: 'ჯავშნები', icon: CalendarCheck2 },
-      { label: 'CRM ლიდები', icon: Users },
-      { label: '24/7 მხარდაჭერა', icon: Headset },
+      { labelKey: 'howChip3_1', icon: CalendarCheck2 },
+      { labelKey: 'howChip3_2', icon: Users },
+      { labelKey: 'howChip3_3', icon: Headset },
     ],
   },
 ];
@@ -87,6 +85,7 @@ const cardVariants: Variants = {
 };
 
 export default function HowItWorksSection() {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -146,7 +145,6 @@ export default function HowItWorksSection() {
                 style={{ strokeDasharray: 1000, strokeDashoffset }}
               />
 
-              {/* სინქრონული მანათობელი გარეთა წერტილი */}
               <motion.rect
                 x="0.5"
                 y="0.5"
@@ -162,7 +160,6 @@ export default function HowItWorksSection() {
                 className="drop-shadow-[0_0_12px_#a855f7]"
               />
 
-              {/* სინქრონული შიდა თეთრი გული */}
               <motion.rect
                 x="0.5"
                 y="0.5"
@@ -196,15 +193,14 @@ export default function HowItWorksSection() {
             className="relative z-10 mx-auto max-w-2xl text-center"
           >
             <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl md:text-4xl">
-              როგორ ავტომატიზებს{' '}
+              {t('howTitlePrefix' as any)}{' '}
               <span className="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
                 YourBot
               </span>{' '}
-              შენს ბიზნესს?
+              {t('howTitleSuffix' as any)}
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-white/60 sm:text-base">
-              ნულოვანი კოდი. AI თავად იბარებს ტექნიკურ ნაწილს, აწყობს
-              ავტომატიზაციებს და 3 მარტივ ნაბიჯში ინტეგრირდება შენს სისტემაში.
+              {t('howSubtitle' as any)}
             </p>
           </motion.div>
 
@@ -251,10 +247,10 @@ export default function HowItWorksSection() {
                       {step.index}
                     </span>
                     <h3 className="mt-1 text-base font-medium text-white sm:text-lg">
-                      {step.title}
+                      {t(step.titleKey as any)}
                     </h3>
                     <p className="mt-2 text-xs leading-relaxed text-white/55 sm:text-sm">
-                      {step.description}
+                      {t(step.descKey as any)}
                     </p>
 
                     <div className="mt-4 flex flex-wrap gap-1.5 sm:gap-2">
@@ -262,11 +258,11 @@ export default function HowItWorksSection() {
                         const ChipIcon = chip.icon;
                         return (
                           <span
-                            key={chip.label}
+                            key={chip.labelKey}
                             className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] text-white/60 sm:text-xs"
                           >
                             <ChipIcon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                            {chip.label}
+                            {t(chip.labelKey as any)}
                           </span>
                         );
                       })}

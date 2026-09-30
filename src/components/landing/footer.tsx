@@ -1,8 +1,11 @@
 'use client';
 
 import { Sparkles } from 'lucide-react';
+import { useTranslation } from '@/context/LanguageContext';
 
 export default function Footer() {
+  const { t } = useTranslation();
+
   return (
     <footer className="relative z-10 border-t border-white/10 bg-[#08070c] py-12 text-white">
       {/* Background Ambient Glow */}
@@ -24,34 +27,34 @@ export default function Footer() {
               </span>
             </div>
             <p className="mt-3 text-xs leading-relaxed text-white/50">
-              AI ასისტენტები და ავტომატიზაცია შენი ბიზნესის სწრაფი ზრდისთვის.
+              {t('footerBrandDesc')}
             </p>
           </div>
 
           {/* Navigation */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-white/80">
-              ნავიგაცია
+              {t('footerNavTitle')}
             </h4>
             <ul className="mt-3 space-y-2 text-xs text-white/60">
               <li>
                 <a href="#features" className="transition hover:text-white">
-                  ფუნქციები
+                  {t('footerNavFeatures')}
                 </a>
               </li>
               <li>
                 <a href="#how-it-works" className="transition hover:text-white">
-                  როგორ მუშაობს
+                  {t('footerNavHowItWorks')}
                 </a>
               </li>
               <li>
                 <a href="#pricing" className="transition hover:text-white">
-                  ფასები
+                  {t('footerNavPricing')}
                 </a>
               </li>
               <li>
                 <a href="#contact" className="transition hover:text-white">
-                  კონტაქტი
+                  {t('footerNavContact')}
                 </a>
               </li>
             </ul>
@@ -60,22 +63,22 @@ export default function Footer() {
           {/* Legal */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-white/80">
-              სამართლებრივი
+              {t('footerLegalTitle')}
             </h4>
             <ul className="mt-3 space-y-2 text-xs text-white/60">
               <li>
                 <a href="/privacy" className="transition hover:text-white">
-                  კონფიდენციალურობა
+                  {t('footerLegalPrivacy')}
                 </a>
               </li>
               <li>
                 <a href="/terms" className="transition hover:text-white">
-                  მოხმარების პირობები
+                  {t('footerLegalTerms')}
                 </a>
               </li>
               <li>
                 <a href="/cookies" className="transition hover:text-white">
-                  Cookie პოლიტიკა
+                  {t('footerLegalCookies')}
                 </a>
               </li>
             </ul>
@@ -84,7 +87,7 @@ export default function Footer() {
           {/* Socials */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-white/80">
-              სოციალური ქსელები
+              {t('footerSocialTitle')}
             </h4>
             <div className="mt-3 flex gap-2.5 text-white/60">
               {/* Twitter / X */}
@@ -145,9 +148,9 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/5 pt-6 sm:flex-row text-xs text-white/40">
-          <p>© {new Date().getFullYear()} YourBot. ყველა უფლება დაცულია.</p>
+          <p>© {new Date().getFullYear()} YourBot. {t('footerAllRights')}</p>
           <p className="flex items-center gap-1.5">
-            შექმნილია საქართველოში <Sparkles className="h-3 w-3 text-fuchsia-400" />
+            {t('footerMadeWith')} <Sparkles className="h-3 w-3 text-fuchsia-400" />
           </p>
         </div>
       </div>
