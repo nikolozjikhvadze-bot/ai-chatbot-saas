@@ -19,6 +19,7 @@ export default function ChatWidget() {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState<string | null>(null); // ფაილების მართვის ინდიკატორისთვის
   const [conversationId, setConversationId] = useState<string | undefined>(undefined);
   const [visitorId, setVisitorId] = useState<string>('');
 
@@ -37,7 +38,7 @@ export default function ChatWidget() {
   // 2. ჩატის ავტომატური ჩამოქაჩვა ბოლო შეტყობინებაზე
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, loading]);
+  }, [messages, loading, loadingStatus]);
 
   const sendMessage = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -46,6 +47,7 @@ export default function ChatWidget() {
     const userMsg = input.trim();
     setInput('');
     setLoading(true);
+    setLoadingStatus('პასუხს აგენერირებს...');
 
     const newMessages = [...messages, { role: 'user' as const, content: userMsg }];
     setMessages(newMessages);
@@ -91,7 +93,6 @@ export default function ChatWidget() {
             try {
               const event = JSON.parse(line.slice(6));
 
-              // აქ გასწორდა event.content -> event.text
               if (event.type === 'text_delta' && event.text) {
                 accumulatedResponse += event.text;
 
@@ -108,7 +109,17 @@ export default function ChatWidget() {
                   setConversationId(event.conversationId);
                 }
               } else if (event.type === 'tool_call') {
-                console.log('AI Tool call:', event.name);
+                // აქ იჭერს ბოტიდან წამოსულ ტულებს და აჩვენებს სტატუსს
+                const toolName = event.name;
+                const toolArgs = event.args as any;
+
+                if (toolName === 'update_file') {
+                  setLoadingStatus(`ფაილის განახლება: ${toolArgs?.filePath || 'ფაილი'}...`);
+                } else if (toolName === 'delete_file') {
+                  setLoadingStatus(`ფაილის წაშლა: ${toolArgs?.filePath || 'ფაილი'}...`);
+                } else if (toolName === 'request_human') {
+                  setLoadingStatus('ოპერატორთან გადართვა...');
+                }
               } else if (event.type === 'error') {
                 throw new Error(event.message);
               }
@@ -138,6 +149,7 @@ export default function ChatWidget() {
       ]);
     } finally {
       setLoading(false);
+      setLoadingStatus(null);
     }
   };
 
@@ -197,8 +209,9 @@ export default function ChatWidget() {
               ))}
               {loading && (
                 <div className="flex justify-start">
-                  <div className="bg-white/5 border border-white/10 text-white/60 p-3 rounded-2xl rounded-bl-none animate-pulse">
-                    პასუხს აგენერირებს...
+                  <div className="bg-white/5 border border-white/10 text-white/60 p-3 rounded-2xl rounded-bl-none animate-pulse flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-ping" />
+                    {loadingStatus || 'პასუხს აგენერირებს...'}
                   </div>
                 </div>
               )}

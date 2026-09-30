@@ -86,10 +86,12 @@ export async function POST(req: Request) {
 
   const sb = createAdminClient();
 
-  // 1. ბოტის მოძიება (telegram_chat_id-ს ჩათვლით)
+  // ==========================================
+  // ნაწილი 1: ბოტის მოძიება owner_id-სთან ერთად
+  // ==========================================
   const { data: bot } = await sb
     .from("bots")
-    .select("id, is_active, allowed_origin, allowed_domains, telegram_chat_id")
+    .select("id, is_active, allowed_origin, allowed_domains, telegram_chat_id, owner_id")
     .eq("id", botKey)
     .maybeSingle();
 
@@ -119,6 +121,20 @@ export async function POST(req: Request) {
         { error: "ეს ბოტი ამ დომენიდან წვდომისთვის არ არის ავტორიზებული." },
         { status: 403, headers: cors }
       );
+    }
+  }
+
+  // ==========================================
+  // ნაწილი 2: მფლობელის (Owner) შემოწმება
+  // ==========================================
+  const authHeader = req.headers.get("authorization");
+  let isOwner = false;
+
+  if (authHeader) {
+    const token = authHeader.replace("Bearer ", "");
+    const { data: { user } } = await sb.auth.getUser(token);
+    if (user && user.id === bot.owner_id) {
+      isOwner = true;
     }
   }
 
@@ -160,7 +176,9 @@ export async function POST(req: Request) {
     }
   }
 
-  // 3. ჩვეულებრივი AI სტრიმი handleMessage-ის მეშვეობით
+  // ==========================================
+  // ნაწილი 3: AI სტრიმი და handleMessage-ში isOwner-ის გადაცემა
+  // ==========================================
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
@@ -182,6 +200,7 @@ export async function POST(req: Request) {
             externalUserId: visitorId,
             text: message,
             conversationId,
+            isOwner, // <-- გადავცემთ მფლობელის ფლაგს
             metadata: {
               user_agent: req.headers.get("user-agent"),
               telegram_chat_id: bot.telegram_chat_id,

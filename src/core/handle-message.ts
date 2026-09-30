@@ -17,6 +17,7 @@ interface MessageInput {
   externalUserId: string;
   text: string;
   conversationId?: string;
+  isOwner?: boolean;
   metadata?: Record<string, unknown>;
 }
 
@@ -69,7 +70,6 @@ export async function* handleMessage(
   try {
     let conversationId = input.conversationId;
 
-    // 1. კონვერსაციის შექმნა ან მოძიება
     if (!conversationId) {
       const { data: conv } = await supabase
         .from("conversations")
@@ -84,7 +84,6 @@ export async function* handleMessage(
       if (conv) conversationId = conv.id;
     }
 
-    // 2. მომხმარებლის შეტყობინების შენახვა ბაზაში
     if (conversationId) {
       await supabase.from("messages").insert({
         conversation_id: conversationId,
@@ -93,7 +92,6 @@ export async function* handleMessage(
       });
     }
 
-    // 3. ბოტის პარამეტრები
     const { data: bot, error: botErr } = await supabase
       .from("bots")
       .select("name, tone, system_prompt, telegram_chat_id")
@@ -104,20 +102,34 @@ export async function* handleMessage(
       throw new Error(`Bot not found: ${input.botId}`);
     }
 
-    // 4. ენის დეტექცია
-    const language = detectLanguage(input.text);
+    const { data: projectFiles } = await supabase
+      .from("bot_files")
+      .select("file_path, content")
+      .eq("bot_id", input.botId);
 
-    // 5. RAG Search გათიშულია (ძველი ლოგიკა)
+    let filesContext = "";
+    if (projectFiles && projectFiles.length > 0) {
+      filesContext =
+        "\n\nარსებული პროექტის ფაილები:\n" +
+        projectFiles
+          .map((f) => `--- ფაილი: ${f.file_path} ---\n${f.content}`)
+          .join("\n\n");
+    } else {
+      filesContext = "\n\nპროექტში ჯერ ფაილები არ არის შექმნილი.";
+    }
+
+    const language = detectLanguage(input.text);
     const chunks: any[] = [];
 
-    // 6. System Prompt
-    const systemInstruction = buildSystemPrompt({
+    const baseSystemPrompt = buildSystemPrompt({
       botName: bot.name ?? "Assistant",
       tone: bot.tone ?? "helpful and professional",
       instructions: bot.system_prompt,
       language,
       chunks,
     });
+
+    const systemInstruction = baseSystemPrompt + filesContext;
 
     const toolCtx = {
       botId: input.botId,
@@ -129,7 +141,6 @@ export async function* handleMessage(
       metadata: input.metadata,
     };
 
-    // 7. საუბრის ისტორია (ბოლო 12 შეტყობინება; მიმდინარე უკვე შენახულია)
     let contents: any[] = [{ role: "user", parts: [{ text: input.text }] }];
 
     if (conversationId) {
@@ -146,7 +157,6 @@ export async function* handleMessage(
           parts: [{ text: m.content as string }],
         }));
 
-        // Gemini-სთვის საუბარი "user" შეტყობინებით უნდა იწყებოდეს
         while (mapped.length > 0 && mapped[0].role !== "user") {
           mapped.shift();
         }
@@ -155,7 +165,62 @@ export async function* handleMessage(
       }
     }
 
-    // 8. Gemini API-ის გამოძახება Fallback & Retry ლოგიკით
+    // მფლობელისთვის activeTools-ის დინამიკურად დამატება (update_file + delete_file)
+    const activeTools = [
+      ...toolsDefinition,
+      ...(input.isOwner
+        ? [
+            {
+              functionDeclarations: [
+                {
+                  name: "update_file",
+                  description:
+                    "ფაილის კოდის განახლება ან შეცვლა პროექტში. გამოიყენე როცა მფლობელი გთხოვს კოდის შეცვლას ან ფაილის განახლებას.",
+                  parameters: {
+                    type: "OBJECT",
+                    properties: {
+                      filePath: {
+                        type: "STRING",
+                        description:
+                          "ფაილის ზუსტი გზა და სახელი, მაგალითად: components/Header.tsx",
+                      },
+                      newContent: {
+                        type: "STRING",
+                        description: "ფაილის სრული ახალი კოდი",
+                      },
+                      reason: {
+                        type: "STRING",
+                        description: "ცვლილების მიზეზი",
+                      },
+                    },
+                    required: ["filePath", "newContent", "reason"],
+                  },
+                },
+                {
+                  name: "delete_file",
+                  description:
+                    "ფაილის წაშლა პროექტიდან. გამოიყენე მხოლოდ მაშინ, როცა მფლობელი პირდაპირ ითხოვს კონკრეტული ფაილის წაშლას.",
+                  parameters: {
+                    type: "OBJECT",
+                    properties: {
+                      filePath: {
+                        type: "STRING",
+                        description: "წასაშლელი ფაილის ზუსტი გზა, მაგალითად: components/Old.tsx",
+                      },
+                      reason: {
+                        type: "STRING",
+                        description: "წაშლის მიზეზი",
+                      },
+                    },
+                    required: ["filePath", "reason"],
+                  },
+                },
+              ],
+            },
+          ]
+        : []),
+    ];
+
     const FALLBACK_MODEL = "gemini-2.0-flash";
     const modelsToTry = Array.from(new Set([CHAT_MODEL, FALLBACK_MODEL]));
 
@@ -171,7 +236,7 @@ export async function* handleMessage(
             contents,
             config: {
               systemInstruction: systemInstruction,
-              tools: toolsDefinition as any,
+              tools: activeTools as any,
             },
           });
 
@@ -194,7 +259,6 @@ export async function* handleMessage(
 
     let fullAssistantResponse = "";
 
-    // 9. Streaming & Function Calling
     for await (const chunk of responseStream) {
       const candidates = chunk.candidates;
       if (!candidates || candidates.length === 0) continue;
@@ -213,7 +277,7 @@ export async function* handleMessage(
 
           yield { type: "tool_call", name, args: call.args };
 
-        if (name === "log_knowledge_gap") {
+          if (name === "log_knowledge_gap") {
             await logKnowledgeGap(call.args as any, toolCtx);
           } else if (name === "request_human") {
             if (conversationId) {
@@ -223,12 +287,37 @@ export async function* handleMessage(
                 .eq("id", conversationId);
             }
             await requestHuman(call.args as any, toolCtx);
+          } else if (name === "update_file") {
+            const args = call.args as {
+              filePath: string;
+              newContent: string;
+              reason: string;
+            };
+            if (args && args.filePath && args.newContent) {
+              await supabase.from("bot_files").upsert(
+                {
+                  bot_id: input.botId,
+                  file_path: args.filePath,
+                  content: args.newContent,
+                  updated_at: new Date().toISOString(),
+                },
+                { onConflict: "bot_id,file_path" }
+              );
+            }
+          } else if (name === "delete_file") {
+            const args = call.args as { filePath: string; reason: string };
+            if (args && args.filePath) {
+              await supabase
+                .from("bot_files")
+                .delete()
+                .eq("bot_id", input.botId)
+                .eq("file_path", args.filePath);
+            }
           }
         }
       }
     }
 
-    // 10. ასისტენტის პასუხის შენახვა ბაზაში
     if (conversationId && fullAssistantResponse.trim()) {
       await supabase.from("messages").insert({
         conversation_id: conversationId,
