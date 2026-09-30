@@ -7,6 +7,9 @@ import { checkRateLimits, getClientIp, rateLimitResponse } from "@/lib/rate-limi
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
+/** შენი პლატფორმის ოფიციალური/მთავარი ბოტის ID (შეცვალე შენი რეალური ID-ით) */
+const YOURBOT_ADMIN_BOT_KEY = "11111111-1111-1111-1111-111111111111";
+
 /** origin-ს ინარჩუნებს მხოლოდ schema+host+port-ს */
 function normalizeOrigin(origin: string | null): string | null {
   if (!origin) return null;
@@ -127,14 +130,20 @@ export async function POST(req: Request) {
   // ==========================================
   // ნაწილი 2: მფლობელის (Owner) შემოწმება
   // ==========================================
-  const authHeader = req.headers.get("authorization");
   let isOwner = false;
 
-  if (authHeader) {
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user } } = await sb.auth.getUser(token);
-    if (user && user.id === bot.owner_id) {
-      isOwner = true;
+  // თუ ეს ზუსტად შენი პლატფორმის მთავარი დამხმარე ბოტია, ავტომატურად ვაძლევთ true-ს
+  if (botKey === YOURBOT_ADMIN_BOT_KEY) {
+    isOwner = true;
+  } else {
+    // სხვა დანარჩენი ბოტებისთვის ვამოწმებთ ავტორიზაციის ტოკენით
+    const authHeader = req.headers.get("authorization");
+    if (authHeader) {
+      const token = authHeader.replace("Bearer ", "");
+      const { data: { user } } = await sb.auth.getUser(token);
+      if (user && user.id === bot.owner_id) {
+        isOwner = true;
+      }
     }
   }
 
