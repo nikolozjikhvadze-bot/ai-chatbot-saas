@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import ChatWidget from "@/components/chatWidget"; // შეამოწმე ფაილის გზა
 import "./globals.css";
 
@@ -61,6 +62,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         lang="ka"
         className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
       >
+        <head>
+          {/* Google Analytics სკრიპტი */}
+          <Script
+            src="https://www.googletagmanager.com/gtag/js?id=G-GQBVB2JHSX"
+            strategy="afterInteractive"
+          />
+          <Script id="google-analytics" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-GQBVB2JHSX');
+            `}
+          </Script>
+        </head>
         <body className="min-h-full flex flex-col bg-[#08070c] text-white">
           {children}
           {/* გლობალური AI ჩატბოტი */}
