@@ -87,5 +87,12 @@
 "pricingFeature5": "24/7 პრიორიტეტული ტექნიკური მხარდაჭერა",
 "pricingFeature6": "პერსონალური AI ასისტენტის მორგება",
 "pricingTrial": "14 დღიანი უფასო საცდელი პერიოდი",
-"pricingCta": "დაიწყე ახლავე"
+"pricingCta": "დაიწყე ახლავე",
+"navFeatures": "შესაძლებლობები",
+"navHowItWorks": "როგორ მუშაობს",
+"navPricing": "ფასები",
+"navContact": "კონტაქტი",
+"authSignIn": "შესვლა",
+"authGetStarted": "დაიწყე ახლავე",
+"dashboardLink": "პანელი (Dashboard)"
 }

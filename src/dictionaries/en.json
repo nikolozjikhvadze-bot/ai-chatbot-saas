@@ -87,5 +87,12 @@
 "pricingFeature5": "24/7 priority technical support",
 "pricingFeature6": "Personal AI assistant customization",
 "pricingTrial": "14-day free trial",
-"pricingCta": "Get Started Now"
+"pricingCta": "Get Started Now",
+"navFeatures": "Features",
+"navHowItWorks": "How It Works",
+"navPricing": "Pricing",
+"navContact": "Contact",
+"authSignIn": "Sign In",
+"authGetStarted": "Get Started",
+"dashboardLink": "Dashboard"
 }

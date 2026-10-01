@@ -11,23 +11,25 @@ import PricingSection from '@/components/landing/pricing-section';
 import ContactSection from '@/components/landing/contact-section';
 import Logo from '@/components/Logo';
 import Footer from '@/components/landing/footer';
-import LanguageSwitcher from '@/components/LanguageSwitcher'; // ენის გადამრთველის იმპორტი
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { useTranslation } from '@/context/LanguageContext'; // თარგმანის ჰუკი
 
-// ვტვირთავთ ჩატბოტს მხოლოდ კლიენტის მხარეს (SSR: false), რათა თავიდან ავიცილოთ Hydration შეცდომა
+// ვტვირთავთ ჩატბოტს მხოლოდ კლიენტის მხარეს (SSR: false)
 const ChatbotWidget = dynamic(() => import('@/components/chatWidget'), {
   ssr: false,
 });
 
-const navItems = [
-  { name: 'შესაძლებლობები', href: '#features' },
-  { name: 'როგორ მუშაობს', href: '#how-it-works' },
-  { name: 'ფასები', href: '#pricing' },
-  { name: 'კონტაქტი', href: '#contact' },
-];
-
 export default function LandingPage() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const { isSignedIn } = useAuth();
+  const { t } = useTranslation(); // ვიძახებთ თარგმანის ფუნქციას
+
+  const navItems = [
+    { name: t('navFeatures' as any), href: '#features' },
+    { name: t('navHowItWorks' as any), href: '#how-it-works' },
+    { name: t('navPricing' as any), href: '#pricing' },
+    { name: t('navContact' as any), href: '#contact' },
+  ];
 
   return (
     <main className="bg-[#08070c] text-white antialiased selection:bg-violet-500/40">
@@ -48,7 +50,7 @@ export default function LandingPage() {
         >
           {navItems.map((item, index) => (
             <a
-              key={item.name}
+              key={index}
               href={item.href}
               onMouseEnter={() => setHoveredIndex(index)}
               className="relative px-4 py-1.5 text-sm font-medium text-white/70 transition-colors hover:text-white"
@@ -72,20 +74,19 @@ export default function LandingPage() {
 
         {/* Auth Buttons / User Profile & Language Switcher */}
         <div className="flex items-center gap-4">
-          {/* ენის გადამრთველი */}
           <LanguageSwitcher />
 
           {!isSignedIn ? (
             <>
               <SignInButton mode="modal">
                 <button className="text-sm font-medium text-white/70 transition hover:text-white cursor-pointer">
-                  შესვლა
+                  {t('authSignIn' as any)}
                 </button>
               </SignInButton>
 
               <SignUpButton mode="modal">
                 <button className="rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 px-5 py-2 text-sm font-medium text-white shadow-[0_0_20px_rgba(139,92,246,0.5)] transition hover:opacity-90 cursor-pointer">
-                  დაიწყე ახლავე
+                  {t('authGetStarted' as any)}
                 </button>
               </SignUpButton>
             </>
@@ -95,7 +96,7 @@ export default function LandingPage() {
                 href="/dashboard"
                 className="text-sm font-medium text-violet-300 transition hover:text-white"
               >
-                პანელი (Dashboard)
+                {t('dashboardLink' as any)}
               </a>
               <UserButton />
             </>
@@ -103,24 +104,14 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* 1. HERO TUNNEL */}
+      {/* SECTIONS */}
       <HeroTunnel />
-
-      {/* 2. FEATURES */}
       <FeaturesSection />
-
-      {/* 3. HOW IT WORKS */}
       <HowItWorksSection />
-
-      {/* 4. PRICING */}
       <PricingSection />
-
-      {/* 5. CONTACT & FOOTER */}
       <ContactSection />
-
       <Footer />
 
-      {/* ჩატბოტი */}
       <ChatbotWidget />
     </main>
   );
