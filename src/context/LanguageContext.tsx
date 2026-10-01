@@ -30,7 +30,7 @@ const translations: Record<Language, Record<string, string>> = {
     heroTitleLine1: "ავტომატიზირე შენი ბიზნესი",
     heroTitleLine2: "ინტელექტუალური AI-ით",
     heroDescription: "შექმენი მძლავრი AI ასისტენტები და ბოტები რამდენიმე წუთში, ყოველგვარი კოდის წერის გარეშე.",
-    heroCtaButton: "უფასოდ დაწყება",
+    heroCtaButton: "შექმენი შენი ბოტი",
     
     // Features სექცია
     featuresMainTitle: "შესაძლებლობები, რომლებიც ზრდის შენს ბიზნესს",
