@@ -7,8 +7,8 @@ type Language = 'geo' | 'eng';
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  lang: Language;             // LanguageSwitcher-ისთვის
-  setLang: (lang: Language) => void; // LanguageSwitcher-ისთვის
+  lang: Language;
+  setLang: (lang: Language) => void;
   t: (key: string) => string;
 }
 
@@ -25,15 +25,58 @@ const translations: Record<Language, Record<string, string>> = {
     authGetStarted: "დაიწყე ახლავე",
     dashboardLink: "პანელი (Dashboard)",
     
+    // ჰერო სექცია (მთავარი გვერდი)
+    heroBadge: "ახალი თაობის AI ავტომატიზაცია",
+    heroTitleLine1: "ავტომატიზირე შენი ბიზნესი",
+    heroTitleLine2: "ინტელექტუალური AI-ით",
+    heroDescription: "შექმენი მძლავრი AI ასისტენტები და ბოტები რამდენიმე წუთში, ყოველგვარი კოდის წერის გარეშე.",
+    heroCtaButton: "უფასოდ დაწყება",
+    
     // დაშბორდი
     dashLoading: "იტვირთება მონაცემები...",
     dashGreeting: "გამარჯობა",
     dashDefaultUser: "მომხმარებელო",
     dashSubscriptionRequired: "გამოწერა საჭიროა პროექტების შესაქმნელად.",
     dashMyProjects: "ჩემი პროექტები",
-    dashAddProject: "+ Add Project",
+    dashAddProject: "+ პროექტის დამატება",
     dashLoadingProjects: "იტვირთება...",
     dashNoProjects: "ჯერ არცერთი პროექტი არ გაქვთ შექმნილი.",
+    
+    // ახალი პროექტის შექმნა (/projects/new)
+    newProjNameRequired: "ჯერ პროექტს დაარქვით სახელი.",
+    newProjNoFiles: "ფოლდერში შესაბამისი კოდის ფაილები ვერ მოიძებნა.",
+    newProjGeneralError: "მოხდა შეცდომა სერვერთან კავშირისას.",
+    newProjHeading: "ახალი პროექტის დამატება",
+    newProjSubheading: "ატვირთეთ პროექტის ფოლდერი AI ანალიზისა და კოდის გენერაციისთვის",
+    newProjNameLabel: "პროექტის სახელი",
+    newProjNamePlaceholder: "მაგ. Max's Portfolio",
+    newProjSelectFolderTitle: "აირჩიეთ პროექტის ფოლდერი",
+    newProjSelectFolderDesc: "დააჭირეთ აქ და აირჩიეთ საქაღალდე",
+    newProjAnalyzing: "მიმდინარეობს ანალიზი და AI კოდის გენერაცია...",
+    
+    // პროექტის დეტალები / ჩატი (/projects/[id])
+    projectInitialGreeting: "გამარჯობა! რით შემიძლია დაგეხმაროთ ამ პროექტთან დაკავშირებით?",
+    projectLoadError: "პროექტის ჩატვირთვა ვერ მოხერხდა.",
+    projectFetchError: "შეცდომა პროექტის ჩატვირთვისას.",
+    projectDeleteConfirm: "ნამდვილად გსურთ პროექტისა და მასთან დაკავშირებული ბოტის წაშლა?",
+    projectDeleteError: "პროექტის წაშლა ვერ მოხერხდა.",
+    serverConnectionError: "შეცდომა სერვერთან დაკავშირებისას.",
+    chatFallbackReply: "ბოდიში, პასუხი ვერ მოხერხდა.",
+    chatConnectionError: "სერვერთან კავშირის შეცდომა.",
+    projectLoading: "იტვირთება პროექტი...",
+    backToDashboard: "დაშბორდზე დაბრუნება",
+    projectDeleting: "იშლება...",
+    projectDelete: "პროექტის წაშლა",
+    aiReviewTitle: "AI Review & ანალიზი",
+    generatedCodeTitle: "დაგენერირებული კოდი",
+    copied: "დაკოპირდა",
+    copy: "Copy",
+    copyTerminal: "ბრძანების კოპირება",
+    terminalBoxTitle: "თუ კოდის ჩასმის შემდეგ ხარვეზი წარმოიქმნა:",
+    terminalBoxDesc: "გახსენით ტერმინალი თქვენს პროექტში, გასწმინდეთ დროებითი ქეში და გადატვირთეთ სერვერი:",
+    chatLoadingReply: "იწერება პასუხი...",
+    chatInputPlaceholder: "დაწერეთ შეტყობინება...",
+    chatSendBtn: "გაგზავნა",
     
     // Pricing სექცია
     pricingBadge: "მარტივი და გამჭვირვალე ტარიფი",
@@ -68,6 +111,13 @@ const translations: Record<Language, Record<string, string>> = {
     authGetStarted: "Get Started",
     dashboardLink: "Dashboard",
     
+    // ჰერო სექცია (მთავარი გვერდი)
+    heroBadge: "Next-Gen AI Automation",
+    heroTitleLine1: "Automate Your Business",
+    heroTitleLine2: "With Intelligent AI",
+    heroDescription: "Build powerful AI assistants and bots in minutes, without writing any code.",
+    heroCtaButton: "Get Started Free",
+    
     // დაშბორდი
     dashLoading: "Loading data...",
     dashGreeting: "Hello",
@@ -77,6 +127,42 @@ const translations: Record<Language, Record<string, string>> = {
     dashAddProject: "+ Add Project",
     dashLoadingProjects: "Loading...",
     dashNoProjects: "You haven't created any projects yet.",
+    
+    // ახალი პროექტის შექმნა (/projects/new)
+    newProjNameRequired: "Please name your project first.",
+    newProjNoFiles: "No valid code files found in the folder.",
+    newProjGeneralError: "An error occurred while connecting to the server.",
+    newProjHeading: "Add New Project",
+    newProjSubheading: "Upload your project folder for AI analysis and code generation",
+    newProjNameLabel: "Project Name",
+    newProjNamePlaceholder: "e.g., Max's Portfolio",
+    newProjSelectFolderTitle: "Select Project Folder",
+    newProjSelectFolderDesc: "Click here to choose a folder",
+    newProjAnalyzing: "Analyzing and generating AI code...",
+    
+    // პროექტის დეტალები / ჩატი (/projects/[id])
+    projectInitialGreeting: "Hello! How can I help you with this project?",
+    projectLoadError: "Failed to load project.",
+    projectFetchError: "Error fetching project.",
+    projectDeleteConfirm: "Are you sure you want to delete this project and its associated bot?",
+    projectDeleteError: "Failed to delete project.",
+    serverConnectionError: "Server connection error.",
+    chatFallbackReply: "Sorry, failed to get a response.",
+    chatConnectionError: "Server connection error.",
+    projectLoading: "Loading project...",
+    backToDashboard: "Back to Dashboard",
+    projectDeleting: "Deleting...",
+    projectDelete: "Delete Project",
+    aiReviewTitle: "AI Review & Analysis",
+    generatedCodeTitle: "Generated Code",
+    copied: "Copied",
+    copy: "Copy",
+    copyTerminal: "Copy Command",
+    terminalBoxTitle: "If an error occurs after pasting the code:",
+    terminalBoxDesc: "Open your project terminal, clean the temporary cache, and restart the server:",
+    chatLoadingReply: "Typing response...",
+    chatInputPlaceholder: "Type a message...",
+    chatSendBtn: "Send",
     
     // Pricing სექცია
     pricingBadge: "Simple & Transparent Pricing",
@@ -127,8 +213,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       value={{ 
         language, 
         setLanguage, 
-        lang: language,         // გადავცემთ ალიასს
-        setLang: setLanguage,   // გადავცემთ ალიასს
+        lang: language, 
+        setLang: setLanguage, 
         t 
       }}
     >
