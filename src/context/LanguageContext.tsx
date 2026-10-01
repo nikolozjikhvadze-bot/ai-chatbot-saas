@@ -32,6 +32,17 @@ const translations: Record<Language, Record<string, string>> = {
     heroDescription: "შექმენი მძლავრი AI ასისტენტები და ბოტები რამდენიმე წუთში, ყოველგვარი კოდის წერის გარეშე.",
     heroCtaButton: "უფასოდ დაწყება",
     
+    // Features სექცია
+    featuresMainTitle: "შესაძლებლობები, რომლებიც ზრდის შენს ბიზნესს",
+    feature1Title: "ჭკვიანი AI მოდელები",
+    feature1Desc: "მუშაობს უახლესი და ყველაზე მძლავრი ენობრივი მოდელების ბაზაზე მაქსიმალური სიზუსტისთვის.",
+    feature2Title: "მსუბუქი და სწრაფი ინტეგრაცია",
+    feature2Desc: "დააკავშირე შენი პლატფორმა ან ვებსაიტი რამდენიმე მარტივი ნაბიჯით.",
+    feature3Title: "უსაფრთხოება და კონტროლი",
+    feature3Desc: "შენი მონაცემები მკაცრად დაცულია და სრულ კონტროლქვეშ იმყოფება.",
+    feature4Title: "24/7 ავტომატური მხარდაჭერა",
+    feature4Desc: "უპასუხე მომხმარებელთა კითხვებს და შეასრულე დავალებები შეფერხებების გარეშე, დღისა და ღამის ნებისმიერ დროს.",
+
     // დაშბორდი
     dashLoading: "იტვირთება მონაცემები...",
     dashGreeting: "გამარჯობა",
@@ -118,6 +129,17 @@ const translations: Record<Language, Record<string, string>> = {
     heroDescription: "Build powerful AI assistants and bots in minutes, without writing any code.",
     heroCtaButton: "Get Started Free",
     
+    // Features სექცია
+    featuresMainTitle: "Features That Scale Your Business",
+    feature1Title: "Smart AI Models",
+    feature1Desc: "Powered by the latest and most advanced language models for maximum accuracy.",
+    feature2Title: "Seamless Integration",
+    feature2Desc: "Connect your platform or website in just a few simple steps.",
+    feature3Title: "Security & Control",
+    feature3Desc: "Your data is strictly protected and remains under your full control.",
+    feature4Title: "24/7 Automated Support",
+    feature4Desc: "Answer customer queries and handle tasks smoothly, day or night.",
+
     // დაშბორდი
     dashLoading: "Loading data...",
     dashGreeting: "Hello",
