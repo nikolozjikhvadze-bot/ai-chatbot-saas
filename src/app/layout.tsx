@@ -4,7 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import ChatWidget from "@/components/chatWidget"; // შეამოწმე ფაილის გზა
 import "./globals.css";
-import {  LanguageProvider } from "@/context/LanguageContext";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,7 +16,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// დაემატა fallback, რათა undefined-ის შემთხვევაში new URL()-მა შეცდომა არ ამოაგდოს
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
 export const metadata: Metadata = {
@@ -52,7 +51,7 @@ export const metadata: Metadata = {
     images: ['/og-image.png'],
   },
   verification: {
-    google: 'your-google-verification-code', // შეცვალე რეალური კოდით, როცა Google Search Console-ზე დაამატებ
+    google: 'your-google-verification-code',
   },
 };
 
@@ -78,6 +77,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               gtag('config', 'G-GQBVB2JHSX');
             `}
           </Script>
+
+          {/* Whop Pixel სკრიპტი */}
+          <Script id="whop-pixel" strategy="afterInteractive">
+            {`
+              !function(w,d,s,u,n,a,b){if(w[n])return;a=w[n]={q:[],t:+new Date,s:[],o:u,track:function(){a.q.push([+new Date].concat([].slice.call(arguments)))},setScope:function(){a.s=[].slice.call(arguments).filter(function(x){return typeof x==="string"});a.q.push([+new Date,"setScope"].concat(a.s))},scope:function(){var c=[].slice.call(arguments);return{track:function(){a.q.push([+new Date].concat([].slice.call(arguments)).concat([{__scope:c}]))}}}};b=d.createElement(s);b.async=1;b.src=u+"/s.js";d.getElementsByTagName(s)[0].parentNode.insertBefore(b,d.getElementsByTagName(s)[0])}(window,document,"script","https://t.whop.tw","whop");
+              whop.setScope("biz_hM707CrozReVAm");
+              whop.track("page");
+            `}
+          </Script>
         </head>
         <body className="min-h-full flex flex-col bg-[#08070c] text-white">
           {children}
@@ -87,6 +95,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </html>
       </LanguageProvider>
     </ClerkProvider>
-
   );
 }
