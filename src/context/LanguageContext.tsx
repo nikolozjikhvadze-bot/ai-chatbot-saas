@@ -7,12 +7,13 @@ type Language = 'geo' | 'eng';
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
+  lang: Language;             // LanguageSwitcher-ისთვის
+  setLang: (lang: Language) => void; // LanguageSwitcher-ისთვის
   t: (key: string) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-// აქ ჩაწერე შენი ლექსიკონები (translations)
 const translations: Record<Language, Record<string, string>> = {
   geo: {
     // მენიუ და ავტორიზაცია
@@ -105,7 +106,6 @@ const translations: Record<Language, Record<string, string>> = {
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>('geo');
 
-  // აპლიკაციის ჩატვირთვისას ვამოწმებთ localStorage-ს
   useEffect(() => {
     const savedLang = localStorage.getItem('app_language') as Language;
     if (savedLang && (savedLang === 'geo' || savedLang === 'eng')) {
@@ -115,7 +115,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem('app_language', lang); // ვინახავთ მახსოვრობაში
+    localStorage.setItem('app_language', lang);
   };
 
   const t = (key: string): string => {
@@ -123,7 +123,15 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider 
+      value={{ 
+        language, 
+        setLanguage, 
+        lang: language,         // გადავცემთ ალიასს
+        setLang: setLanguage,   // გადავცემთ ალიასს
+        t 
+      }}
+    >
       {children}
     </LanguageContext.Provider>
   );

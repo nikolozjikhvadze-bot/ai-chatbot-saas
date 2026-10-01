@@ -9,9 +9,9 @@ export default function LanguageSwitcher() {
   return (
     <div className="flex items-center gap-1 bg-gray-900 border border-gray-800 p-1 rounded-lg">
       <button
-        onClick={() => setLang("ka")}
+        onClick={() => setLang("geo")}
         className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-          lang === "ka"
+          lang === "geo"
             ? "bg-blue-600 text-white shadow"
             : "text-gray-400 hover:text-white"
         }`}
@@ -19,9 +19,9 @@ export default function LanguageSwitcher() {
         GEO
       </button>
       <button
-        onClick={() => setLang("en")}
+        onClick={() => setLang("eng")}
         className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-          lang === "en"
+          lang === "eng"
             ? "bg-blue-600 text-white shadow"
             : "text-gray-400 hover:text-white"
         }`}
