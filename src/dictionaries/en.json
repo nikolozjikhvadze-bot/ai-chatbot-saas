@@ -94,5 +94,13 @@
 "navContact": "Contact",
 "authSignIn": "Sign In",
 "authGetStarted": "Get Started",
-"dashboardLink": "Dashboard"
+"dashboardLink": "Dashboard",
+"dashLoading": "Loading data...",
+"dashGreeting": "Hello",
+"dashDefaultUser": "User",
+"dashSubscriptionRequired": "Subscription is required to create projects.",
+"dashMyProjects": "My Projects",
+"dashAddProject": "+ Add Project",
+"dashLoadingProjects": "Loading...",
+"dashNoProjects": "You haven't created any projects yet."
 }

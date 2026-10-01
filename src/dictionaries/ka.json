@@ -94,5 +94,13 @@
 "navContact": "კონტაქტი",
 "authSignIn": "შესვლა",
 "authGetStarted": "დაიწყე ახლავე",
-"dashboardLink": "პანელი (Dashboard)"
+"dashboardLink": "პანელი (Dashboard)",
+"dashLoading": "იტვირთება მონაცემები...",
+"dashGreeting": "გამარჯობა",
+"dashDefaultUser": "მომხმარებელო",
+"dashSubscriptionRequired": "გამოწერა საჭიროა პროექტების შესაქმნელად.",
+"dashMyProjects": "ჩემი პროექტები",
+"dashAddProject": "+ Add Project",
+"dashLoadingProjects": "იტვირთება...",
+"dashNoProjects": "ჯერ არცერთი პროექტი არ გაქვთ შექმნილი."
 }

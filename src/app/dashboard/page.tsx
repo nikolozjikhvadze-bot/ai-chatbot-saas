@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserButton, useUser } from '@clerk/nextjs';
 import { motion } from 'framer-motion';
+import { useTranslation } from '@/context/LanguageContext';
 
 interface Project {
   id: string;
@@ -14,6 +15,7 @@ interface Project {
 export default function DashboardPage() {
   const { user } = useUser();
   const router = useRouter();
+  const { t } = useTranslation(); // ამოვიღეთ language, რადგან ტიპებში არ იყო
   const [isPaid, setIsPaid] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState(true);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -53,7 +55,7 @@ export default function DashboardPage() {
   if (loadingStatus) {
     return (
       <div className="min-h-screen bg-[#07060a] text-white flex items-center justify-center">
-        <p className="text-sm text-violet-400 animate-pulse">იტვირთება მონაცემები...</p>
+        <p className="text-sm text-violet-400 animate-pulse">{t('dashLoading' as any)}</p>
       </div>
     );
   }
@@ -66,7 +68,7 @@ export default function DashboardPage() {
         </a>
         <div className="flex items-center gap-4">
           <span className="text-sm text-white/60 hidden sm:inline">
-            გამარჯობა, <span className="text-white font-medium">{user?.firstName || 'მომხმარებელო'}</span>!
+            {t('dashGreeting' as any)}, <span className="text-white font-medium">{user?.firstName || t('dashDefaultUser' as any)}</span>!
           </span>
           <UserButton />
         </div>
@@ -75,25 +77,25 @@ export default function DashboardPage() {
       <main className="max-w-5xl mx-auto w-full p-6 md:p-12">
         {!isPaid ? (
           <div className="text-center py-16 text-white/60">
-            გამოწერა საჭიროა პროექტების შესაქმნელად.
+            {t('dashSubscriptionRequired' as any)}
           </div>
         ) : (
           <>
             <div className="flex items-center justify-between mb-8">
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">ჩემი პროექტები</h1>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{t('dashMyProjects' as any)}</h1>
               <button
                 onClick={() => router.push('/projects/new')}
                 className="rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 px-6 py-3 text-sm font-medium text-white shadow-[0_0_20px_rgba(139,92,246,0.4)] transition hover:opacity-90"
               >
-                + Add Project
+                {t('dashAddProject' as any)}
               </button>
             </div>
 
             {loadingProjects ? (
-              <p className="text-white/50 text-sm">იტვირთება...</p>
+              <p className="text-white/50 text-sm">{t('dashLoadingProjects' as any)}</p>
             ) : projects.length === 0 ? (
               <div className="text-center py-16 rounded-3xl border border-dashed border-white/10 text-white/50">
-                ჯერ არცერთი პროექტი არ გაქვთ შექმნილი.
+                {t('dashNoProjects' as any)}
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -106,7 +108,7 @@ export default function DashboardPage() {
                   >
                     <h3 className="font-semibold text-base mb-1 truncate">{p.title}</h3>
                     <p className="text-xs text-white/40">
-                      {new Date(p.created_at).toLocaleDateString('ka-GE')}
+                      {new Date(p.created_at).toLocaleDateString()}
                     </p>
                   </motion.a>
                 ))}
