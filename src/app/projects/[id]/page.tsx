@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslation } from '@/context/LanguageContext';
 
 interface GeneratedFile { path: string; content: string; }
 interface Project {
@@ -17,6 +18,8 @@ interface Message { role: 'user' | 'assistant'; content: string; }
 export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const { t } = useTranslation();
+  
   const [project, setProject] = useState<Project | null>(null);
   const [error, setError] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
@@ -25,7 +28,7 @@ export default function ProjectDetailPage() {
 
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'გამარჯობა! რით შემიძლია დაგეხმაროთ ამ პროექტთან დაკავშირებით?' },
+    { role: 'assistant', content: t('projectInitialGreeting') || 'გამარჯობა! რით შემიძლია დაგეხმაროთ ამ პროექტთან დაკავშირებით?' },
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
@@ -36,16 +39,16 @@ export default function ProjectDetailPage() {
         const res = await fetch(`/api/projects/${id}`);
         const data = await res.json();
         if (!res.ok) {
-          setError(data.error || 'პროექტის ჩატვირთვა ვერ მოხერხდა.');
+          setError(data.error || t('projectLoadError') || 'პროექტის ჩატვირთვა ვერ მოხერხდა.');
           return;
         }
         setProject(data.project);
       } catch {
-        setError('შეცდომა პროექტის ჩატვირთვისას.');
+        setError(t('projectFetchError') || 'შეცდომა პროექტის ჩატვირთვისას.');
       }
     }
     load();
-  }, [id]);
+  }, [id, t]);
 
   const handleCopyCode = (content: string, index: number) => {
     navigator.clipboard.writeText(content);
@@ -61,7 +64,7 @@ export default function ProjectDetailPage() {
 
   const handleDeleteProject = async () => {
     if (!project) return;
-    const confirmDelete = confirm('ნამდვილად გსურთ პროექტისა და მასთან დაკავშირებული ბოტის წაშლა?');
+    const confirmDelete = confirm(t('projectDeleteConfirm') || 'ნამდვილად გსურთ პროექტისა და მასთან დაკავშირებული ბოტის წაშლა?');
     if (!confirmDelete) return;
 
     setIsDeleting(true);
@@ -72,14 +75,14 @@ export default function ProjectDetailPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.error || 'პროექტის წაშლა ვერ მოხერხდა.');
+        alert(data.error || t('projectDeleteError') || 'პროექტის წაშლა ვერ მოხერხდა.');
         setIsDeleting(false);
         return;
       }
 
       router.push('/dashboard');
     } catch {
-      alert('შეცდომა სერვერთან დაკავშირებისას.');
+      alert(t('serverConnectionError') || 'შეცდომა სერვერთან დაკავშირებისას.');
       setIsDeleting(false);
     }
   };
@@ -103,10 +106,10 @@ export default function ProjectDetailPage() {
       const data = await res.json();
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: data.reply || 'ბოდიში, პასუხი ვერ მოხერხდა.' },
+        { role: 'assistant', content: data.reply || t('chatFallbackReply') || 'ბოდიში, პასუხი ვერ მოხერხდა.' },
       ]);
     } catch {
-      setMessages((prev) => [...prev, { role: 'assistant', content: 'სერვერთან კავშირის შეცდომა.' }]);
+      setMessages((prev) => [...prev, { role: 'assistant', content: t('chatConnectionError') || 'სერვერთან კავშირის შეცდომა.' }]);
     } finally {
       setIsChatLoading(false);
     }
@@ -124,7 +127,7 @@ export default function ProjectDetailPage() {
     return (
       <div className="min-h-screen w-full bg-[#07060a] text-white/50 p-8 flex items-center justify-center">
         <div className="animate-pulse flex items-center gap-2">
-          <span>⚡</span> იტვირთება პროექტი...
+          <span>⚡</span> {t('projectLoading') || 'იტვირთება პროექტი...'}
         </div>
       </div>
     );
@@ -146,7 +149,7 @@ export default function ProjectDetailPage() {
             href="/dashboard"
             className="text-xs text-white/60 hover:text-white flex items-center gap-2 transition"
           >
-            ← დაშბორდზე დაბრუნება
+            ← {t('backToDashboard') || 'დაშბორდზე დაბრუნება'}
           </Link>
 
           {/* 🗑️ წაშლის ღილაკი */}
@@ -155,7 +158,7 @@ export default function ProjectDetailPage() {
             disabled={isDeleting}
             className="px-4 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-semibold flex items-center gap-2 transition disabled:opacity-50 cursor-pointer"
           >
-            {isDeleting ? '🗑️ იშლება...' : '🗑️ პროექტის წაშლა'}
+            {isDeleting ? ('🗑️ ' + (t('projectDeleting') || 'იშლება...')) : ('🗑️ ' + (t('projectDelete') || 'პროექტის წაშლა'))}
           </button>
         </div>
 
@@ -170,7 +173,7 @@ export default function ProjectDetailPage() {
         <div className="p-6 md:p-8 rounded-3xl border border-violet-500/30 bg-gradient-to-b from-violet-950/20 to-violet-900/10 backdrop-blur-xl shadow-xl">
           <div className="flex items-center gap-2 text-violet-400 font-semibold text-base mb-4">
             <span>✨</span>
-            <h2>AI Review & ანალიზი</h2>
+            <h2>{t('aiReviewTitle') || 'AI Review & ანალიზი'}</h2>
           </div>
           <p className="text-sm md:text-base text-white/80 leading-relaxed whitespace-pre-wrap font-sans">
             {project.ai_review}
@@ -180,7 +183,7 @@ export default function ProjectDetailPage() {
         {/* Generated Code Section */}
         <div className="space-y-6">
           <h2 className="text-xl font-bold text-white/90 flex items-center gap-2">
-            <span>💻</span> დაგენერირებული კოდი
+            <span>💻</span> {t('generatedCodeTitle') || 'დაგენერირებული კოდი'}
           </h2>
 
           <div className="grid grid-cols-1 gap-6">
@@ -198,7 +201,7 @@ export default function ProjectDetailPage() {
                     onClick={() => handleCopyCode(file.content, idx)}
                     className="text-xs px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition flex items-center gap-1.5 cursor-pointer"
                   >
-                    {copiedIndex === idx ? '✓ დაკოპირდა' : '📋 Copy'}
+                    {copiedIndex === idx ? ('✓ ' + (t('copied') || 'დაკოპირდა')) : ('📋 ' + (t('copy') || 'Copy'))}
                   </button>
                 </div>
 
@@ -218,17 +221,17 @@ export default function ProjectDetailPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-amber-400 font-semibold text-sm">
               <span>🛠️</span>
-              <h3>თუ კოდის ჩასმის შემდეგ ხარვეზი წარმოიქმნა:</h3>
+              <h3>{t('terminalBoxTitle') || 'თუ კოდის ჩასმის შემდეგ ხარვეზი წარმოიქმნა:'}</h3>
             </div>
             <button
               onClick={() => handleCopyTerminal(terminalCommand)}
               className="text-xs px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 transition border border-amber-500/20 cursor-pointer"
             >
-              {copiedTerminal ? '✓ დაკოპირდა' : '📋 ბრძანების კოპირება'}
+              {copiedTerminal ? ('✓ ' + (t('copied') || 'დაკოპირდა')) : ('📋 ' + (t('copyTerminal') || 'ბრძანების კოპირება'))}
             </button>
           </div>
           <p className="text-xs text-white/60">
-            გახსენით ტერმინალი თქვენს პროექტში, გასწმინდეთ დროებითი ქეში და გადატვირთეთ სერვერი:
+            {t('terminalBoxDesc') || 'გახსენით ტერმინალი თქვენს პროექტში, გასწმინდეთ დროებითი ქეში და გადატვირთეთ სერვერი:'}
           </p>
           <div className="p-3.5 rounded-xl bg-black/70 border border-white/10 font-mono text-xs text-amber-300/90 flex items-center justify-between overflow-x-auto">
             <code>{terminalCommand}</code>
@@ -271,7 +274,7 @@ export default function ProjectDetailPage() {
               ))}
               {isChatLoading && (
                 <div className="text-xs text-white/40 animate-pulse flex items-center gap-2">
-                  <span>⚡</span> იწერება პასუხი...
+                  <span>⚡</span> {t('chatLoadingReply') || 'იწერება პასუხი...'}
                 </div>
               )}
             </div>
@@ -280,7 +283,7 @@ export default function ProjectDetailPage() {
               <input
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                placeholder="დაწერეთ შეტყობინება..."
+                placeholder={t('chatInputPlaceholder') || 'დაწერეთ შეტყობინება...'}
                 className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-violet-500 transition"
               />
               <button
@@ -288,7 +291,7 @@ export default function ProjectDetailPage() {
                 disabled={isChatLoading}
                 className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-xs font-medium hover:opacity-90 transition disabled:opacity-50 cursor-pointer"
               >
-                გაგზავნა
+                {t('chatSendBtn') || 'გაგზავნა'}
               </button>
             </form>
           </div>

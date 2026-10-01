@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslation } from '@/context/LanguageContext';
 
 async function safeJsonFetch(url: string, options: RequestInit): Promise<any> {
   const res = await fetch(url, options);
@@ -20,6 +21,8 @@ async function safeJsonFetch(url: string, options: RequestInit): Promise<any> {
 
 export default function NewProjectPage() {
   const router = useRouter();
+  const { t } = useTranslation();
+  
   const [title, setTitle] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
@@ -27,7 +30,7 @@ export default function NewProjectPage() {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     if (!title.trim()) {
-      setError('ჯერ პროექტს დაარქვით სახელი.');
+      setError(t('newProjNameRequired') || 'ჯერ პროექტს დაარქვით სახელი.');
       return;
     }
 
@@ -44,7 +47,7 @@ export default function NewProjectPage() {
     });
 
     if (selectedFiles.length === 0) {
-      setError('ფოლდერში შესაბამისი კოდის ფაილები ვერ მოიძებნა.');
+      setError(t('newProjNoFiles') || 'ფოლდერში შესაბამისი კოდის ფაილები ვერ მოიძებნა.');
       return;
     }
 
@@ -61,7 +64,7 @@ export default function NewProjectPage() {
       const data = await safeJsonFetch('/api/ai/analyze', { method: 'POST', body: formData });
       router.push(`/projects/${data.projectId}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'მოხდა შეცდომა სერვერთან კავშირისას.');
+      setError(err instanceof Error ? err.message : (t('newProjGeneralError') || 'მოხდა შეცდომა სერვერთან კავშირისას.'));
       setIsUploading(false);
     }
   };
@@ -76,27 +79,27 @@ export default function NewProjectPage() {
         href="/dashboard"
         className="absolute top-6 left-6 md:top-8 md:left-8 text-sm text-white/60 hover:text-white flex items-center gap-2 transition"
       >
-        ← დაშბორდზე დაბრუნება
+        ← {t('backToDashboard') || 'დაშბორდზე დაბრუნება'}
       </Link>
 
-      <div className="w-full max-w-xl bg-white/[0.03] border border-white/10 rounded-3xl p-6 md:p-10 backdrop-blur-xl relative z-10 boxShadow-2xl">
+      <div className="w-full max-w-xl bg-white/[0.03] border border-white/10 rounded-3xl p-6 md:p-10 backdrop-blur-xl relative z-10 shadow-2xl">
         <h1 className="text-2xl font-bold text-center mb-2 bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
-          ახალი პროექტის დამატება
+          {t('newProjHeading') || 'ახალი პროექტის დამატება'}
         </h1>
         <p className="text-xs text-white/50 text-center mb-8">
-          ატვირთეთ პროექტის ფოლდერი AI ანალიზისა და კოდის გენერაციისთვის
+          {t('newProjSubheading') || 'ატვირთეთ პროექტის ფოლდერი AI ანალიზისა და კოდის გენერაციისთვის'}
         </p>
 
         <div className="space-y-6">
           <div>
             <label className="block text-xs font-medium text-white/70 mb-2">
-              პროექტის სახელი
+              {t('newProjNameLabel') || 'პროექტის სახელი'}
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="მაგ. Max's Portfolio"
+              placeholder={t('newProjNamePlaceholder') || "მაგ. Max's Portfolio"}
               className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-violet-500 transition"
             />
           </div>
@@ -115,15 +118,15 @@ export default function NewProjectPage() {
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-violet-600 to-fuchsia-600 flex items-center justify-center mb-4 shadow-lg shadow-violet-500/20 group-hover:scale-110 transition">
               📁
             </div>
-            <h3 className="font-semibold text-base mb-1">აირჩიეთ პროექტის ფოლდერი</h3>
+            <h3 className="font-semibold text-base mb-1">{t('newProjSelectFolderTitle') || 'აირჩიეთ პროექტის ფოლდერი'}</h3>
             <p className="text-xs text-white/50 max-w-xs">
-              დააჭირეთ აქ და აირჩიეთ საქაღალდე
+              {t('newProjSelectFolderDesc') || 'დააჭირეთ აქ და აირჩიეთ საქაღალდე'}
             </p>
 
             {isUploading && (
               <div className="mt-4 flex items-center gap-2 text-violet-400 text-xs animate-pulse">
                 <span>⚡</span>
-                <span>მიმდინარეობს ანალიზი და AI კოდის გენერაცია...</span>
+                <span>{t('newProjAnalyzing') || 'მიმდინარეობს ანალიზი და AI კოდის გენერაცია...'}</span>
               </div>
             )}
           </div>
