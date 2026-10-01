@@ -209,12 +209,17 @@ export default function PricingSection() {
                 <span>{t('pricingTrial' as any)}</span>
               </div>
 
-              <button className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-violet-600 p-px font-medium text-white shadow-lg transition duration-300 hover:shadow-violet-500/25 sm:w-auto">
+              <a 
+                href="https://whop.com/yourbot/yourbot-pro-plan"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-violet-600 p-px font-medium text-white shadow-lg transition duration-300 hover:shadow-violet-500/25 sm:w-auto"
+              >
                 <span className="flex w-full items-center justify-center gap-2 rounded-[11px] bg-[#0d0c14] px-6 py-3 text-sm transition duration-300 group-hover:bg-transparent sm:px-8 sm:py-3.5">
                   {t('pricingCta' as any)}
                   <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </span>
-              </button>
+              </a>
             </div>
 
           </div>
