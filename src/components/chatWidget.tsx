@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useTranslation } from '@/context/LanguageContext'; // შენი ჰუკის იმპორტი
 
 interface Message {
   role: 'user' | 'assistant';
@@ -13,17 +14,23 @@ interface Message {
 const BOT_KEY = '11111111-1111-1111-1111-111111111111';
 
 export default function ChatWidget() {
+  const { t } = useTranslation(); // ენების მხარდაჭერის ჰუკი
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'გამარჯობა! მე AI ასისტენტი ვარ. რით შემიძლია დაგეხმაროთ?' }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [loadingStatus, setLoadingStatus] = useState<string | null>(null); // ფაილების მართვის ინდიკატორისთვის
+  const [loadingStatus, setLoadingStatus] = useState<string | null>(null);
   const [conversationId, setConversationId] = useState<string | undefined>(undefined);
   const [visitorId, setVisitorId] = useState<string>('');
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // საწყისი მისალმების განახლება ენის შეცვლისას ან ჩატის გახსნისას
+  useEffect(() => {
+    setMessages([
+      { role: 'assistant', content: t('chatbotWelcome') }
+    ]);
+  }, [t]);
 
   // 1. Visitor ID-ის გენერაცია ან წამოღება localStorage-იდან
   useEffect(() => {
@@ -47,7 +54,7 @@ export default function ChatWidget() {
     const userMsg = input.trim();
     setInput('');
     setLoading(true);
-    setLoadingStatus('პასუხს აგენერირებს...');
+    setLoadingStatus(t('chatLoadingReply'));
 
     const newMessages = [...messages, { role: 'user' as const, content: userMsg }];
     setMessages(newMessages);
@@ -70,7 +77,7 @@ export default function ChatWidget() {
       }
 
       if (!res.body) {
-        throw new Error('სერვერიდან პასუხის ნაკადი ვერ მიიღო');
+        throw new Error(t('chatConnectionError'));
       }
 
       setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
@@ -109,7 +116,6 @@ export default function ChatWidget() {
                   setConversationId(event.conversationId);
                 }
               } else if (event.type === 'tool_call') {
-                // აქ იჭერს ბოტიდან წამოსულ ტულებს და აჩვენებს სტატუსს
                 const toolName = event.name;
                 const toolArgs = event.args as any;
 
@@ -123,8 +129,8 @@ export default function ChatWidget() {
               } else if (event.type === 'error') {
                 throw new Error(event.message);
               }
-            } catch (e) {
-              console.error('SSE JSON parsing error:', e);
+            } catch (err) {
+              console.error('SSE JSON parsing error:', err);
             }
           }
         }
@@ -135,7 +141,7 @@ export default function ChatWidget() {
           const updated = [...prev];
           updated[updated.length - 1] = {
             role: 'assistant',
-            content: 'ამ კითხვაზე ზუსტი ინფორმაცია ვერ მოიძებნა.',
+            content: t('chatFallbackReply'),
           };
           return updated;
         });
@@ -145,7 +151,7 @@ export default function ChatWidget() {
       console.error('Chat error:', error);
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: error.message || 'შეცდომა შეტყობინების გაგზავნისას.' },
+        { role: 'assistant', content: error.message || t('chatFallbackReply') },
       ]);
     } finally {
       setLoading(false);
@@ -162,6 +168,7 @@ export default function ChatWidget() {
           whileHover={{ scale: 1.1 }}
           onClick={() => setIsOpen(true)}
           className="w-14 h-14 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white flex items-center justify-center shadow-[0_0_25px_rgba(139,92,246,0.5)] cursor-pointer text-xl"
+          title={t('chatbotToggle')}
         >
           💬
         </motion.button>
@@ -179,7 +186,7 @@ export default function ChatWidget() {
             <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                <h3 className="font-semibold text-sm text-white">AI ასისტენტი</h3>
+                <h3 className="font-semibold text-sm text-white">{t('chatbotTitle')}</h3>
               </div>
               <button
                 onClick={() => setIsOpen(false)}
@@ -211,7 +218,7 @@ export default function ChatWidget() {
                 <div className="flex justify-start">
                   <div className="bg-white/5 border border-white/10 text-white/60 p-3 rounded-2xl rounded-bl-none animate-pulse flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-ping" />
-                    {loadingStatus || 'პასუხს აგენერირებს...'}
+                    {loadingStatus || t('chatLoadingReply')}
                   </div>
                 </div>
               )}
@@ -225,7 +232,7 @@ export default function ChatWidget() {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="დაწერეთ შეკითხვა..."
+                  placeholder={t('chatbotPlaceholder')}
                   className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-violet-500 transition"
                 />
                 <button
@@ -233,19 +240,19 @@ export default function ChatWidget() {
                   disabled={loading || !input.trim()}
                   className="px-4 py-2 rounded-xl bg-violet-600 text-white font-medium hover:bg-violet-500 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed text-xs"
                 >
-                  გაგზავნა
+                  {t('chatbotSend')}
                 </button>
               </form>
 
               {/* AI Disclaimer & Privacy Link */}
               <p className="text-[10px] text-center text-white/40 leading-tight pt-1">
-                AI-ს შეუძლია დაუშვას შეცდომები.{' '}
+                {t('language') === 'geo' ? 'AI-ს შეუძლია დაუშვას შეცდომები.' : 'AI can make mistakes.'}{' '}
                 <Link
                   href="/privacy"
                   target="_blank"
                   className="underline hover:text-white/70 transition"
                 >
-                  კონფიდენციალურობის პოლიტიკა
+                  {t('footerLegalPrivacy')}
                 </Link>
               </p>
             </div>

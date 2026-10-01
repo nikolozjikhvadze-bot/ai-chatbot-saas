@@ -62,6 +62,14 @@ const translations: Record<Language, Record<string, string>> = {
     howChip3_2: "მესენჯერები",
     howChip3_3: "ანალიტიკა",
 
+    // Chatbot ვიჯეტი (მთავარ გვერდზე)
+    chatbotTitle: "AI ასისტენტი",
+    chatbotOnline: "ონლაინ არის",
+    chatbotWelcome: "გამარჯობა! მე შენი AI ასისტენტი ვარ. რით შემიძლია დაგეხმარო დღეს?",
+    chatbotPlaceholder: "დაწერე შეტყობინება...",
+    chatbotSend: "გაგზავნა",
+    chatbotToggle: "ჩატის გახსნა",
+
     // Contact სექცია
     contactTitle1: "დაგვიკავშირდი",
     contactTitleHighlight: "ნებისმიერ დროს",
@@ -210,6 +218,14 @@ const translations: Record<Language, Record<string, string>> = {
     howChip3_1: "Web Chat",
     howChip3_2: "Messengers",
     howChip3_3: "Analytics",
+
+    // Chatbot ვიჯეტი (მთავარ გვერდზე)
+    chatbotTitle: "AI Assistant",
+    chatbotOnline: "Online",
+    chatbotWelcome: "Hello! I am your AI assistant. How can I help you today?",
+    chatbotPlaceholder: "Type a message...",
+    chatbotSend: "Send",
+    chatbotToggle: "Open Chat",
 
     // Contact სექცია
     contactTitle1: "Get in Touch",
