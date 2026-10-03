@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
-import { Check, Sparkles, Zap, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Check, Sparkles, ArrowRight } from 'lucide-react';
 import { useTranslation } from '@/context/LanguageContext';
 
 export default function PricingSection() {
@@ -25,17 +25,57 @@ export default function PricingSection() {
   const tracerGlowOffset = useTransform(smoothProgress, [0, 1], [8, -992]);
   const tracerCoreOffset = useTransform(smoothProgress, [0, 1], [4, -996]);
 
-  const features = [
-    t('pricingFeature1' as any),
-    t('pricingFeature2' as any),
-    t('pricingFeature3' as any),
-    t('pricingFeature4' as any),
-    t('pricingFeature5' as any),
-    t('pricingFeature6' as any),
+  const plans = [
+    {
+      name: "Starter",
+      priceMonthly: "$29",
+      priceAnnual: "$290",
+      desc: "იდეალურია მცირე საიტებისთვის და დამწყებებისთვის",
+      features: [
+        "1 საიტის ინტეგრაცია",
+        "ფოლდერიდან ავტომატური ბოტის აწყობა",
+        "1,500 შეტყობინება თვეში",
+        "სტანდარტული AI მხარდაჭერა",
+        "ძირითადი ანალიტიკა"
+      ],
+      popular: false,
+      ctaLink: "https://whop.com/yourbot/yourbot-starter"
+    },
+    {
+      name: "Pro",
+      priceMonthly: "$79",
+      priceAnnual: "$790",
+      desc: "მთავარი პაკეტი მზარდი ბიზნესებისთვის და საიტებისთვის",
+      features: [
+        "3-მდე საიტის ინტეგრაცია",
+        "პრიორიტეტული AI პასუხები",
+        "6,000 შეტყობინება თვეში",
+        "დიზაინის მორგება საიტის ფერებზე",
+        "სრული ანალიტიკა და ჟურნალი",
+        "პრიორიტეტული მხარდაჭერა"
+      ],
+      popular: true,
+      ctaLink: "https://whop.com/yourbot/yourbot-pro-plan" // შენივე თქმით უკვე გაქვს ჩასმული
+    },
+    {
+      name: "Scale",
+      priceMonthly: "$149",
+      priceAnnual: "$1,490",
+      desc: "მაქსიმალური შესაძლებლობები მსხვილი პროექტებისა და სააგენტოებისთვის",
+      features: [
+        "შეუზღუდავი საიტები",
+        "ულიმიტო შეტყობინებების შესაძლებლობა",
+        "უმაღლესი დონის AI მოდელები",
+        "API წვდომა და პერსონალური ინტეგრაცია",
+        "24/7 პერსონალური მხარდაჭერა"
+      ],
+      popular: false,
+      ctaLink: "https://whop.com/yourbot/yourbot-scale"
+    }
   ];
 
   return (
-    <div id="pricing" ref={containerRef} className="relative h-auto py-16 md:h-[250vh] md:py-0 bg-[#08070c]">
+    <div id="pricing" ref={containerRef} className="relative h-auto py-20 md:h-[220vh] bg-[#08070c]">
       <div className="relative flex min-h-screen w-full flex-col items-center justify-center px-4 sm:px-6 md:sticky md:top-0 md:h-screen md:overflow-hidden">
         
         {/* Ambient background */}
@@ -44,7 +84,7 @@ export default function PricingSection() {
           <div className="absolute bottom-10 right-10 h-[250px] w-[250px] sm:w-[400px] rounded-full bg-fuchsia-500/10 blur-[120px]" />
         </div>
 
-        <div className="relative mx-auto w-full max-w-4xl">
+        <div className="relative mx-auto w-full max-w-6xl py-6">
           
           {/* SVG Border Frame & Synced Glowing Tracer */}
           <div className="pointer-events-none absolute -inset-4 z-0 hidden md:block">
@@ -124,105 +164,111 @@ export default function PricingSection() {
               className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-300 sm:px-4 sm:py-1.5"
             >
               <Sparkles className="h-3.5 w-3.5 text-fuchsia-400" />
-              <span>{t('pricingBadge' as any)}</span>
+              <span>{t('pricingBadge' as any) || "მარტივი და გამჭვირვალე ტარიფი"}</span>
             </motion.div>
 
-            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-white sm:text-3xl md:text-4xl">
-              {t('pricingTitle' as any)}
+            <h2 className="mt-2.5 text-2xl font-semibold tracking-tight text-white sm:text-3xl md:text-4xl">
+              {t('pricingTitle' as any) || "შეარჩიე შენზე მორგებული გეგმა"}
             </h2>
-            <p className="mt-1.5 text-xs text-white/60 sm:text-base">
-              {t('pricingSubtitle' as any)}
+            <p className="mt-1 text-xs text-white/60 sm:text-sm">
+              {t('pricingSubtitle' as any) || "გადაიხადე მხოლოდ იმისთვის, რაც რეალურად სჭირდება შენს ბიზნესს"}
             </p>
 
             {/* Toggle Switch */}
-            <div className="mt-6 flex items-center justify-center gap-3 sm:gap-4">
+            <div className="mt-4 flex items-center justify-center gap-3">
               <span className={`text-xs sm:text-sm font-medium ${!isAnnual ? 'text-white' : 'text-white/40'}`}>
-                {t('pricingMonthly' as any)}
+                {t('pricingMonthly' as any) || "თვიური"}
               </span>
               <button
                 type="button"
                 onClick={() => setIsAnnual(!isAnnual)}
-                className="relative h-6 w-12 sm:h-7 sm:w-14 rounded-full bg-white/10 p-1 transition-colors duration-300 hover:bg-white/20"
+                className="relative h-6 w-12 rounded-full bg-white/10 p-1 transition-colors duration-300 hover:bg-white/20"
               >
                 <motion.div
-                  className="h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 shadow-md"
+                  className="h-4 w-4 rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 shadow-md"
                   animate={{ x: isAnnual ? 24 : 0 }}
                   transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                 />
               </button>
               <div className="flex items-center gap-2">
                 <span className={`text-xs sm:text-sm font-medium ${isAnnual ? 'text-white' : 'text-white/40'}`}>
-                  {t('pricingAnnual' as any)}
+                  {t('pricingAnnual' as any) || "წლიური"}
                 </span>
-                <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] sm:text-xs font-semibold text-emerald-400">
-                  {t('pricingSave' as any)}
+                <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
+                  {t('pricingSave' as any) || "დაზოგე 20%"}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Pricing Card */}
-          <div className="relative z-10 mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur-xl sm:mt-10 sm:p-10">
-            <div className="flex flex-col items-center justify-between gap-4 border-b border-white/10 pb-6 md:flex-row md:gap-6 md:pb-8">
-              <div className="text-center md:text-left">
-                <div className="flex items-center justify-center gap-2 md:justify-start">
-                  <h3 className="text-xl font-bold text-white sm:text-2xl">{t('pricingPlanTitle' as any)}</h3>
-                  <span className="inline-flex items-center gap-1 rounded-md bg-violet-500/20 border border-violet-500/40 px-2 py-0.5 text-[10px] sm:text-xs font-medium text-violet-300">
-                    <Zap className="h-3 w-3" /> {t('pricingPopular' as any)}
-                  </span>
-                </div>
-                <p className="mt-1 text-xs text-white/50 sm:text-sm">
-                  {t('pricingPlanDesc' as any)}
-                </p>
-              </div>
-
-              {/* Price display */}
-              <div className="text-center md:text-right">
-                <div className="flex items-baseline justify-center md:justify-end gap-1">
-                  <span className="text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
-                    {isAnnual ? '$1,100' : '$100'}
-                  </span>
-                  <span className="text-xs text-white/50 sm:text-sm">{isAnnual ? t('pricingPerYear' as any) : t('pricingPerMonth' as any)}</span>
-                </div>
-                <p className="mt-0.5 text-[11px] text-white/40 sm:text-xs">
-                  {isAnnual ? t('pricingAnnualSub' as any) : t('pricingMonthlySub' as any)}
-                </p>
-              </div>
-            </div>
-
-            {/* Features List */}
-            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-              {features.map((feature, idx) => (
-                <div key={idx} className="flex items-center gap-2.5">
-                  <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-violet-500/20 text-violet-400 sm:h-5 sm:w-5">
-                    <Check className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                  </div>
-                  <span className="text-xs text-white/80 sm:text-sm">{feature}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* CTA Button */}
-            <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row sm:pt-8">
-              <div className="flex items-center gap-2 text-xs text-white/50">
-                <ShieldCheck className="h-4 w-4 text-emerald-400" />
-                <span>{t('pricingTrial' as any)}</span>
-              </div>
-
-              <a 
-                href="https://whop.com/yourbot/yourbot-pro-plan"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-violet-600 p-px font-medium text-white shadow-lg transition duration-300 hover:shadow-violet-500/25 sm:w-auto"
+          {/* Pricing Cards Grid */}
+          <div className="relative z-10 mt-6 grid grid-cols-1 gap-4 md:grid-cols-3 sm:mt-6">
+            {plans.map((plan, index) => (
+              <div 
+                key={index}
+                className={`relative flex flex-col justify-between rounded-2xl border ${
+                  plan.popular 
+                    ? 'border-violet-500/50 bg-gradient-to-b from-violet-500/[0.08] to-white/[0.02] shadow-xl shadow-violet-500/10' 
+                    : 'border-white/10 bg-white/[0.02]'
+                } p-5 backdrop-blur-xl sm:p-6`}
               >
-                <span className="flex w-full items-center justify-center gap-2 rounded-[11px] bg-[#0d0c14] px-6 py-3 text-sm transition duration-300 group-hover:bg-transparent sm:px-8 sm:py-3.5">
-                  {t('pricingCta' as any)}
-                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                </span>
-              </a>
-            </div>
+                {plan.popular && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-3 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
+                    Most Popular
+                  </div>
+                )}
 
+                <div>
+                  <h3 className="text-lg font-bold text-white">{plan.name}</h3>
+                  <p className="mt-1 text-[11px] text-white/50 min-h-[28px]">
+                    {plan.desc}
+                  </p>
+
+                  <div className="mt-3 flex items-baseline gap-1">
+                    <span className="text-3xl font-extrabold tracking-tight text-white">
+                      {isAnnual ? plan.priceAnnual : plan.priceMonthly}
+                    </span>
+                    <span className="text-[11px] text-white/50">{isAnnual ? '/წელიწადში' : '/თვეში'}</span>
+                  </div>
+
+                  <div className="mt-4 border-t border-white/10 pt-4">
+                    <ul className="space-y-2">
+                      {plan.features.map((feature, idx) => (
+                        <li key={idx} className="flex items-center gap-2 text-xs text-white/80">
+                          <div className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-violet-500/20 text-violet-400">
+                            <Check className="h-2.5 w-2.5" />
+                          </div>
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="mt-5 pt-4 border-t border-white/10">
+                  <a 
+                    href={plan.ctaLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl p-px font-medium text-white transition duration-300 ${
+                      plan.popular 
+                        ? 'bg-gradient-to-r from-violet-600 via-fuchsia-600 to-violet-600 shadow-lg shadow-violet-500/25' 
+                        : 'bg-white/10 hover:bg-white/20'
+                    }`}
+                  >
+                    <span className={`flex w-full items-center justify-center gap-2 rounded-[11px] px-4 py-2.5 text-xs sm:text-sm transition duration-300 ${
+                      plan.popular ? 'bg-[#0d0c14] group-hover:bg-transparent' : 'bg-transparent'
+                    }`}>
+                      Get Started
+                      <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+                    </span>
+                  </a>
+                </div>
+
+              </div>
+            ))}
           </div>
+
         </div>
       </div>
     </div>

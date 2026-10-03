@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
-import { checkRateLimits, rateLimitResponse } from '@/lib/rate-limits';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -14,7 +13,7 @@ export async function GET() {
     console.log("LOG - Current Clerk userId from auth():", userId);
 
     if (!userId) {
-      return NextResponse.json({ isPaid: false }, { status: 401 });
+      return NextResponse.json({ isPaid: false, plan: 'free' }, { status: 401 });
     }
 
     let { data, error } = await supabase
@@ -28,7 +27,7 @@ export async function GET() {
 
     if (error) {
       console.error("LOG - Database select error:", error);
-      return NextResponse.json({ isPaid: false });
+      return NextResponse.json({ isPaid: false, plan: 'free' });
     }
 
     // თუ მომხმარებელი არ არსებობს ბაზაში, ვქაჩავთ მის მეილს კლერკიდან და ვარეგისტრირებთ
@@ -44,6 +43,7 @@ export async function GET() {
               clerk_id: userId,
               email: userEmail,
               is_paid: false,
+              plan: 'free',
             }
           ],
           { onConflict: 'clerk_id' }
@@ -53,7 +53,7 @@ export async function GET() {
 
       if (insertError) {
         console.error("LOG - Database upsert error:", insertError);
-        return NextResponse.json({ isPaid: false });
+        return NextResponse.json({ isPaid: false, plan: 'free' });
       }
 
       data = newData;
@@ -61,12 +61,15 @@ export async function GET() {
     }
 
     if (!data) {
-      return NextResponse.json({ isPaid: false });
+      return NextResponse.json({ isPaid: false, plan: 'free' });
     }
 
-    return NextResponse.json({ isPaid: !!data.is_paid });
+    return NextResponse.json({ 
+      isPaid: !!data.is_paid, 
+      plan: data.plan || 'free' 
+    });
   } catch (err) {
     console.error("LOG - Catch error:", err);
-    return NextResponse.json({ isPaid: false });
+    return NextResponse.json({ isPaid: false, plan: 'free' });
   }
 }

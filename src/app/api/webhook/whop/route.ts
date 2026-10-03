@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// Supabase სერვისის ქლაიენტი ბაზაში ჩასაწერად
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -16,29 +15,59 @@ const supabase = createClient(
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    console.log("LOG - Whop webhook received:", body);
+    console.log("LOG - Whop webhook received:", JSON.stringify(body, null, 2));
 
-    // ვამოწმებთ Whop-ის ივენთს (როცა გადახდა წარმატებულია)
-    if (body.action === 'payment.succeeded' || body.action === 'membership.go_live') {
+    if (
+      body.action === 'payment.succeeded' || 
+      body.action === 'membership.go_live' ||
+      body.action === 'subscription.renewed'
+    ) {
       const customerEmail = body.data?.customer_email || body.data?.user?.email;
+      
+      const productName = (
+        body.data?.product?.name || 
+        body.data?.pass?.name || 
+        body.data?.plan?.name || 
+        ""
+      ).toLowerCase();
+
+      let assignedPlan = 'starter';
+      if (productName.includes('scale')) {
+        assignedPlan = 'scale';
+      } else if (productName.includes('pro')) {
+        assignedPlan = 'pro';
+      } else if (productName.includes('starter')) {
+        assignedPlan = 'starter';
+      }
 
       if (customerEmail) {
-        // რადგან Whop-მა შეიძლება ელფოსტა მოგვცეს, ხოლო Supabase-ში clerk_id გვაქვს, 
-        // ან უნდა ვეძებოთ ემაილით (თუ ინახავ) ან კავშირი დავამყაროთ.
-        // მარტივად რომ ვთქვათ, თუ Whop-ის მეტადაში ინახავ Clerk ID-ს ან ემაილს:
-        
-        // მაგალითად, თუ ბაზაში ემაილიც გაქვს შენახული:
         const { error: updateError } = await supabase
           .from('users')
-          .update({ is_paid: true })
-          .eq('email', customerEmail); // ან შესაბამისი ველით
+          .update({ 
+            is_paid: true, 
+            plan: assignedPlan 
+          })
+          .eq('email', customerEmail);
 
         if (updateError) {
           console.error("LOG - Supabase webhook update error:", updateError);
           return NextResponse.json({ error: 'db_update_failed' }, { status: 500 });
         }
 
-        console.log(`LOG - User with email ${customerEmail} successfully upgraded to paid via Whop!`);
+        console.log(`LOG - User ${customerEmail} upgraded to plan: ${assignedPlan} via Whop!`);
+      }
+    } 
+    else if (body.action === 'membership.went_terminated' || body.action === 'payment.failed') {
+      const customerEmail = body.data?.customer_email || body.data?.user?.email;
+      if (customerEmail) {
+        await supabase
+          .from('users')
+          .update({ 
+            is_paid: false, 
+            plan: 'free' 
+          })
+          .eq('email', customerEmail);
+        console.log(`LOG - User ${customerEmail} subscription terminated.`);
       }
     }
 
