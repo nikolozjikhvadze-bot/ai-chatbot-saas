@@ -38,7 +38,7 @@ export default function PricingSection() {
         t('featureStarter4')
       ],
       popular: false,
-      ctaLink: "https://whop.com"
+      ctaLink: "https://whop.com/yourbot/yourbot-starter/"
     },
     {
       name: t('planProTitle'),
@@ -53,7 +53,7 @@ export default function PricingSection() {
         t('featurePro5')
       ],
       popular: true,
-      ctaLink: "https://whop.com"
+      ctaLink: "https://whop.com/yourbot/yourbot-pro-plan/"
     },
     {
       name: t('planScaleTitle'),
@@ -67,7 +67,7 @@ export default function PricingSection() {
         t('featureScale4')
       ],
       popular: false,
-      ctaLink: "https://whop.com"
+      ctaLink: "https://whop.com/yourbot/yourbot-scale/"
     }
   ];
 
