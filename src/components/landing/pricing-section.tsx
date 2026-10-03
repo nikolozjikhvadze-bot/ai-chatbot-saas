@@ -1,174 +1,275 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useTranslation } from '@/context/LanguageContext'; // გადაამოწმე შენი პათი (Path) სად გაქვს კონტექსტი
-import { Check, Sparkles } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import { Check, Sparkles, ArrowRight } from 'lucide-react';
+import { useTranslation } from '@/context/LanguageContext';
 
 export default function PricingSection() {
   const { t } = useTranslation();
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isAnnual, setIsAnnual] = useState(false);
 
-  // ფასები პაკეტების მიხედვით (შეგიძლია შეცვალო შენი სურვილისამებრ)
-  const prices = {
-    starter: { monthly: 15, annual: 12 },
-    pro: { monthly: 39, annual: 32 },
-    scale: { monthly: 99, annual: 85 },
-  };
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start start', 'end end'],
+  });
+
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 20,
+    restDelta: 0.001,
+  });
+
+  const strokeDashoffset = useTransform(smoothProgress, [0, 1], [1000, 0]);
+  const tracerGlowOffset = useTransform(smoothProgress, [0, 1], [8, -992]);
+  const tracerCoreOffset = useTransform(smoothProgress, [0, 1], [4, -996]);
+
+  const plans = [
+    {
+      name: t('planStarterTitle'),
+      priceMonthly: "$29",
+      priceAnnual: "$290",
+      desc: t('planStarterDesc'),
+      features: [
+        t('featureStarter1'),
+        t('featureStarter2'),
+        t('featureStarter3'),
+        t('featureStarter4')
+      ],
+      popular: false,
+      ctaLink: "https://whop.com"
+    },
+    {
+      name: t('planProTitle'),
+      priceMonthly: "$79",
+      priceAnnual: "$790",
+      desc: t('planProDesc'),
+      features: [
+        t('featurePro1'),
+        t('featurePro2'),
+        t('featurePro3'),
+        t('featurePro4'),
+        t('featurePro5')
+      ],
+      popular: true,
+      ctaLink: "https://whop.com"
+    },
+    {
+      name: t('planScaleTitle'),
+      priceMonthly: "$149",
+      priceAnnual: "$1,490",
+      desc: t('planScaleDesc'),
+      features: [
+        t('featureScale1'),
+        t('featureScale2'),
+        t('featureScale3'),
+        t('featureScale4')
+      ],
+      popular: false,
+      ctaLink: "https://whop.com"
+    }
+  ];
 
   return (
-    <section id="pricing" className="py-24 relative overflow-hidden bg-slate-950 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <div id="pricing" ref={containerRef} className="relative h-auto py-20 md:h-[220vh] bg-[#08070c]">
+      <div className="relative flex min-h-screen w-full flex-col items-center justify-center px-4 sm:px-6 md:sticky md:top-0 md:h-screen md:overflow-hidden">
         
-        {/* სათაური და აღწერა */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-sm mb-4">
-            <Sparkles className="w-4 h-4" />
-            <span>{t('pricingBadge')}</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">
-            {t('pricingTitle')}
-          </h2>
-          <p className="text-slate-400 text-lg">
-            {t('pricingSubtitle')}
-          </p>
-
-          {/* თვიური / წლიური გადამრთველი */}
-          <div className="mt-8 inline-flex items-center p-1.5 rounded-full bg-slate-900 border border-slate-800">
-            <button
-              onClick={() => setBillingCycle('monthly')}
-              className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
-                billingCycle === 'monthly'
-                  ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              {t('pricingMonthly')}
-            </button>
-            <button
-              onClick={() => setBillingCycle('annual')}
-              className={`px-5 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
-                billingCycle === 'annual'
-                  ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              {t('pricingAnnual')}
-              <span className="text-xs px-2 py-0.5 rounded-full bg-purple-400/20 text-purple-300 font-semibold">
-                {t('pricingSave')}
-              </span>
-            </button>
-          </div>
+        {/* Ambient background */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute left-1/2 top-1/2 h-[300px] sm:h-[500px] w-full max-w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-600/15 blur-[140px]" />
+          <div className="absolute bottom-10 right-10 h-[250px] w-[250px] sm:w-[400px] rounded-full bg-fuchsia-500/10 blur-[120px]" />
         </div>
 
-        {/* ქარდების ბადე (Grid) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+        <div className="relative mx-auto w-full max-w-6xl py-6">
           
-          {/* 1. Starter Plan */}
-          <div className="bg-slate-900/50 border border-slate-800 rounded-3xl p-8 flex flex-col justify-between transition-all hover:border-slate-700">
-            <div>
-              <h3 className="text-xl font-bold mb-2">{t('planStarterTitle')}</h3>
-              <p className="text-slate-400 text-sm mb-6">{t('planStarterDesc')}</p>
-              
-              <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-extrabold">
-                  ${billingCycle === 'monthly' ? prices.starter.monthly : prices.starter.annual}
-                </span>
-                <span className="text-slate-400 text-sm">
-                  {billingCycle === 'monthly' ? t('pricingPerMonth') : t('pricingPerYear')}
-                </span>
-              </div>
-
-              <ul className="space-y-4 text-sm text-slate-300 mb-8">
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-purple-400 shrink-0" /> {t('featureStarter1')}</li>
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-purple-400 shrink-0" /> {t('featureStarter2')}</li>
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-purple-400 shrink-0" /> {t('featureStarter3')}</li>
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-purple-400 shrink-0" /> {t('featureStarter4')}</li>
-              </ul>
-            </div>
-
-            <a
-              href="https://whop.com" // შენი Whop ლინკი ჩასვი აქ
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-center transition-all block"
+          {/* SVG Border Frame & Synced Glowing Tracer */}
+          <div className="pointer-events-none absolute -inset-4 z-0 hidden md:block">
+            <svg
+              className="h-full w-full overflow-visible"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
             >
-              {t('pricingCta')}
-            </a>
+              <rect
+                x="0.5"
+                y="0.5"
+                width="99"
+                height="99"
+                rx="2"
+                fill="none"
+                stroke="rgba(255, 255, 255, 0.08)"
+                strokeWidth="0.5"
+              />
+              <motion.rect
+                x="0.5"
+                y="0.5"
+                width="99"
+                height="99"
+                rx="2"
+                fill="none"
+                stroke="url(#glow-gradient-pricing)"
+                strokeWidth="1"
+                pathLength="1000"
+                style={{ strokeDasharray: 1000, strokeDashoffset }}
+              />
+
+              <motion.rect
+                x="0.5"
+                y="0.5"
+                width="99"
+                height="99"
+                rx="2"
+                fill="none"
+                stroke="#c084fc"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                pathLength="1000"
+                style={{ strokeDasharray: '16 1000', strokeDashoffset: tracerGlowOffset }}
+                className="drop-shadow-[0_0_12px_#a855f7]"
+              />
+
+              <motion.rect
+                x="0.5"
+                y="0.5"
+                width="99"
+                height="99"
+                rx="2"
+                fill="none"
+                stroke="#ffffff"
+                strokeWidth="2"
+                strokeLinecap="round"
+                pathLength="1000"
+                style={{ strokeDasharray: '8 1000', strokeDashoffset: tracerCoreOffset }}
+              />
+
+              <defs>
+                <linearGradient id="glow-gradient-pricing" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#a855f7" />
+                  <stop offset="50%" stopColor="#ec4899" />
+                  <stop offset="100%" stopColor="#3b82f6" />
+                </linearGradient>
+              </defs>
+            </svg>
           </div>
 
-          {/* 2. Pro Plan (Popular - გამოყოფილი დიზაინით) */}
-          <div className="bg-gradient-to-b from-purple-900/40 to-slate-900/80 border-2 border-purple-500 rounded-3xl p-8 flex flex-col justify-between relative shadow-xl shadow-purple-950/50">
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-purple-600 text-white text-xs font-bold uppercase tracking-wider">
-              {t('pricingPopular')}
-            </div>
+          {/* Header */}
+          <div className="relative z-10 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center gap-2 rounded-full border border-violet-500/35 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-300 sm:px-4 sm:py-1.5"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-fuchsia-400" />
+              <span>{t('pricingBadge')}</span>
+            </motion.div>
 
-            <div>
-              <h3 className="text-xl font-bold mb-2">{t('planProTitle')}</h3>
-              <p className="text-slate-300 text-sm mb-6">{t('planProDesc')}</p>
-              
-              <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-extrabold">
-                  ${billingCycle === 'monthly' ? prices.pro.monthly : prices.pro.annual}
+            <h2 className="mt-2.5 text-2xl font-semibold tracking-tight text-white sm:text-3xl md:text-4xl">
+              {t('pricingTitle')}
+            </h2>
+            <p className="mt-1 text-xs text-white/60 sm:text-sm">
+              {t('pricingSubtitle')}
+            </p>
+
+            {/* Toggle Switch */}
+            <div className="mt-4 flex items-center justify-center gap-3">
+              <span className={`text-xs sm:text-sm font-medium ${!isAnnual ? 'text-white' : 'text-white/40'}`}>
+                {t('pricingMonthly')}
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsAnnual(!isAnnual)}
+                className="relative h-6 w-12 rounded-full bg-white/10 p-1 transition-colors duration-300 hover:bg-white/20"
+              >
+                <motion.div
+                  className="h-4 w-4 rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 shadow-md"
+                  animate={{ x: isAnnual ? 24 : 0 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                />
+              </button>
+              <div className="flex items-center gap-2">
+                <span className={`text-xs sm:text-sm font-medium ${isAnnual ? 'text-white' : 'text-white/40'}`}>
+                  {t('pricingAnnual')}
                 </span>
-                <span className="text-slate-400 text-sm">
-                  {billingCycle === 'monthly' ? t('pricingPerMonth') : t('pricingPerYear')}
+                <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
+                  {t('pricingSave')}
                 </span>
               </div>
-
-              <ul className="space-y-4 text-sm text-slate-200 mb-8">
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-purple-400 shrink-0" /> {t('featurePro1')}</li>
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-purple-400 shrink-0" /> {t('featurePro2')}</li>
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-purple-400 shrink-0" /> {t('featurePro3')}</li>
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-purple-400 shrink-0" /> {t('featurePro4')}</li>
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-purple-400 shrink-0" /> {t('featurePro5')}</li>
-              </ul>
             </div>
-
-            <a
-              href="https://whop.com" // შენი Whop ლინკი ჩასვი აქ
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-medium text-center transition-all shadow-lg shadow-purple-600/30 block"
-            >
-              {t('pricingCta')}
-            </a>
           </div>
 
-          {/* 3. Scale Plan */}
-          <div className="bg-slate-900/50 border border-slate-800 rounded-3xl p-8 flex flex-col justify-between transition-all hover:border-slate-700">
-            <div>
-              <h3 className="text-xl font-bold mb-2">{t('planScaleTitle')}</h3>
-              <p className="text-slate-400 text-sm mb-6">{t('planScaleDesc')}</p>
-              
-              <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-extrabold">
-                  ${billingCycle === 'monthly' ? prices.scale.monthly : prices.scale.annual}
-                </span>
-                <span className="text-slate-400 text-sm">
-                  {billingCycle === 'monthly' ? t('pricingPerMonth') : t('pricingPerYear')}
-                </span>
+          {/* Pricing Cards Grid */}
+          <div className="relative z-10 mt-6 grid grid-cols-1 gap-4 md:grid-cols-3 sm:mt-6">
+            {plans.map((plan, index) => (
+              <div 
+                key={index}
+                className={`relative flex flex-col justify-between rounded-2xl border ${
+                  plan.popular 
+                    ? 'border-violet-500/50 bg-gradient-to-b from-violet-500/[0.08] to-white/[0.02] shadow-xl shadow-violet-500/10' 
+                    : 'border-white/10 bg-white/[0.02]'
+                } p-5 backdrop-blur-xl sm:p-6`}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-3 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
+                    {t('pricingPopular')}
+                  </div>
+                )}
+
+                <div>
+                  <h3 className="text-lg font-bold text-white">{plan.name}</h3>
+                  <p className="mt-1 text-[11px] text-white/50 min-h-[28px]">
+                    {plan.desc}
+                  </p>
+
+                  <div className="mt-3 flex items-baseline gap-1">
+                    <span className="text-3xl font-extrabold tracking-tight text-white">
+                      {isAnnual ? plan.priceAnnual : plan.priceMonthly}
+                    </span>
+                    <span className="text-[11px] text-white/50">
+                      {isAnnual ? t('pricingPerYear') : t('pricingPerMonth')}
+                    </span>
+                  </div>
+
+                  <div className="mt-4 border-t border-white/10 pt-4">
+                    <ul className="space-y-2">
+                      {plan.features.map((feature, idx) => (
+                        <li key={idx} className="flex items-center gap-2 text-xs text-white/80">
+                          <div className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-violet-500/20 text-violet-400">
+                            <Check className="h-2.5 w-2.5" />
+                          </div>
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="mt-5 pt-4 border-t border-white/10">
+                  <a 
+                    href={plan.ctaLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl p-px font-medium text-white transition duration-300 ${
+                      plan.popular 
+                        ? 'bg-gradient-to-r from-violet-600 via-fuchsia-600 to-violet-600 shadow-lg shadow-violet-500/25' 
+                        : 'bg-white/10 hover:bg-white/20'
+                    }`}
+                  >
+                    <span className={`flex w-full items-center justify-center gap-2 rounded-[11px] px-4 py-2.5 text-xs sm:text-sm transition duration-300 ${
+                      plan.popular ? 'bg-[#0d0c14] group-hover:bg-transparent' : 'bg-transparent'
+                    }`}>
+                      {t('pricingCta')}
+                      <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+                    </span>
+                  </a>
+                </div>
+
               </div>
-
-              <ul className="space-y-4 text-sm text-slate-300 mb-8">
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-purple-400 shrink-0" /> {t('featureScale1')}</li>
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-purple-400 shrink-0" /> {t('featureScale2')}</li>
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-purple-400 shrink-0" /> {t('featureScale3')}</li>
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-purple-400 shrink-0" /> {t('featureScale4')}</li>
-              </ul>
-            </div>
-
-            <a
-              href="https://whop.com" // შენი Whop ლინკი ჩასვი აქ
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-center transition-all block"
-            >
-              {t('pricingCta')}
-            </a>
+            ))}
           </div>
 
         </div>
       </div>
-    </section>
+    </div>
   );
 }
