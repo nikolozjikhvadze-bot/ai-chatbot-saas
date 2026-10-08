@@ -25,8 +25,8 @@ export default function ContactSection() {
     {
       icon: Phone,
       title: t('contactPhoneTitle'),
-      value: '+995 555 00 00 00',
-      href: 'tel:+995555000000',
+      value: '+995 501 44 46 65',
+      href: 'tel:+995501444665',
     },
     {
       icon: MapPin,
