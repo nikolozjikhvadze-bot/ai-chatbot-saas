@@ -92,27 +92,27 @@ export default function HeroTunnel() {
         {/* ასიმეტრიული ტექსტი, მარცხნივ */}
         <div
           ref={textRef}
-          className="relative z-10 flex h-full max-w-2xl flex-col justify-center px-6 md:px-16 lg:px-24"
+          className="relative z-10 flex h-full max-w-2xl flex-col justify-center px-5 sm:px-8 md:px-16 lg:px-24"
         >
-          <span className="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
+          <span className="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs text-white/50">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
             {t('heroBadge')}
           </span>
 
-          <h1 className="text-5xl font-semibold leading-[1.05] tracking-tight text-white md:text-6xl lg:text-7xl">
+          <h1 className="text-3xl sm:text-5xl font-semibold leading-[1.2] tracking-tight text-white md:text-6xl lg:text-7xl mb-6">
             {t('heroTitleLine1')}
             <br />
             {t('heroTitleLine2')}
           </h1>
 
-          <p className="mt-6 max-w-md text-lg text-white/50">
+          <p className="max-w-md text-base sm:text-lg text-white/50 mb-8 leading-relaxed">
             {t('heroDescription')}
           </p>
 
-          <div className="mt-10 flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-4">
             <button
               onClick={handleCreateBot}
-              className="rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-6 py-3 text-sm font-medium text-white shadow-[0_0_40px_-10px_rgba(139,92,246,0.7)] transition hover:opacity-90 active:scale-95 cursor-pointer"
+              className="rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-7 py-3.5 text-sm font-medium text-white shadow-[0_0_40px_-10px_rgba(139,92,246,0.7)] transition hover:opacity-90 active:scale-95 cursor-pointer"
             >
               {t('heroCtaButton')}
             </button>

@@ -31,6 +31,8 @@ const translations: Record<Language, Record<string, string>> = {
     heroTitleLine2: "ინტელექტუალური AI-ით",
     heroDescription: "შექმენი მძლავრი AI ასისტენტები და ბოტები რამდენიმე წუთში, ყოველგვარი კოდის წერის გარეშე.",
     heroCtaButton: "შექმენი შენი ბოტი",
+    heroScrollLabel: "ასქროლე",
+    contactBadge: "კონტაქტი",
     
     // Features სექცია
     featuresMainTitle: "შესაძლებლობები, რომლებიც ზრდის შენს ბიზნესს",
@@ -162,6 +164,8 @@ const translations: Record<Language, Record<string, string>> = {
     pricingAnnualSub: "წლიური გადახდა",
     pricingCta: "გეგმის არჩევა",
     pricingPopular: "პოპულარული",
+    pricingFreeTrialBadge: "3-დღიანი უფასო ტრიალი",
+    pricingCtaFreeTrial: "უფასო ტრიალის დაწყება",
 
     // Starter Plan
     planStarterTitle: "Starter",
@@ -197,6 +201,8 @@ const translations: Record<Language, Record<string, string>> = {
     authSignIn: "Sign In",
     authGetStarted: "Get Started",
     dashboardLink: "Dashboard",
+    heroScrollLabel: "scroll",
+    contactBadge: "Contact",
     
     // ჰერო სექცია (მთავარი გვერდი)
     heroBadge: "Next-Gen AI Automation",
@@ -335,6 +341,8 @@ const translations: Record<Language, Record<string, string>> = {
     pricingAnnualSub: "Billed annually",
     pricingCta: "Choose Plan",
     pricingPopular: "Popular",
+    pricingFreeTrialBadge: "3-day free trial included",
+    pricingCtaFreeTrial: "Start Free Trial",
 
     // Starter Plan
     planStarterTitle: "Starter",

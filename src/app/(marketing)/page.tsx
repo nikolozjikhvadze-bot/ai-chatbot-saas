@@ -12,7 +12,7 @@ import ContactSection from '@/components/landing/contact-section';
 import Logo from '@/components/Logo';
 import Footer from '@/components/landing/footer';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
-import { useTranslation } from '@/context/LanguageContext'; // თარგმანის ჰუკი
+import { useTranslation } from '@/context/LanguageContext';
 
 // ვტვირთავთ ჩატბოტს მხოლოდ კლიენტის მხარეს (SSR: false)
 const ChatbotWidget = dynamic(() => import('@/components/chatWidget'), {
@@ -22,7 +22,7 @@ const ChatbotWidget = dynamic(() => import('@/components/chatWidget'), {
 export default function LandingPage() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const { isSignedIn } = useAuth();
-  const { t } = useTranslation(); // ვიძახებთ თარგმანის ფუნქციას
+  const { t } = useTranslation();
 
   const navItems = [
     { name: t('navFeatures' as any), href: '#features' },
@@ -32,15 +32,15 @@ export default function LandingPage() {
   ];
 
   return (
-    <main className="bg-[#08070c] text-white antialiased selection:bg-violet-500/40">
+    <main className="bg-[#08070c] text-white antialiased selection:bg-violet-500/45">
       {/* NAV */}
-      <nav className="fixed inset-x-0 top-0 z-50 flex items-center justify-between border-b border-white/5 bg-[#08070c]/60 px-6 py-4 backdrop-blur-xl md:px-12">
+      <nav className="fixed inset-x-0 top-0 z-50 flex items-center justify-between border-b border-white/5 bg-[#08070c]/70 px-3 py-3 backdrop-blur-xl sm:px-6 md:px-12">
         {/* ლოგო — დაჭერისას მთავარზე დაბრუნება */}
         <a
           href="/"
-          className="flex items-center cursor-pointer transition hover:opacity-80"
+          className="flex items-center cursor-pointer transition hover:opacity-80 shrink-0"
         >
-          <Logo variant="full" className="h-8 w-auto" />
+          <Logo variant="full" className="h-6 sm:h-8 w-auto" />
         </a>
 
         {/* Dynamic Hover Line Nav Items */}
@@ -73,33 +73,35 @@ export default function LandingPage() {
         </div>
 
         {/* Auth Buttons / User Profile & Language Switcher */}
-        <div className="flex items-center gap-4">
-          <LanguageSwitcher />
+        <div className="flex items-center gap-1.5 sm:gap-3">
+          <div className="scale-75 sm:scale-100 origin-right">
+            <LanguageSwitcher />
+          </div>
 
           {!isSignedIn ? (
-            <>
+            <div className="flex items-center gap-1.5 sm:gap-3">
               <SignInButton mode="modal">
-                <button className="text-sm font-medium text-white/70 transition hover:text-white cursor-pointer">
+                <button className="text-[11px] sm:text-sm font-medium text-white/70 transition hover:text-white cursor-pointer px-1 py-1 shrink-0">
                   {t('authSignIn' as any)}
                 </button>
               </SignInButton>
 
               <SignUpButton mode="modal">
-                <button className="rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 px-5 py-2 text-sm font-medium text-white shadow-[0_0_20px_rgba(139,92,246,0.5)] transition hover:opacity-90 cursor-pointer">
+                <button className="rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 px-3 sm:px-5 py-1.5 sm:py-2 text-[11px] sm:text-sm font-medium text-white shadow-[0_0_15px_rgba(139,92,246,0.4)] transition hover:opacity-90 cursor-pointer shrink-0">
                   {t('authGetStarted' as any)}
                 </button>
               </SignUpButton>
-            </>
+            </div>
           ) : (
-            <>
+            <div className="flex items-center gap-2 sm:gap-3">
               <a
                 href="/dashboard"
-                className="text-sm font-medium text-violet-300 transition hover:text-white"
+                className="text-xs sm:text-sm font-medium text-violet-300 transition hover:text-white"
               >
                 {t('dashboardLink' as any)}
               </a>
               <UserButton />
-            </>
+            </div>
           )}
         </div>
       </nav>

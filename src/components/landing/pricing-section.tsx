@@ -6,7 +6,7 @@ import { Check, Sparkles, ArrowRight } from 'lucide-react';
 import { useTranslation } from '@/context/LanguageContext';
 
 export default function PricingSection() {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isAnnual, setIsAnnual] = useState(false);
 
@@ -38,6 +38,7 @@ export default function PricingSection() {
         t('featureStarter4')
       ],
       popular: false,
+      trialDays: 3,
       ctaLink: "https://whop.com/yourbot/yourbot-starter/"
     },
     {
@@ -53,6 +54,7 @@ export default function PricingSection() {
         t('featurePro5')
       ],
       popular: true,
+      trialDays: 3,
       ctaLink: "https://whop.com/yourbot/yourbot-pro-plan/"
     },
     {
@@ -67,6 +69,7 @@ export default function PricingSection() {
         t('featureScale4')
       ],
       popular: false,
+      trialDays: 7,
       ctaLink: "https://whop.com/yourbot/yourbot-scale/"
     }
   ];
@@ -230,6 +233,16 @@ export default function PricingSection() {
                     </span>
                   </div>
 
+                  {/* Dynamic Trial Notice Badge */}
+                  <div className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-violet-500/10 border border-violet-500/30 px-2 py-1 text-[11px] font-medium text-violet-300">
+                    <Sparkles className="h-3 w-3 text-fuchsia-400" />
+                    <span>
+                      {language === 'geo' 
+                        ? `${plan.trialDays}-დღიანი უფასო ტრიალი` 
+                        : `${plan.trialDays}-day free trial included`}
+                    </span>
+                  </div>
+
                   <div className="mt-4 border-t border-white/10 pt-4">
                     <ul className="space-y-2">
                       {plan.features.map((feature, idx) => (
@@ -258,7 +271,7 @@ export default function PricingSection() {
                     <span className={`flex w-full items-center justify-center gap-2 rounded-[11px] px-4 py-2.5 text-xs sm:text-sm transition duration-300 ${
                       plan.popular ? 'bg-[#0d0c14] group-hover:bg-transparent' : 'bg-transparent'
                     }`}>
-                      {t('pricingCta')}
+                      {t('pricingCtaFreeTrial')}
                       <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                     </span>
                   </a>
