@@ -160,7 +160,7 @@ export default function ChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9999]">
       {!isOpen && (
         <motion.button
           initial={{ scale: 0 }}
@@ -180,7 +180,7 @@ export default function ChatWidget() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="w-[360px] h-[520px] rounded-3xl border border-white/10 bg-[#0d0c14]/90 backdrop-blur-xl shadow-2xl flex flex-col overflow-hidden"
+            className="absolute bottom-0 right-0 w-[calc(100vw-2rem)] sm:w-[360px] h-[520px] max-h-[80vh] rounded-3xl border border-white/10 bg-[#0d0c14]/95 backdrop-blur-xl shadow-2xl flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
