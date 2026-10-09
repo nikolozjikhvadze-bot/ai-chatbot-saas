@@ -3,18 +3,18 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { useTranslation } from '@/context/LanguageContext'; // შენი ჰუკის იმპორტი
+import { MessageCircle, X, Send } from 'lucide-react'; // 👈 დავამატეთ სუფთა აიქონები
+import { useTranslation } from '@/context/LanguageContext';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
 }
 
-// შენი ბოტის Public Key / ID
 const BOT_KEY = '11111111-1111-1111-1111-111111111111';
 
 export default function ChatWidget() {
-  const { t } = useTranslation(); // ენების მხარდაჭერის ჰუკი
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -25,14 +25,12 @@ export default function ChatWidget() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // საწყისი მისალმების განახლება ენის შეცვლისას ან ჩატის გახსნისას
   useEffect(() => {
     setMessages([
       { role: 'assistant', content: t('chatbotWelcome') }
     ]);
   }, [t]);
 
-  // 1. Visitor ID-ის გენერაცია ან წამოღება localStorage-იდან
   useEffect(() => {
     let vid = localStorage.getItem('chat_visitor_id');
     if (!vid) {
@@ -42,7 +40,6 @@ export default function ChatWidget() {
     setVisitorId(vid);
   }, []);
 
-  // 2. ჩატის ავტომატური ჩამოქაჩვა ბოლო შეტყობინებაზე
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading, loadingStatus]);
@@ -115,17 +112,6 @@ export default function ChatWidget() {
                 if (event.conversationId) {
                   setConversationId(event.conversationId);
                 }
-              } else if (event.type === 'tool_call') {
-                const toolName = event.name;
-                const toolArgs = event.args as any;
-
-                if (toolName === 'update_file') {
-                  setLoadingStatus(`ფაილის განახლება: ${toolArgs?.filePath || 'ფაილი'}...`);
-                } else if (toolName === 'delete_file') {
-                  setLoadingStatus(`ფაილის წაშლა: ${toolArgs?.filePath || 'ფაილი'}...`);
-                } else if (toolName === 'request_human') {
-                  setLoadingStatus('ოპერატორთან გადართვა...');
-                }
               } else if (event.type === 'error') {
                 throw new Error(event.message);
               }
@@ -160,17 +146,17 @@ export default function ChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9999]">
+    <div className="fixed bottom-5 right-5 z-[9999]">
       {!isOpen && (
         <motion.button
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           whileHover={{ scale: 1.1 }}
           onClick={() => setIsOpen(true)}
-          className="w-14 h-14 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white flex items-center justify-center shadow-[0_0_25px_rgba(139,92,246,0.5)] cursor-pointer text-xl"
+          className="w-14 h-14 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white flex items-center justify-center shadow-[0_0_25px_rgba(139,92,246,0.6)] cursor-pointer"
           title={t('chatbotToggle')}
         >
-          💬
+          <MessageCircle className="w-6 h-6 text-white" />
         </motion.button>
       )}
 
@@ -190,9 +176,9 @@ export default function ChatWidget() {
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="w-7 h-7 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-xs text-white/60 hover:text-white cursor-pointer transition"
+                className="w-7 h-7 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white cursor-pointer transition"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -238,9 +224,9 @@ export default function ChatWidget() {
                 <button
                   type="submit"
                   disabled={loading || !input.trim()}
-                  className="px-4 py-2 rounded-xl bg-violet-600 text-white font-medium hover:bg-violet-500 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed text-xs"
+                  className="px-4 py-2 rounded-xl bg-violet-600 text-white font-medium hover:bg-violet-500 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center"
                 >
-                  {t('chatbotSend')}
+                  <Send className="w-4 h-4" />
                 </button>
               </form>
 
