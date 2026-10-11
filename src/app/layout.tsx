@@ -16,7 +16,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://yourbot.site';
+const rawUrl = process.env.NEXT_PUBLIC_SITE_URL || 'yourbot.site';
+const baseUrl = new URL(rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`);
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
