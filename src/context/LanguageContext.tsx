@@ -55,7 +55,7 @@ const translations: Record<Language, Record<string, string>> = {
     howChip1_2: "დოკუმენტები",
     howStep2Title: "დააკონფიგურირე",
     howStep2Desc: "აირჩიე სასურველი AI მოდელი, მიეცი ინსტრუქციები და მოარგე ბოტის ხასიათი.",
-    howChip2_1: "GPT-4o / Claude",
+    howChip2_1: "უახლესი მოდელები",
     howChip2_2: "პერსონალიზაცია",
     howChip2_3: "ინსტრუქციები",
     howStep3Title: "გაუშვი და მართე",
@@ -152,6 +152,7 @@ const translations: Record<Language, Record<string, string>> = {
     chatSendBtn: "გაგზავნა",
     
     // Pricing სექცია
+    whopSecurePayment: "გადახდა ხორციელდება უსაფრთხოდ Whop-ის პლატფორმის გავლით",
     pricingBadge: "მარტივი და გამჭვირვალე ტარიფი",
     pricingTitle: "შეარჩიე შენზე მორგებული გეგმა",
     pricingSubtitle: "გადაიხადე მხოლოდ იმისთვის, რაც რეალურად სჭირდება შენს ბიზნესს",
@@ -232,7 +233,7 @@ const translations: Record<Language, Record<string, string>> = {
     howChip1_2: "Documents",
     howStep2Title: "Configure",
     howStep2Desc: "Choose your preferred AI model, provide instructions, and customize the bot's persona.",
-    howChip2_1: "GPT-4o / Claude",
+    howChip2_1: "New models",
     howChip2_2: "Personalization",
     howChip2_3: "Instructions",
     howStep3Title: "Launch & Manage",
@@ -329,6 +330,7 @@ const translations: Record<Language, Record<string, string>> = {
     chatSendBtn: "Send",
     
     // Pricing სექცია
+    whopSecurePayment: "Secured & processed safely via Whop",
     pricingBadge: "Simple & Transparent Pricing",
     pricingTitle: "Choose the Plan That Fits You",
     pricingSubtitle: "Pay only for what your business actually needs",

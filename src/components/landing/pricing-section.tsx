@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
-import { Check, Sparkles, ArrowRight } from 'lucide-react';
+import { Check, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
 import { useTranslation } from '@/context/LanguageContext';
 
 export default function PricingSection() {
@@ -257,7 +257,7 @@ export default function PricingSection() {
                   </div>
                 </div>
 
-                <div className="mt-5 pt-4 border-t border-white/10">
+                <div className="mt-5 pt-4 border-t border-white/10 flex flex-col gap-2">
                   <a 
                     href={plan.ctaLink}
                     target="_blank"
@@ -275,6 +275,12 @@ export default function PricingSection() {
                       <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                     </span>
                   </a>
+
+                  {/* Whop Payment Secure Notice */}
+                  <div className="flex items-center justify-center gap-1.5 text-[10px] text-white/40 pt-1">
+                    <ShieldCheck className="h-3 w-3 text-violet-400" />
+                    <span>{t('whopSecurePayment')}</span>
+                  </div>
                 </div>
 
               </div>

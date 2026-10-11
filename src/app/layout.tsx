@@ -16,29 +16,29 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://yourbot.site';
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: 'AI ასისტენტი - ჭკვიანი ჩატ-ბოტი',
-    template: '%s | AI ასისტენტი',
+    default: 'YourBot - AI ასისტენტი და ჩატ-ბოტის პლატფორმა',
+    template: '%s | YourBot',
   },
-  description: 'ინტელექტუალური AI ჩატ-ასისტენტი თქვენი ბიზნესისთვის.',
+  description: 'ავტომატიზირე შენი ბიზნესი ინტელექტუალური AI ასისტენტებითა და ჩატ-ბოტებით რამდენიმე წუთში.',
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'AI ასისტენტი - ჭკვიანი ჩატ-ბოტი',
-    description: 'ინტელექტუალური AI ჩატ-ასისტენტი თქვენი ბიზნესისთვის.',
+    title: 'YourBot - AI ასისტენტი და ჩატ-ბოტის პლატფორმა',
+    description: 'ავტომატიზირე შენი ბიზნესი ინტელექტუალური AI ასისტენტებითა და ჩატ-ბოტებით რამდენიმე წუთში.',
     url: baseUrl,
-    siteName: 'AI ასისტენტი',
+    siteName: 'YourBot',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'AI ასისტენტი',
+        alt: 'YourBot AI',
       },
     ],
     locale: 'ka_GE',
@@ -46,12 +46,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AI ასისტენტი',
-    description: 'ინტელექტუალური AI ჩატ-ასისტენტი თქვენი ბიზნესისთვის.',
+    title: 'YourBot - AI ასისტენტი',
+    description: 'ავტომატიზირე შენი ბიზნესი ინტელექტუალური AI ასისტენტებით.',
     images: ['/og-image.png'],
-  },
-  verification: {
-    google: 'your-google-verification-code',
   },
 };
 
