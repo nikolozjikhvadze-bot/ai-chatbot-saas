@@ -14,36 +14,35 @@ import Footer from '@/components/landing/footer';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useTranslation } from '@/context/LanguageContext';
 
-// ვტვირთავთ ჩატბოტს მხოლოდ კლიენტის მხარეს (SSR: false)
 const ChatbotWidget = dynamic(() => import('@/components/chatWidget'), {
   ssr: false,
 });
 
 export default function LandingPage() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, isLoaded } = useAuth();
   const { t } = useTranslation();
 
   const [isPaid, setIsPaid] = useState(false);
 
-  // ვამოწმებთ სტატუსს ბაზიდან სწორ API მისამართზე მოთხოვნით
   useEffect(() => {
     async function checkPaidStatus() {
-      if (!isSignedIn) {
-        setIsPaid(false);
-        return;
-      }
+      console.log("LOG - Checking user status, isLoaded:", isLoaded, "isSignedIn:", isSignedIn);
+      
       try {
         const res = await fetch('/api/user/status');
         const data = await res.json();
+        console.log("LOG - API Status Response:", data);
         setIsPaid(Boolean(data.isPaid));
       } catch (err) {
         console.error("Failed to fetch user status:", err);
       }
     }
 
-    checkPaidStatus();
-  }, [isSignedIn]);
+    if (isLoaded) {
+      checkPaidStatus();
+    }
+  }, [isLoaded, isSignedIn]);
 
   const navItems = [
     { name: t('navFeatures' as any), href: '#features' },
@@ -56,7 +55,6 @@ export default function LandingPage() {
     <main className="bg-[#08070c] text-white antialiased selection:bg-violet-500/45">
       {/* NAV */}
       <nav className="fixed inset-x-0 top-0 z-50 flex items-center justify-between border-b border-white/5 bg-[#08070c]/70 px-3 py-3 backdrop-blur-xl sm:px-6 md:px-12">
-        {/* ლოგო — დაჭერისას მთავარზე დაბრუნება */}
         <a
           href="/"
           className="flex items-center cursor-pointer transition hover:opacity-80 shrink-0"
@@ -64,7 +62,6 @@ export default function LandingPage() {
           <Logo variant="full" className="h-6 sm:h-8 w-auto" />
         </a>
 
-        {/* Dynamic Hover Line Nav Items */}
         <div
           className="hidden gap-2 rounded-full border border-white/10 bg-white/[0.03] p-1.5 md:flex"
           onMouseLeave={() => setHoveredIndex(null)}
@@ -93,7 +90,6 @@ export default function LandingPage() {
           ))}
         </div>
 
-        {/* Auth Buttons / User Profile & Language Switcher */}
         <div className="flex items-center gap-1.5 sm:gap-3">
           <div className="scale-75 sm:scale-100 origin-right">
             <LanguageSwitcher />
