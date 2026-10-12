@@ -78,7 +78,7 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
     }
   ];
 
-  // Whop-ის სამართავი/გაუქმების ლინკი (მომხმარებლის ჰაბი სადაც გამოწერებს აკონტროლებენ)
+  // Whop-ის სამართავი/გაუქმების ლინკი
   const manageSubscriptionLink = "https://whop.com/hub"; 
 
   return (
@@ -89,6 +89,32 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute left-1/2 top-1/2 h-[300px] sm:h-[500px] w-full max-w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-600/15 blur-[140px]" />
           <div className="absolute bottom-10 right-10 h-[250px] w-[250px] sm:w-[400px] rounded-full bg-fuchsia-500/10 blur-[120px]" />
+        </div>
+
+        {/* Scroll-driven animated tracer line wrapping the section */}
+        <div className="pointer-events-none absolute inset-4 sm:inset-8 md:inset-12 rounded-3xl overflow-hidden border border-white/5">
+          <svg className="absolute inset-0 h-full w-full" preserveAspectRatio="none" fill="none">
+            <rect
+              x="1"
+              y="1"
+              width="calc(100% - 2px)"
+              height="calc(100% - 2px)"
+              rx="24"
+              className="stroke-violet-500/20"
+              strokeWidth="1.5"
+            />
+            <motion.rect
+              x="1"
+              y="1"
+              width="calc(100% - 2px)"
+              height="calc(100% - 2px)"
+              rx="24"
+              className="stroke-violet-400"
+              strokeWidth="2"
+              strokeDasharray="1000"
+              style={{ strokeDashoffset }}
+            />
+          </svg>
         </div>
 
         <div className="relative mx-auto w-full max-w-6xl py-6">
@@ -225,7 +251,11 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
                       {isPaid ? (
                         <>
                           <Settings className="h-3.5 w-3.5 text-emerald-400 transition-transform duration-300 group-hover:rotate-45" />
-                          <span className="text-emerald-300 font-semibold">{t('pricingManageSub')}</span>
+                          <span className="text-emerald-300 font-semibold">
+                            {t('pricingManageSub') !== 'pricingManageSub'
+                              ? t('pricingManageSub')
+                              : (language === 'geo' ? 'გამოწერის მართვა / გაუქმება' : 'Manage / Cancel Subscription')}
+                          </span>
                         </>
                       ) : (
                         <>
