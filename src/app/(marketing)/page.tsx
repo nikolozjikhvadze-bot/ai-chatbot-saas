@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { SignInButton, SignUpButton, UserButton, useAuth } from '@clerk/nextjs';
+import { SignInButton, SignUpButton, UserButton, useAuth, useUser } from '@clerk/nextjs';
 import HeroTunnel from '@/components/landing/hero-tunnel';
 import FeaturesSection from '@/components/landing/features-section';
 import HowItWorksSection from '@/components/landing/how-it-works-section';
@@ -22,7 +22,11 @@ const ChatbotWidget = dynamic(() => import('@/components/chatWidget'), {
 export default function LandingPage() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const { isSignedIn } = useAuth();
+  const { user } = useUser();
   const { t } = useTranslation();
+
+  // ვამოწმებთ აქვს თუ არა მომხმარებელს გადახდილი (Clerk publicMetadata-ს მიხედვით)
+  const isPaid = Boolean(user?.publicMetadata?.isPaid);
 
   const navItems = [
     { name: t('navFeatures' as any), href: '#features' },
@@ -110,7 +114,7 @@ export default function LandingPage() {
       <HeroTunnel />
       <FeaturesSection />
       <HowItWorksSection />
-      <PricingSection />
+      <PricingSection isPaid={isPaid} />
       <ContactSection />
       <Footer />
 
