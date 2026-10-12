@@ -152,6 +152,8 @@ const translations: Record<Language, Record<string, string>> = {
     chatSendBtn: "გაგზავნა",
     
     // Pricing სექცია
+    pricingManageSub: "გამოწერის მართვა / გაუქმება",
+    pricingActiveSub: "აქტიური გამოწერა",
     whopSecurePayment: "გადახდა ხორციელდება უსაფრთხოდ Whop-ის პლატფორმის გავლით",
     pricingBadge: "მარტივი და გამჭვირვალე ტარიფი",
     pricingTitle: "შეარჩიე შენზე მორგებული გეგმა",
@@ -345,6 +347,8 @@ const translations: Record<Language, Record<string, string>> = {
     pricingPopular: "Popular",
     pricingFreeTrialBadge: "3-day free trial included",
     pricingCtaFreeTrial: "Start Free Trial",
+    pricingManageSub: "Manage / Cancel Subscription",
+    pricingActiveSub: "Active Subscription",
 
     // Starter Plan
     planStarterTitle: "Starter",

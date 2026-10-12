@@ -2,10 +2,14 @@
 
 import { useRef, useState } from 'react';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
-import { Check, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Check, Sparkles, ArrowRight, ShieldCheck, Settings } from 'lucide-react';
 import { useTranslation } from '@/context/LanguageContext';
 
-export default function PricingSection() {
+interface PricingSectionProps {
+  isPaid?: boolean; // მომხმარებლის სტატუსი (გააჩნია თუ არა აქტიური გამოწერა)
+}
+
+export default function PricingSection({ isPaid = false }: PricingSectionProps) {
   const { t, language } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isAnnual, setIsAnnual] = useState(false);
@@ -74,6 +78,9 @@ export default function PricingSection() {
     }
   ];
 
+  // Whop-ის სამართავი/გაუქმების ლინკი (მომხმარებლის ჰაბი სადაც გამოწერებს აკონტროლებენ)
+  const manageSubscriptionLink = "https://whop.com/hub"; 
+
   return (
     <div id="pricing" ref={containerRef} className="relative h-auto py-20 md:h-[220vh] bg-[#08070c]">
       <div className="relative flex min-h-screen w-full flex-col items-center justify-center px-4 sm:px-6 md:sticky md:top-0 md:h-screen md:overflow-hidden">
@@ -86,75 +93,6 @@ export default function PricingSection() {
 
         <div className="relative mx-auto w-full max-w-6xl py-6">
           
-          {/* SVG Border Frame & Synced Glowing Tracer */}
-          <div className="pointer-events-none absolute -inset-4 z-0 hidden md:block">
-            <svg
-              className="h-full w-full overflow-visible"
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
-            >
-              <rect
-                x="0.5"
-                y="0.5"
-                width="99"
-                height="99"
-                rx="2"
-                fill="none"
-                stroke="rgba(255, 255, 255, 0.08)"
-                strokeWidth="0.5"
-              />
-              <motion.rect
-                x="0.5"
-                y="0.5"
-                width="99"
-                height="99"
-                rx="2"
-                fill="none"
-                stroke="url(#glow-gradient-pricing)"
-                strokeWidth="1"
-                pathLength="1000"
-                style={{ strokeDasharray: 1000, strokeDashoffset }}
-              />
-
-              <motion.rect
-                x="0.5"
-                y="0.5"
-                width="99"
-                height="99"
-                rx="2"
-                fill="none"
-                stroke="#c084fc"
-                strokeWidth="3.5"
-                strokeLinecap="round"
-                pathLength="1000"
-                style={{ strokeDasharray: '16 1000', strokeDashoffset: tracerGlowOffset }}
-                className="drop-shadow-[0_0_12px_#a855f7]"
-              />
-
-              <motion.rect
-                x="0.5"
-                y="0.5"
-                width="99"
-                height="99"
-                rx="2"
-                fill="none"
-                stroke="#ffffff"
-                strokeWidth="2"
-                strokeLinecap="round"
-                pathLength="1000"
-                style={{ strokeDasharray: '8 1000', strokeDashoffset: tracerCoreOffset }}
-              />
-
-              <defs>
-                <linearGradient id="glow-gradient-pricing" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#a855f7" />
-                  <stop offset="50%" stopColor="#ec4899" />
-                  <stop offset="100%" stopColor="#3b82f6" />
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
-
           {/* Header */}
           <div className="relative z-10 text-center">
             <motion.div
@@ -233,15 +171,22 @@ export default function PricingSection() {
                     </span>
                   </div>
 
-                  {/* Dynamic Trial Notice Badge */}
-                  <div className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-violet-500/10 border border-violet-500/30 px-2 py-1 text-[11px] font-medium text-violet-300">
-                    <Sparkles className="h-3 w-3 text-fuchsia-400" />
-                    <span>
-                      {language === 'geo' 
-                        ? `${plan.trialDays}-დღიანი უფასო ტრიალი` 
-                        : `${plan.trialDays}-day free trial included`}
-                    </span>
-                  </div>
+                  {/* Dynamic Badge based on isPaid status */}
+                  {isPaid ? (
+                    <div className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-emerald-500/10 border border-emerald-500/30 px-2 py-1 text-[11px] font-medium text-emerald-300">
+                      <ShieldCheck className="h-3 w-3 text-emerald-400" />
+                      <span>{t('pricingActiveSub')}</span>
+                    </div>
+                  ) : (
+                    <div className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-violet-500/10 border border-violet-500/30 px-2 py-1 text-[11px] font-medium text-violet-300">
+                      <Sparkles className="h-3 w-3 text-fuchsia-400" />
+                      <span>
+                        {language === 'geo' 
+                          ? `${plan.trialDays}-დღიანი უფასო ტრიალი` 
+                          : `${plan.trialDays}-day free trial included`}
+                      </span>
+                    </div>
+                  )}
 
                   <div className="mt-4 border-t border-white/10 pt-4">
                     <ul className="space-y-2">
@@ -259,20 +204,31 @@ export default function PricingSection() {
 
                 <div className="mt-5 pt-4 border-t border-white/10 flex flex-col gap-2">
                   <a 
-                    href={plan.ctaLink}
+                    href={isPaid ? manageSubscriptionLink : plan.ctaLink}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={`group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl p-px font-medium text-white transition duration-300 ${
-                      plan.popular 
-                        ? 'bg-gradient-to-r from-violet-600 via-fuchsia-600 to-violet-600 shadow-lg shadow-violet-500/25' 
-                        : 'bg-white/10 hover:bg-white/20'
+                      isPaid
+                        ? 'bg-zinc-700 hover:bg-zinc-600'
+                        : plan.popular 
+                          ? 'bg-gradient-to-r from-violet-600 via-fuchsia-600 to-violet-600 shadow-lg shadow-violet-500/25' 
+                          : 'bg-white/10 hover:bg-white/20'
                     }`}
                   >
                     <span className={`flex w-full items-center justify-center gap-2 rounded-[11px] px-4 py-2.5 text-xs sm:text-sm transition duration-300 ${
-                      plan.popular ? 'bg-[#0d0c14] group-hover:bg-transparent' : 'bg-transparent'
+                      !isPaid && plan.popular ? 'bg-[#0d0c14] group-hover:bg-transparent' : 'bg-transparent'
                     }`}>
-                      {t('pricingCtaFreeTrial')}
-                      <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+                      {isPaid ? (
+                        <>
+                          <Settings className="h-3.5 w-3.5 text-zinc-300" />
+                          {t('pricingManageSub')}
+                        </>
+                      ) : (
+                        <>
+                          {t('pricingCtaFreeTrial')}
+                          <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+                        </>
+                      )}
                     </span>
                   </a>
 
