@@ -209,19 +209,23 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
                     rel="noopener noreferrer"
                     className={`group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl p-px font-medium text-white transition duration-300 ${
                       isPaid
-                        ? 'bg-zinc-700 hover:bg-zinc-600'
+                        ? 'bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40'
                         : plan.popular 
                           ? 'bg-gradient-to-r from-violet-600 via-fuchsia-600 to-violet-600 shadow-lg shadow-violet-500/25' 
                           : 'bg-white/10 hover:bg-white/20'
                     }`}
                   >
                     <span className={`flex w-full items-center justify-center gap-2 rounded-[11px] px-4 py-2.5 text-xs sm:text-sm transition duration-300 ${
-                      !isPaid && plan.popular ? 'bg-[#0d0c14] group-hover:bg-transparent' : 'bg-transparent'
+                      isPaid 
+                        ? 'bg-[#0d0c14] group-hover:bg-transparent' 
+                        : !isPaid && plan.popular 
+                          ? 'bg-[#0d0c14] group-hover:bg-transparent' 
+                          : 'bg-transparent'
                     }`}>
                       {isPaid ? (
                         <>
-                          <Settings className="h-3.5 w-3.5 text-zinc-300" />
-                          {t('pricingManageSub')}
+                          <Settings className="h-3.5 w-3.5 text-emerald-400 transition-transform duration-300 group-hover:rotate-45" />
+                          <span className="text-emerald-300 font-semibold">{t('pricingManageSub')}</span>
                         </>
                       ) : (
                         <>
