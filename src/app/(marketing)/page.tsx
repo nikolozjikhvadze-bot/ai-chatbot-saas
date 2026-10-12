@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { SignInButton, SignUpButton, UserButton, useAuth, useUser } from '@clerk/nextjs';
+import { SignInButton, SignUpButton, UserButton, useAuth } from '@clerk/nextjs';
 import HeroTunnel from '@/components/landing/hero-tunnel';
 import FeaturesSection from '@/components/landing/features-section';
 import HowItWorksSection from '@/components/landing/how-it-works-section';
@@ -22,12 +22,11 @@ const ChatbotWidget = dynamic(() => import('@/components/chatWidget'), {
 export default function LandingPage() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const { isSignedIn } = useAuth();
-  const { user } = useUser();
   const { t } = useTranslation();
 
   const [isPaid, setIsPaid] = useState(false);
 
-  // ვამოწმებთ სტატუსს ბაზიდან (Supabase-იდან) API-ს მეშვეობით
+  // ვამოწმებთ სტატუსს ბაზიდან სწორ API მისამართზე მოთხოვნით
   useEffect(() => {
     async function checkPaidStatus() {
       if (!isSignedIn) {
@@ -35,7 +34,7 @@ export default function LandingPage() {
         return;
       }
       try {
-        const res = await fetch('/api/user-status'); // მიუთითე შენი GET ენდპოინტის ზუსტი მისამართი
+        const res = await fetch('/api/user/status');
         const data = await res.json();
         setIsPaid(Boolean(data.isPaid));
       } catch (err) {
