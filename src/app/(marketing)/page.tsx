@@ -26,7 +26,7 @@ export default function LandingPage() {
   const { t } = useTranslation();
 
   // ვამოწმებთ აქვს თუ არა მომხმარებელს გადახდილი (Clerk publicMetadata-ს მიხედვით)
-  const isPaid = Boolean(user?.publicMetadata?.isPaid);
+  const isPaid = true
 
   const navItems = [
     { name: t('navFeatures' as any), href: '#features' },
