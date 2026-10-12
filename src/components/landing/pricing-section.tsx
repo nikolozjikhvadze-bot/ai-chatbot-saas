@@ -77,7 +77,7 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
   ];
 
   // Whop-ის ოფიციალური გამოწერებისა და ბილინგის მართვის გვერდი
-  const manageSubscriptionLink = "https://whop.com/hub/yourbot"; 
+  const manageSubscriptionLink = "https://whop.com/hub/"; 
 
   return (
     <div id="pricing" ref={containerRef} className="relative h-auto py-20 md:h-[220vh] bg-[#08070c]">
