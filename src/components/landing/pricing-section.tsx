@@ -25,7 +25,6 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
     restDelta: 0.001,
   });
 
-  // ორიგინალური სქროლ-ტრასირების პარამეტრები
   const strokeDashoffset = useTransform(smoothProgress, [0, 1], [1200, 0]);
 
   const plans = [
@@ -77,7 +76,8 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
     }
   ];
 
-  const manageSubscriptionLink = "https://whop.com/hub"; 
+  // Whop-ის ოფიციალური გამოწერებისა და ბილინგის მართვის გვერდი
+  const manageSubscriptionLink = "https://whop.com/settings/subscriptions"; 
 
   return (
     <div id="pricing" ref={containerRef} className="relative h-auto py-20 md:h-[220vh] bg-[#08070c]">
@@ -89,7 +89,7 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
           <div className="absolute bottom-10 right-10 h-[250px] w-[250px] sm:w-[400px] rounded-full bg-fuchsia-500/10 blur-[120px]" />
         </div>
 
-        {/* ორიგინალური სქროლ-ხაზი სექციის გარშემო (როგორც სურათზეა) */}
+        {/* Scroll-driven animated tracer line wrapping the section */}
         <div className="pointer-events-none absolute inset-4 sm:inset-8 md:inset-12 rounded-3xl overflow-hidden border border-white/10">
           <svg className="absolute inset-0 h-full w-full" preserveAspectRatio="none" fill="none">
             <rect
