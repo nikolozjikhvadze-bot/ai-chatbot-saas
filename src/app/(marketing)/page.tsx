@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { SignInButton, SignUpButton, UserButton, useAuth, useUser } from '@clerk/nextjs';
@@ -25,8 +25,26 @@ export default function LandingPage() {
   const { user } = useUser();
   const { t } = useTranslation();
 
-  // ვამოწმებთ აქვს თუ არა მომხმარებელს გადახდილი (Clerk publicMetadata-ს მიხედვით)
-  const isPaid = Boolean(user?.publicMetadata?.isPaid);
+  const [isPaid, setIsPaid] = useState(false);
+
+  // ვამოწმებთ სტატუსს ბაზიდან (Supabase-იდან) API-ს მეშვეობით
+  useEffect(() => {
+    async function checkPaidStatus() {
+      if (!isSignedIn) {
+        setIsPaid(false);
+        return;
+      }
+      try {
+        const res = await fetch('/api/user-status'); // მიუთითე შენი GET ენდპოინტის ზუსტი მისამართი
+        const data = await res.json();
+        setIsPaid(Boolean(data.isPaid));
+      } catch (err) {
+        console.error("Failed to fetch user status:", err);
+      }
+    }
+
+    checkPaidStatus();
+  }, [isSignedIn]);
 
   const navItems = [
     { name: t('navFeatures' as any), href: '#features' },
