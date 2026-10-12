@@ -87,7 +87,8 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
           <div className="absolute bottom-10 right-10 h-[250px] w-[250px] sm:w-[400px] rounded-full bg-fuchsia-500/10 blur-[120px]" />
         </div>
 
-        <div className="pointer-events-none absolute inset-4 sm:inset-8 md:inset-12 rounded-3xl overflow-hidden border border-white/10">
+        {/* Scroll-driven animated tracer line wrapping the section (მხოლოდ კომპიუტერებზე - hidden md:block) */}
+        <div className="pointer-events-none absolute inset-4 sm:inset-8 md:inset-12 rounded-3xl overflow-hidden border border-white/10 hidden md:block">
           <svg className="absolute inset-0 h-full w-full" preserveAspectRatio="none" fill="none">
             <rect
               x="1"
