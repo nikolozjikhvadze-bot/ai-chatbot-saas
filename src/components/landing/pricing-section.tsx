@@ -25,9 +25,8 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
     restDelta: 0.001,
   });
 
-  const strokeDashoffset = useTransform(smoothProgress, [0, 1], [1000, 0]);
-  const tracerGlowOffset = useTransform(smoothProgress, [0, 1], [8, -992]);
-  const tracerCoreOffset = useTransform(smoothProgress, [0, 1], [4, -996]);
+  // ორიგინალური სქროლ-ტრასირების პარამეტრები
+  const strokeDashoffset = useTransform(smoothProgress, [0, 1], [1200, 0]);
 
   const plans = [
     {
@@ -78,7 +77,6 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
     }
   ];
 
-  // Whop-ის სამართავი/გაუქმების ლინკი
   const manageSubscriptionLink = "https://whop.com/hub"; 
 
   return (
@@ -91,8 +89,8 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
           <div className="absolute bottom-10 right-10 h-[250px] w-[250px] sm:w-[400px] rounded-full bg-fuchsia-500/10 blur-[120px]" />
         </div>
 
-        {/* Scroll-driven animated tracer line wrapping the section */}
-        <div className="pointer-events-none absolute inset-4 sm:inset-8 md:inset-12 rounded-3xl overflow-hidden border border-white/5">
+        {/* ორიგინალური სქროლ-ხაზი სექციის გარშემო (როგორც სურათზეა) */}
+        <div className="pointer-events-none absolute inset-4 sm:inset-8 md:inset-12 rounded-3xl overflow-hidden border border-white/10">
           <svg className="absolute inset-0 h-full w-full" preserveAspectRatio="none" fill="none">
             <rect
               x="1"
@@ -100,8 +98,8 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
               width="calc(100% - 2px)"
               height="calc(100% - 2px)"
               rx="24"
-              className="stroke-violet-500/20"
-              strokeWidth="1.5"
+              className="stroke-white/10"
+              strokeWidth="1"
             />
             <motion.rect
               x="1"
@@ -109,11 +107,18 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
               width="calc(100% - 2px)"
               height="calc(100% - 2px)"
               rx="24"
-              className="stroke-violet-400"
+              stroke="url(#pricing-gradient)"
               strokeWidth="2"
-              strokeDasharray="1000"
+              strokeDasharray="1200"
               style={{ strokeDashoffset }}
             />
+            <defs>
+              <linearGradient id="pricing-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#8b5cf6" />
+                <stop offset="50%" stopColor="#d946ef" />
+                <stop offset="100%" stopColor="#3b82f6" />
+              </linearGradient>
+            </defs>
           </svg>
         </div>
 
