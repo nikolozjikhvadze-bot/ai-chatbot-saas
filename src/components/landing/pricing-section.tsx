@@ -6,7 +6,7 @@ import { Check, Sparkles, ArrowRight, ShieldCheck, Settings } from 'lucide-react
 import { useTranslation } from '@/context/LanguageContext';
 
 interface PricingSectionProps {
-  isPaid?: boolean; // მომხმარებლის სტატუსი (გააჩნია თუ არა აქტიური გამოწერა)
+  isPaid?: boolean;
 }
 
 export default function PricingSection({ isPaid = false }: PricingSectionProps) {
@@ -76,20 +76,17 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
     }
   ];
 
-  // Whop-ის ოფიციალური გამოწერებისა და ბილინგის მართვის გვერდი
   const manageSubscriptionLink = "https://whop.com/hub/"; 
 
   return (
     <div id="pricing" ref={containerRef} className="relative h-auto py-20 md:h-[220vh] bg-[#08070c]">
       <div className="relative flex min-h-screen w-full flex-col items-center justify-center px-4 sm:px-6 md:sticky md:top-0 md:h-screen md:overflow-hidden">
         
-        {/* Ambient background */}
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute left-1/2 top-1/2 h-[300px] sm:h-[500px] w-full max-w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-600/15 blur-[140px]" />
           <div className="absolute bottom-10 right-10 h-[250px] w-[250px] sm:w-[400px] rounded-full bg-fuchsia-500/10 blur-[120px]" />
         </div>
 
-        {/* Scroll-driven animated tracer line wrapping the section */}
         <div className="pointer-events-none absolute inset-4 sm:inset-8 md:inset-12 rounded-3xl overflow-hidden border border-white/10">
           <svg className="absolute inset-0 h-full w-full" preserveAspectRatio="none" fill="none">
             <rect
@@ -123,8 +120,6 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
         </div>
 
         <div className="relative mx-auto w-full max-w-6xl py-6">
-          
-          {/* Header */}
           <div className="relative z-10 text-center">
             <motion.div
               initial={{ opacity: 0, y: 12 }}
@@ -143,7 +138,6 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
               {t('pricingSubtitle')}
             </p>
 
-            {/* Toggle Switch */}
             <div className="mt-4 flex items-center justify-center gap-3">
               <span className={`text-xs sm:text-sm font-medium ${!isAnnual ? 'text-white' : 'text-white/40'}`}>
                 {t('pricingMonthly')}
@@ -170,7 +164,6 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
             </div>
           </div>
 
-          {/* Pricing Cards Grid */}
           <div className="relative z-10 mt-6 grid grid-cols-1 gap-4 md:grid-cols-3 sm:mt-6">
             {plans.map((plan, index) => (
               <div 
@@ -202,7 +195,6 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
                     </span>
                   </div>
 
-                  {/* Dynamic Badge based on isPaid status */}
                   {isPaid ? (
                     <div className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-emerald-500/10 border border-emerald-500/30 px-2 py-1 text-[11px] font-medium text-emerald-300">
                       <ShieldCheck className="h-3 w-3 text-emerald-400" />
@@ -271,7 +263,6 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
                     </span>
                   </a>
 
-                  {/* Whop Payment Secure Notice */}
                   <div className="flex items-center justify-center gap-1.5 text-[10px] text-white/40 pt-1">
                     <ShieldCheck className="h-3 w-3 text-violet-400" />
                     <span>{t('whopSecurePayment')}</span>
