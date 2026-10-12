@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
-import ChatWidget from "@/components/chatWidget"; // შეამოწმე ფაილის გზა
+import ChatWidget from "@/components/chatWidget";
 import "./globals.css";
 import { LanguageProvider } from "@/context/LanguageContext";
 
@@ -20,7 +20,7 @@ const rawUrl = process.env.NEXT_PUBLIC_SITE_URL || 'yourbot.site';
 const baseUrl = new URL(rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`);
 
 export const metadata: Metadata = {
-  metadataBase: new URL(baseUrl),
+  metadataBase: baseUrl,
   title: {
     default: 'YourBot - AI ასისტენტი და ჩატ-ბოტის პლატფორმა',
     template: '%s | YourBot',
