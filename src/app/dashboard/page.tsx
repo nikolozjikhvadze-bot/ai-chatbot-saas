@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { UserButton, useUser } from '@clerk/nextjs';
-import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useTranslation } from '@/context/LanguageContext';
+import { Sparkles, Plus, Folder, Loader2 } from 'lucide-react';
+import TrialSuccessModal from '@/components/TrialSuccessModal';
 
 interface Project {
   id: string;
@@ -13,110 +13,126 @@ interface Project {
 }
 
 export default function DashboardPage() {
-  const { user } = useUser();
-  const router = useRouter();
-  const { t } = useTranslation(); // ამოვიღეთ language, რადგან ტიპებში არ იყო
-  const [isPaid, setIsPaid] = useState(false);
-  const [loadingStatus, setLoadingStatus] = useState(true);
+  const { t } = useTranslation();
   const [projects, setProjects] = useState<Project[]>([]);
-  const [loadingProjects, setLoadingProjects] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function init() {
-      try {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('success') === 'true') {
-          window.history.replaceState({}, document.title, '/dashboard');
-        }
-        const res = await fetch('/api/user/status');
-        const data = await res.json();
-        if (data.isPaid) setIsPaid(true);
-      } finally {
-        setLoadingStatus(false);
-      }
-    }
-    init();
-  }, []);
-
-  useEffect(() => {
-    if (!isPaid) return;
-    async function loadProjects() {
+    async function fetchProjects() {
       try {
         const res = await fetch('/api/projects');
         const data = await res.json();
-        setProjects(data.projects || []);
+        if (data.success && data.projects) {
+          setProjects(data.projects);
+        }
+      } catch (err) {
+        console.error('Error fetching projects:', err);
       } finally {
-        setLoadingProjects(false);
+        setLoading(false);
       }
     }
-    loadProjects();
-  }, [isPaid]);
-
-  if (loadingStatus) {
-    return (
-      <div className="min-h-screen bg-[#07060a] text-white flex items-center justify-center">
-        <p className="text-sm text-violet-400 animate-pulse">{t('dashLoading' as any)}</p>
-      </div>
-    );
-  }
+    fetchProjects();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-[#07060a] text-white">
-      <header className="flex items-center justify-between border-b border-white/5 bg-[#08070c]/40 px-6 py-4 backdrop-blur-xl md:px-12">
-        <a href="/" className="text-lg font-semibold tracking-tight hover:opacity-80">
-          YourBot <span className="text-xs px-2 py-0.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-400 font-normal">Dashboard</span>
-        </a>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-white/60 hidden sm:inline">
-            {t('dashGreeting' as any)}, <span className="text-white font-medium">{user?.firstName || t('dashDefaultUser' as any)}</span>!
+    <div className="min-h-screen bg-[#07060a] text-white flex flex-col">
+      {/* Top Navigation Bar */}
+      <header className="flex items-center justify-between border-b border-white/10 px-6 py-4 bg-[#08070c]/80 backdrop-blur-md sticky top-0 z-20">
+        <div className="flex items-center gap-6">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-violet-600 to-fuchsia-600 font-bold text-white shadow-md shadow-violet-500/20">
+              Y
+            </div>
+            <span className="text-lg font-bold bg-gradient-to-r from-white via-white/90 to-white/60 bg-clip-text text-transparent">
+              YourBot
+            </span>
+          </Link>
+          <span className="rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-300">
+            {t('dashboardLink')}
           </span>
-          <UserButton />
+        </div>
+
+        <div className="flex items-center gap-4">
+          <Link
+            href="/projects/new"
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-violet-500/20 hover:opacity-90 transition"
+          >
+            <Plus className="h-4 w-4" />
+            {t('dashAddProject')}
+          </Link>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto w-full p-6 md:p-12">
-        {!isPaid ? (
-          <div className="text-center py-16 text-white/60">
-            {t('dashSubscriptionRequired' as any)}
+      {/* Main Content */}
+      <main className="flex-1 max-w-6xl w-full mx-auto p-6 md:p-10">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+              {t('dashMyProjects')}
+            </h1>
+            <p className="text-xs sm:text-sm text-white/50 mt-1">
+              {t('dashSubtitle')}
+            </p>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20 text-white/50">
+            <Loader2 className="h-8 w-8 animate-spin text-violet-500 mb-3" />
+            <p className="text-xs">{t('dashLoadingProjects')}</p>
+          </div>
+        ) : projects.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-white/[0.02] p-12 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-500/10 text-violet-400 mb-4">
+              <Folder className="h-8 w-8" />
+            </div>
+            <h3 className="text-base font-semibold mb-1">{t('dashNoProjects')}</h3>
+            <p className="text-xs text-white/40 max-w-sm mb-6">
+              {t('dashNoProjectsDesc')}
+            </p>
+            <Link
+              href="/projects/new"
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-5 py-3 text-xs font-semibold text-white shadow-lg shadow-violet-500/20 hover:opacity-90 transition"
+            >
+              <Sparkles className="h-4 w-4" />
+              {t('dashAddProject')}
+            </Link>
           </div>
         ) : (
-          <>
-            <div className="flex items-center justify-between mb-8">
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{t('dashMyProjects' as any)}</h1>
-              <button
-                onClick={() => router.push('/projects/new')}
-                className="rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 px-6 py-3 text-sm font-medium text-white shadow-[0_0_20px_rgba(139,92,246,0.4)] transition hover:opacity-90"
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {projects.map((project) => (
+              <Link
+                key={project.id}
+                href={`/projects/${project.id}`}
+                className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur-md transition hover:border-violet-500/40 hover:bg-white/[0.04]"
               >
-                {t('dashAddProject' as any)}
-              </button>
-            </div>
-
-            {loadingProjects ? (
-              <p className="text-white/50 text-sm">{t('dashLoadingProjects' as any)}</p>
-            ) : projects.length === 0 ? (
-              <div className="text-center py-16 rounded-3xl border border-dashed border-white/10 text-white/50">
-                {t('dashNoProjects' as any)}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {projects.map((p) => (
-                  <motion.a
-                    key={p.id}
-                    href={`/projects/${p.id}`}
-                    whileHover={{ y: -4 }}
-                    className="p-6 rounded-2xl border border-white/10 bg-white/[0.02] hover:border-violet-500/40 transition block"
-                  >
-                    <h3 className="font-semibold text-base mb-1 truncate">{p.title}</h3>
-                    <p className="text-xs text-white/40">
-                      {new Date(p.created_at).toLocaleDateString()}
-                    </p>
-                  </motion.a>
-                ))}
-              </div>
-            )}
-          </>
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 text-violet-400 border border-violet-500/20 group-hover:scale-110 transition">
+                      🤖
+                    </div>
+                    <span className="text-[10px] text-white/40">
+                      {new Date(project.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <h3 className="font-semibold text-base text-white group-hover:text-violet-300 transition">
+                    {project.title}
+                  </h3>
+                </div>
+                <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-white/50">
+                  <span>AI Assistant</span>
+                  <span className="text-violet-400 font-medium group-hover:translate-x-1 transition">
+                    {t('dashManage')} →
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
         )}
       </main>
+
+      {/* Trial / Payment Success Modal */}
+      <TrialSuccessModal />
     </div>
   );
 }
