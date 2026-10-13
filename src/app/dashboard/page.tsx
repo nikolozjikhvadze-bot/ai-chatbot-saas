@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useTranslation } from '@/context/LanguageContext';
 import { Sparkles, Plus, Folder, Loader2 } from 'lucide-react';
@@ -133,8 +133,10 @@ export default function DashboardPage() {
         )}
       </main>
 
-      {/* Trial / Payment Success Modal */}
-      <TrialSuccessModal />
+      {/* Trial / Payment Success Modal (Suspense-ში ჩასმული) */}
+      <Suspense fallback={null}>
+        <TrialSuccessModal />
+      </Suspense>
     </div>
   );
 }
