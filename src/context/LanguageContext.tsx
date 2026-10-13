@@ -25,12 +25,13 @@ const translations: Record<Language, Record<string, string>> = {
     authGetStarted: "დაიწყე ახლავე",
     dashboardLink: "პანელი (Dashboard)",
     
-    // ჰერო სექცია (მთავარი გვერდი - გასწორებული ვერტიკალებზე მორგებულად)
+    // ჰერო სექცია (მთავარი გვერდი - ვერტიკალებზე მორგებული)
     heroBadge: "AI ასისტენტი სასტუმროებისა და ონლაინ მაღაზიებისთვის",
     heroTitleLine1: "მიიღე ჯავშნები და გაყიდვები",
     heroTitleLine2: "24/7 რეჟიმში, AI ჩატბოტით",
     heroDescription: "ჩააშენე ჭკვიანი AI ასისტენტი შენს ვებსაიტზე 2 წუთში. უპასუხე სტუმრებისა და მყიდველების კითხვებს ავტომატურად — ყოველგვარი კოდის წერის გარეშე.",
     heroCtaButton: "დაიწყე 3-დღიანი უფასო ტრიალი",
+    heroDemoNotice: "✨ გამოსცადე AI ასისტენტი რეალურ დროში — გახსენი ჩატი მარჯვენა ქვედა კუთხეში!",
     heroScrollLabel: "ასქროლე",
     contactBadge: "კონტაქტი",
     
@@ -67,7 +68,7 @@ const translations: Record<Language, Record<string, string>> = {
     // Chatbot ვიჯეტი (მთავარ გვერდზე)
     chatbotTitle: "AI ასისტენტი",
     chatbotOnline: "ონლაინ არის",
-    chatbotWelcome: "გამარჯობა! მე შენი AI ასისტენტი ვარ. რით შემიძლია დაგეხმარო დღეს?",
+    chatbotWelcome: "გამარჯობა! 👋 მე ვარ YourBot-ის AI ასისტენტი. შემიძლია გიპასუხო ამ საიტთან დაკავშირებით ყველა კითხვაზე და გაჩვენო, როგორ ვუპასუხებ შენი სასტუმროს ან ონლაინ მაღაზიის მომხმარებლებს 24/7-ზე. დასვი ნებისმიერი კითხვა!",
     chatbotPlaceholder: "დაწერე შეტყობინება...",
     chatbotSend: "გაგზავნა",
     chatbotToggle: "ჩატის გახსნა",
@@ -207,12 +208,13 @@ const translations: Record<Language, Record<string, string>> = {
     heroScrollLabel: "scroll",
     contactBadge: "Contact",
     
-    // ჰერო სექცია (მთავარი გვერდი - გასწორებული ვერტიკალებზე მორგებულად)
+    // ჰერო სექცია (მთავარი გვერდი - ვერტიკალებზე მორგებული)
     heroBadge: "AI Assistant for Hotels & E-Commerce",
     heroTitleLine1: "Drive Bookings & Sales",
     heroTitleLine2: "24/7 With an AI Chatbot",
     heroDescription: "Deploy a smart AI assistant on your website in 2 minutes. Answer customer questions, capture leads, and automate support effortlessly.",
     heroCtaButton: "Start 3-Day Free Trial",
+    heroDemoNotice: "✨ Try the live AI Assistant right now — open the chat in the bottom-right corner!",
     
     // Features სექცია
     featuresMainTitle: "Features That Scale Your Business",
@@ -247,7 +249,7 @@ const translations: Record<Language, Record<string, string>> = {
     // Chatbot ვიჯეტი (მთავარ გვერდზე)
     chatbotTitle: "AI Assistant",
     chatbotOnline: "Online",
-    chatbotWelcome: "Hello! I am your AI assistant. How can I help you today?",
+    chatbotWelcome: "Hello! 👋 I'm YourBot's AI assistant. I can answer any questions you have about this website and show you how I handle customer queries for your hotel or store 24/7. Ask me anything!",
     chatbotPlaceholder: "Type a message...",
     chatbotSend: "Send",
     chatbotToggle: "Open Chat",

@@ -72,7 +72,6 @@ export default function HeroTunnel() {
 
   return (
     // 400vh: sticky ბავშვის "ვირტუალური pin" + საკმარისი დისტანცია
-    // ტუნელის სრული გავლისთვის, სანამ ჩვეულებრივი სქროლი გაგრძელდება
     <div ref={containerRef} className="relative h-[400vh]">
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#08070c]">
         <div className="absolute inset-0">
@@ -89,37 +88,42 @@ export default function HeroTunnel() {
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,#e9d5ff_0%,transparent_70%)] opacity-0"
         />
 
-        {/* ასიმეტრიული ტექსტი, მარცხნივ */}
+        {/* ასიმეტრიული ტექსტი, მარცხნივ (დაემატა pt-24 ან pt-28, რომ ნავისს არ მიედოს) */}
         <div
           ref={textRef}
-          className="relative z-10 flex h-full max-w-2xl flex-col justify-center px-5 sm:px-8 md:px-16 lg:px-24"
+          className="relative z-10 flex h-full max-w-2xl flex-col justify-center pt-24 sm:pt-28 px-5 sm:px-8 md:px-16 lg:px-24"
         >
-          <span className="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs text-white/50">
+          <span className="mb-4 sm:mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs text-white/50">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
             {t('heroBadge')}
           </span>
 
-          <h1 className="text-3xl sm:text-5xl font-semibold leading-[1.2] tracking-tight text-white md:text-6xl lg:text-7xl mb-6">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold leading-[1.15] tracking-tight text-white mb-4 sm:mb-6">
             {t('heroTitleLine1')}
             <br />
             {t('heroTitleLine2')}
           </h1>
 
-          <p className="max-w-md text-base sm:text-lg text-white/50 mb-8 leading-relaxed">
+          <p className="max-w-md text-sm sm:text-base text-white/50 mb-6 sm:mb-8 leading-relaxed">
             {t('heroDescription')}
           </p>
 
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-col items-start gap-3 w-full max-w-md pb-12 sm:pb-0">
             <button
               onClick={handleCreateBot}
               className="rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-7 py-3.5 text-sm font-medium text-white shadow-[0_0_40px_-10px_rgba(139,92,246,0.7)] transition hover:opacity-90 active:scale-95 cursor-pointer"
             >
               {t('heroCtaButton')}
             </button>
+
+            {/* ცოცხალი დემო-ჩატის მინიშნება (მოწესრიგებული სივრცეებით) */}
+            <div className="inline-flex items-center gap-2 rounded-xl border border-violet-500/20 bg-violet-500/10 px-4 py-2.5 text-xs sm:text-sm text-violet-200 backdrop-blur-md text-left leading-relaxed w-full">
+              <span>{t('heroDemoNotice')}</span>
+            </div>
           </div>
         </div>
 
-        <div className="pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 text-xs uppercase tracking-widest text-white/30">
+        <div className="pointer-events-none absolute bottom-6 sm:bottom-8 left-1/2 z-10 -translate-x-1/2 text-xs uppercase tracking-widest text-white/30">
           {t('heroScrollLabel')}
         </div>
       </div>
