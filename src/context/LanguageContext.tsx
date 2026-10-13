@@ -182,6 +182,13 @@ const translations: Record<Language, Record<string, string>> = {
     chatLoadingReply: "იწერება პასუხი...",
     chatInputPlaceholder: "დაწერეთ შეტყობინება...",
     chatSendBtn: "გაგზავნა",
+
+    // Embed Widget & Tabs (ახალი)
+    tabEmbedWidget: "🌐 ვებსაიტზე ჩაშენება (Embed)",
+    tabDevCode: "💻 დეველოპერული კოდი",
+    embedWidgetTitle: "ჩააშენე AI ასისტენტი შენს ვებსაიტზე",
+    embedWidgetDesc: "დააკოპირე ეს სკრიპტი და ჩასვი შენი ვებსაიტის მთავარ გვერდზე (<body> ტეგამდე), რომ ბოტი ავტომატურად გამოჩნდეს:",
+    embedCopyBtn: "სკრიპტის კოპირება",
     
     // Pricing სექცია
     pricingManageSub: "გამოწერის მართვა / გაუქმება",
@@ -394,6 +401,13 @@ const translations: Record<Language, Record<string, string>> = {
     chatLoadingReply: "Typing response...",
     chatInputPlaceholder: "Type a message...",
     chatSendBtn: "Send",
+
+    // Embed Widget & Tabs (ახალი)
+    tabEmbedWidget: "🌐 Website Embed Widget",
+    tabDevCode: "💻 Developer Code",
+    embedWidgetTitle: "Embed AI Assistant on Your Website",
+    embedWidgetDesc: "Copy this script and paste it into your website's main page (before the <body> tag) to make the bot appear automatically:",
+    embedCopyBtn: "Copy Script",
     
     // Pricing სექცია
     whopSecurePayment: "Secured & processed safely via Whop",

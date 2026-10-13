@@ -25,6 +25,8 @@ export default function ProjectDetailPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [copiedTerminal, setCopiedTerminal] = useState(false);
+  const [copiedEmbed, setCopiedEmbed] = useState(false);
+  const [activeTab, setActiveTab] = useState<'embed' | 'code'>('embed');
 
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -60,6 +62,12 @@ export default function ProjectDetailPage() {
     navigator.clipboard.writeText(cmd);
     setCopiedTerminal(true);
     setTimeout(() => setCopiedTerminal(false), 2000);
+  };
+
+  const handleCopyEmbed = (embedCode: string) => {
+    navigator.clipboard.writeText(embedCode);
+    setCopiedEmbed(true);
+    setTimeout(() => setCopiedEmbed(false), 2000);
   };
 
   const handleDeleteProject = async () => {
@@ -133,6 +141,8 @@ export default function ProjectDetailPage() {
     );
   }
 
+  const appUrl = typeof window !== 'undefined' ? window.location.origin : 'https://yourbot.site';
+  const embedScript = `<script src="${appUrl}/widget.js" data-bot-id="${project.bot_id}" async></script>`;
   const terminalCommand = "rm -rf .next && npm run dev";
 
   return (
@@ -180,63 +190,105 @@ export default function ProjectDetailPage() {
           </p>
         </div>
 
-        {/* Generated Code Section */}
-        <div className="space-y-6">
-          <h2 className="text-xl font-bold text-white/90 flex items-center gap-2">
-            <span>💻</span> {t('generatedCodeTitle') || 'დაგენერირებული კოდი'}
-          </h2>
+        {/* Tabs for Embed Widget vs Developer Code */}
+        <div className="flex border-b border-white/10 gap-6">
+          <button
+            onClick={() => setActiveTab('embed')}
+            className={`pb-3 text-xs sm:text-sm font-semibold transition border-b-2 -mb-[2px] flex items-center gap-2 cursor-pointer ${
+              activeTab === 'embed'
+                ? 'border-violet-500 text-white'
+                : 'border-transparent text-white/40 hover:text-white/70'
+            }`}
+          >
+            {t('tabEmbedWidget') || '🌐 ვებსაიტზე ჩაშენება (Embed)'}
+          </button>
+          <button
+            onClick={() => setActiveTab('code')}
+            className={`pb-3 text-xs sm:text-sm font-semibold transition border-b-2 -mb-[2px] flex items-center gap-2 cursor-pointer ${
+              activeTab === 'code'
+                ? 'border-violet-500 text-white'
+                : 'border-transparent text-white/40 hover:text-white/70'
+            }`}
+          >
+            {t('tabDevCode') || '💻 დეველოპერული კოდი'}
+          </button>
+        </div>
 
-          <div className="grid grid-cols-1 gap-6">
-            {project.generated_code?.map((file, idx) => (
-              <div
-                key={idx}
-                className="rounded-2xl border border-white/10 bg-[#0d0c14] overflow-hidden shadow-2xl"
+        {/* Tab 1: Embed Widget (B2B მფლობელებისთვის) */}
+        {activeTab === 'embed' && (
+          <div className="p-6 md:p-8 rounded-3xl border border-violet-500/30 bg-[#0d0c14] space-y-4 shadow-2xl">
+            <h3 className="text-lg font-bold text-white">
+              {t('embedWidgetTitle') || 'ჩააშენე AI ასისტენტი შენს ვებსაიტზე'}
+            </h3>
+            <p className="text-xs sm:text-sm text-white/60 leading-relaxed">
+              {t('embedWidgetDesc') || "დააკოპირე ეს სკრიპტი და ჩასვი შენი ვებსაიტის მთავარ გვერდზე (<body> ტეგამდე), რომ ბოტი ავტომატურად გამოჩნდეს:"}
+            </p>
+
+            <div className="p-4 rounded-2xl bg-black/70 border border-white/10 font-mono text-xs text-violet-300 flex items-center justify-between gap-4 overflow-x-auto">
+              <code className="select-all">{embedScript}</code>
+              <button
+                onClick={() => handleCopyEmbed(embedScript)}
+                className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-medium transition shrink-0 cursor-pointer"
               >
-                {/* Code Block Header */}
-                <div className="flex items-center justify-between px-5 py-3 border-b border-white/10 bg-white/[0.03]">
-                  <span className="text-xs font-mono text-violet-300 flex items-center gap-2">
-                    📄 {file.path}
-                  </span>
-                  <button
-                    onClick={() => handleCopyCode(file.content, idx)}
-                    className="text-xs px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition flex items-center gap-1.5 cursor-pointer"
-                  >
-                    {copiedIndex === idx ? ('✓ ' + (t('copied') || 'დაკოპირდა')) : ('📋 ' + (t('copy') || 'Copy'))}
-                  </button>
-                </div>
-
-                {/* Code Content */}
-                <div className="p-4 overflow-x-auto bg-black/50">
-                  <pre className="text-xs font-mono text-emerald-400 leading-relaxed whitespace-pre font-normal">
-                    {file.content}
-                  </pre>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 🛠️ Terminal / Fix Commands Box */}
-        <div className="p-6 rounded-3xl border border-amber-500/30 bg-amber-500/[0.03] backdrop-blur-xl space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-amber-400 font-semibold text-sm">
-              <span>🛠️</span>
-              <h3>{t('terminalBoxTitle') || 'თუ კოდის ჩასმის შემდეგ ხარვეზი წარმოიქმნა:'}</h3>
+                {copiedEmbed ? '✓ დაკოპირდა' : (t('embedCopyBtn') || 'სკრიპტის კოპირება')}
+              </button>
             </div>
-            <button
-              onClick={() => handleCopyTerminal(terminalCommand)}
-              className="text-xs px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 transition border border-amber-500/20 cursor-pointer"
-            >
-              {copiedTerminal ? ('✓ ' + (t('copied') || 'დაკოპირდა')) : ('📋 ' + (t('copyTerminal') || 'ბრძანების კოპირება'))}
-            </button>
           </div>
-          <p className="text-xs text-white/60">
-            {t('terminalBoxDesc') || 'გახსენით ტერმინალი თქვენს პროექტში, გასწმინდეთ დროებითი ქეში და გადატვირთეთ სერვერი:'}
-          </p>
-          <div className="p-3.5 rounded-xl bg-black/70 border border-white/10 font-mono text-xs text-amber-300/90 flex items-center justify-between overflow-x-auto">
-            <code>{terminalCommand}</code>
+        )}
+
+        {/* Tab 2: Developer Code Section */}
+        {activeTab === 'code' && (
+          <div className="space-y-6 animate-in fade-in duration-200">
+            <div className="grid grid-cols-1 gap-6">
+              {project.generated_code?.map((file, idx) => (
+                <div
+                  key={idx}
+                  className="rounded-2xl border border-white/10 bg-[#0d0c14] overflow-hidden shadow-2xl"
+                >
+                  <div className="flex items-center justify-between px-5 py-3 border-b border-white/10 bg-white/[0.03]">
+                    <span className="text-xs font-mono text-violet-300 flex items-center gap-2">
+                      📄 {file.path}
+                    </span>
+                    <button
+                      onClick={() => handleCopyCode(file.content, idx)}
+                      className="text-xs px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition flex items-center gap-1.5 cursor-pointer"
+                    >
+                      {copiedIndex === idx ? ('✓ ' + (t('copied') || 'დაკოპირდა')) : ('📋 ' + (t('copy') || 'Copy'))}
+                    </button>
+                  </div>
+
+                  <div className="p-4 overflow-x-auto bg-black/50">
+                    <pre className="text-xs font-mono text-emerald-400 leading-relaxed whitespace-pre font-normal">
+                      {file.content}
+                    </pre>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 🛠️ Terminal / Fix Commands Box */}
+            <div className="p-6 rounded-3xl border border-amber-500/30 bg-amber-500/[0.03] backdrop-blur-xl space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-amber-400 font-semibold text-sm">
+                  <span>🛠️</span>
+                  <h3>{t('terminalBoxTitle') || 'თუ კოდის ჩასმის შემდეგ ხარვეზი წარმოიქმნა:'}</h3>
+                </div>
+                <button
+                  onClick={() => handleCopyTerminal(terminalCommand)}
+                  className="text-xs px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 transition border border-amber-500/20 cursor-pointer"
+                >
+                  {copiedTerminal ? ('✓ ' + (t('copied') || 'დაკოპირდა')) : ('📋 ' + (t('copyTerminal') || 'ბრძანების კოპირება'))}
+                </button>
+              </div>
+              <p className="text-xs text-white/60">
+                {t('terminalBoxDesc') || 'გახსენით ტერმინალი თქვენს პროექტში, გასწმინდეთ დროებითი ქეში და გადატვირთეთ სერვერი:'}
+              </p>
+              <div className="p-3.5 rounded-xl bg-black/70 border border-white/10 font-mono text-xs text-amber-300/90 flex items-center justify-between overflow-x-auto">
+                <code>{terminalCommand}</code>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Floating Chatbot Component */}
