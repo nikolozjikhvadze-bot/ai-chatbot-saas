@@ -25,12 +25,12 @@ const translations: Record<Language, Record<string, string>> = {
     authGetStarted: "დაიწყე ახლავე",
     dashboardLink: "პანელი (Dashboard)",
     
-    // ჰერო სექცია (მთავარი გვერდი)
-    heroBadge: "ახალი თაობის AI ავტომატიზაცია",
-    heroTitleLine1: "ავტომატიზირე შენი ბიზნესი",
-    heroTitleLine2: "ინტელექტუალური AI-ით",
-    heroDescription: "შექმენი მძლავრი AI ასისტენტები და ბოტები რამდენიმე წუთში, ყოველგვარი კოდის წერის გარეშე.",
-    heroCtaButton: "შექმენი შენი ბოტი",
+    // ჰერო სექცია (მთავარი გვერდი - გასწორებული ვერტიკალებზე მორგებულად)
+    heroBadge: "AI ასისტენტი სასტუმროებისა და ონლაინ მაღაზიებისთვის",
+    heroTitleLine1: "მიიღე ჯავშნები და გაყიდვები",
+    heroTitleLine2: "24/7 რეჟიმში, AI ჩატბოტით",
+    heroDescription: "ჩააშენე ჭკვიანი AI ასისტენტი შენს ვებსაიტზე 2 წუთში. უპასუხე სტუმრებისა და მყიდველების კითხვებს ავტომატურად — ყოველგვარი კოდის წერის გარეშე.",
+    heroCtaButton: "დაიწყე 3-დღიანი უფასო ტრიალი",
     heroScrollLabel: "ასქროლე",
     contactBadge: "კონტაქტი",
     
@@ -207,12 +207,12 @@ const translations: Record<Language, Record<string, string>> = {
     heroScrollLabel: "scroll",
     contactBadge: "Contact",
     
-    // ჰერო სექცია (მთავარი გვერდი)
-    heroBadge: "Next-Gen AI Automation",
-    heroTitleLine1: "Automate Your Business",
-    heroTitleLine2: "With Intelligent AI",
-    heroDescription: "Build powerful AI assistants and bots in minutes, without writing any code.",
-    heroCtaButton: "Get Started Free",
+    // ჰერო სექცია (მთავარი გვერდი - გასწორებული ვერტიკალებზე მორგებულად)
+    heroBadge: "AI Assistant for Hotels & E-Commerce",
+    heroTitleLine1: "Drive Bookings & Sales",
+    heroTitleLine2: "24/7 With an AI Chatbot",
+    heroDescription: "Deploy a smart AI assistant on your website in 2 minutes. Answer customer questions, capture leads, and automate support effortlessly.",
+    heroCtaButton: "Start 3-Day Free Trial",
     
     // Features სექცია
     featuresMainTitle: "Features That Scale Your Business",
