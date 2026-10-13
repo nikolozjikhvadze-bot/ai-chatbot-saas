@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Send, Sparkles, ArrowUpRight, Loader2 } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Sparkles, ArrowUpRight, Loader2, ShieldCheck } from 'lucide-react';
 import { sendEmailAction } from '@/app/actions/send-email';
 import { useTranslation } from '@/context/LanguageContext';
 
@@ -213,6 +213,12 @@ export default function ContactSection() {
                   )}
                 </span>
               </button>
+
+              {/* Security Assurance under form */}
+              <div className="flex items-center justify-center gap-2 pt-2 text-[11px] text-white/40">
+                <ShieldCheck className="h-3.5 w-3.5 text-violet-400" />
+                <span>{t('formPrivacyNote')}</span>
+              </div>
             </form>
           </motion.div>
         </div>

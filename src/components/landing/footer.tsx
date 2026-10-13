@@ -1,6 +1,6 @@
 'use client';
 
-import { Sparkles, Globe, MessageSquare } from 'lucide-react';
+import { Sparkles, Globe, MessageSquare, ShieldCheck } from 'lucide-react';
 import { useTranslation } from '@/context/LanguageContext';
 
 export default function Footer() {
@@ -29,6 +29,11 @@ export default function Footer() {
             <p className="mt-3 text-xs leading-relaxed text-white/50">
               {t('footerBrandDesc')}
             </p>
+            {/* GDPR / Security Trust Badge */}
+            <div className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-300">
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+              <span>{t('footerSecurityNotice')}</span>
+            </div>
           </div>
 
           {/* Navigation */}
@@ -90,10 +95,9 @@ export default function Footer() {
               {t('footerSocialTitle')}
             </h4>
             <p className="mt-3 text-xs text-white/50 leading-relaxed">
-              დაგვიკავშირდით პლატფორმის მხარდაჭერისთვის ან შემოგვიერთდით საზოგადოებაში.
+              {t('footerSocialDesc')}
             </p>
             <div className="mt-4 flex gap-2.5 text-white/60">
-              {/* ოფიციალური საიტი / პლატფორმა */}
               <a
                 href="https://whop.com"
                 target="_blank"
@@ -104,8 +108,6 @@ export default function Footer() {
               >
                 <Globe className="h-4 w-4" />
               </a>
-              
-              {/* Discord / Community */}
               <a
                 href="https://discord.com"
                 target="_blank"

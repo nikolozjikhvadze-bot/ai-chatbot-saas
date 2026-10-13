@@ -96,6 +96,10 @@ const translations: Record<Language, Record<string, string>> = {
     formMessageLabel: "შეტყობინება",
     formMessagePlaceholder: "დაწერე შენი შეტყობინება აქ...",
     formSubmit: "გაგზავნა",
+    formSending: "იგზავნება...",
+    contactSuccess: "შეტყობინება წარმატებით გაიგზავნა! მალე გიპასუხებთ.",
+    contactError: "შეტყობინების გაგზავნა ვერ მოხერხდა. სცადეთ მოგვიანებით.",
+    formPrivacyNote: "შენი მონაცემები მკაცრად დაცულია და არასოდეს გადაეცემა მესამე პირებს.",
 
     // Footer სექცია
     footerBrandDesc: "შენი AI ასისტენტი და ავტომატიზაციის პლატფორმა.",
@@ -109,8 +113,10 @@ const translations: Record<Language, Record<string, string>> = {
     footerLegalTerms: "მომსახურების პირობები",
     footerLegalCookies: "ქუქი ფაილები",
     footerSocialTitle: "სოციალური ქსელები",
+    footerSocialDesc: "დაგვიკავშირდით პლატფორმის მხარდაჭერისთვის ან შემოგვიერთდით საზოგადოებაში.",
     footerAllRights: "ყველა უფლება დაცულია.",
     footerMadeWith: "შექმნილია სიყვარულით",
+    footerSecurityNotice: "GDPR Compliant & Enterprise Data Security",
 
     // დაშბორდი
     dashLoading: "იტვირთება მონაცემები...",
@@ -283,6 +289,10 @@ const translations: Record<Language, Record<string, string>> = {
     formMessageLabel: "Message",
     formMessagePlaceholder: "Type your message here...",
     formSubmit: "Send Message",
+    formSending: "Sending...",
+    contactSuccess: "Message sent successfully! We'll get back to you shortly.",
+    contactError: "Failed to send message. Please try again later.",
+    formPrivacyNote: "Your data is strictly protected and will never be shared with third parties.",
 
     // Footer სექცია
     footerBrandDesc: "Your AI assistant and automation platform.",
@@ -296,8 +306,10 @@ const translations: Record<Language, Record<string, string>> = {
     footerLegalTerms: "Terms of Service",
     footerLegalCookies: "Cookie Policy",
     footerSocialTitle: "Socials",
+    footerSocialDesc: "Reach out to platform support or join our community.",
     footerAllRights: "All rights reserved.",
     footerMadeWith: "Made with",
+    footerSecurityNotice: "GDPR Compliant & Enterprise Data Security",
 
     // დაშბორდი
     dashLoading: "Loading data...",
