@@ -35,8 +35,14 @@ const translations: Record<Language, Record<string, string>> = {
     heroScrollLabel: "ასქროლე",
     contactBadge: "კონტაქტი",
     
-    // Features სექცია
+    // Features სექცია & Use Cases
     featuresMainTitle: "შესაძლებლობები, რომლებიც ზრდის შენს ბიზნესს",
+    useCaseBadge1: "სასტუმროები",
+    useCaseBadge2: "E-Commerce",
+    featureHotelTitle: "AI ასისტენტი სასტუმროებისთვის",
+    featureHotelDesc: "ავტომატური პასუხები ნომრების ფასებზე, ჯავშნის პირობებსა და სერვისებზე. სტუმრები იღებენ პასუხს მყისიერად, 24/7-ზე.",
+    featureEcomTitle: "ონლაინ მაღაზიების ავტომატიზაცია",
+    featureEcomDesc: "ეხმარება მომხმარებელს პროდუქტის შერჩევაში, პასუხობს მიწოდების კითხვებს და ზრდის გაყიდვების კონვერსიას.",
     feature1Title: "ჭკვიანი AI მოდელები",
     feature1Desc: "მუშაობს უახლესი და ყველაზე მძლავრი ენობრივი მოდელების ბაზაზე მაქსიმალური სიზუსტისთვის.",
     feature2Title: "მსუბუქი და სწრაფი ინტეგრაცია",
@@ -216,8 +222,14 @@ const translations: Record<Language, Record<string, string>> = {
     heroCtaButton: "Start 7-Day Free Trial",
     heroDemoNotice: "✨ Try the live AI Assistant right now — open the chat in the bottom-right corner!",
     
-    // Features სექცია
+    // Features სექცია & Use Cases
     featuresMainTitle: "Features That Scale Your Business",
+    useCaseBadge1: "Hospitality",
+    useCaseBadge2: "E-Commerce",
+    featureHotelTitle: "AI Assistant for Hotels & Resorts",
+    featureHotelDesc: "Automated answers for room availability, pricing, and guest inquiries. Increase direct bookings effortlessly.",
+    featureEcomTitle: "E-Commerce Sales Automation",
+    featureEcomDesc: "Guides customers through your catalog, answers shipping questions, and boosts overall conversion rates.",
     feature1Title: "Smart AI Models",
     feature1Desc: "Powered by the latest and most advanced language models for maximum accuracy.",
     feature2Title: "Seamless Integration",
