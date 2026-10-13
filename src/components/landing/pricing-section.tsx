@@ -40,7 +40,7 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
         t('featureStarter4')
       ],
       popular: false,
-      trialDays: 3,
+      trialDays: 7, // გასწორებულია 7 დღეზე
       ctaLink: "https://whop.com/yourbot/yourbot-starter/"
     },
     {
@@ -56,7 +56,7 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
         t('featurePro5')
       ],
       popular: true,
-      trialDays: 3,
+      trialDays: 7, // გასწორებულია 7 დღეზე
       ctaLink: "https://whop.com/yourbot/yourbot-pro-plan/"
     },
     {

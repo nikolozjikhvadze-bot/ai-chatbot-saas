@@ -30,7 +30,7 @@ const translations: Record<Language, Record<string, string>> = {
     heroTitleLine1: "მიიღე ჯავშნები და გაყიდვები",
     heroTitleLine2: "24/7 რეჟიმში, AI ჩატბოტით",
     heroDescription: "ჩააშენე ჭკვიანი AI ასისტენტი შენს ვებსაიტზე 2 წუთში. უპასუხე სტუმრებისა და მყიდველების კითხვებს ავტომატურად — ყოველგვარი კოდის წერის გარეშე.",
-    heroCtaButton: "დაიწყე 3-დღიანი უფასო ტრიალი",
+    heroCtaButton: "დაიწყე 7-დღიანი უფასო ტრიალი",
     heroDemoNotice: "✨ გამოსცადე AI ასისტენტი რეალურ დროში — გახსენი ჩატი მარჯვენა ქვედა კუთხეში!",
     heroScrollLabel: "ასქროლე",
     contactBadge: "კონტაქტი",
@@ -168,7 +168,7 @@ const translations: Record<Language, Record<string, string>> = {
     pricingAnnualSub: "წლიური გადახდა",
     pricingCta: "გეგმის არჩევა",
     pricingPopular: "პოპულარული",
-    pricingFreeTrialBadge: "3-დღიანი უფასო ტრიალი",
+    pricingFreeTrialBadge: "7-დღიანი უფასო ტრიალი",
     pricingCtaFreeTrial: "უფასო ტრიალის დაწყება",
 
     // Starter Plan
@@ -213,7 +213,7 @@ const translations: Record<Language, Record<string, string>> = {
     heroTitleLine1: "Drive Bookings & Sales",
     heroTitleLine2: "24/7 With an AI Chatbot",
     heroDescription: "Deploy a smart AI assistant on your website in 2 minutes. Answer customer questions, capture leads, and automate support effortlessly.",
-    heroCtaButton: "Start 3-Day Free Trial",
+    heroCtaButton: "Start 7-Day Free Trial",
     heroDemoNotice: "✨ Try the live AI Assistant right now — open the chat in the bottom-right corner!",
     
     // Features სექცია
@@ -347,7 +347,7 @@ const translations: Record<Language, Record<string, string>> = {
     pricingAnnualSub: "Billed annually",
     pricingCta: "Choose Plan",
     pricingPopular: "Popular",
-    pricingFreeTrialBadge: "3-day free trial included",
+    pricingFreeTrialBadge: "7-day free trial included",
     pricingCtaFreeTrial: "Start Free Trial",
     pricingManageSub: "Manage / Cancel Subscription",
     pricingActiveSub: "Active Subscription",
