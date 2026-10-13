@@ -175,7 +175,7 @@ const translations: Record<Language, Record<string, string>> = {
     planStarterTitle: "Starter",
     planStarterDesc: "იდეალურია დამწყებთათვის და მცირე ტესტებისთვის",
     featureStarter1: "1 AI ბოტი / პროექტი",
-    featureStarter2: "ძირითადი AI მოდელები",
+    featureStarter2: "1,000 შეტყობინება / თვეში",
     featureStarter3: "ვებ ჩატის ინტეგრაცია",
     featureStarter4: "საბაზისო ტექნიკური მხარდაჭერა",
 
@@ -183,8 +183,8 @@ const translations: Record<Language, Record<string, string>> = {
     planProTitle: "Pro",
     planProDesc: "სრული ავტომატიზაცია მცირე და საშუალო ბიზნესისთვის",
     featurePro1: "3 AI ბოტი / პროექტი",
-    featurePro2: "ყველა მოწინავე AI მოდელთან წვდომა",
-    featurePro3: "უტილიმიტო ჩატის ისტორია",
+    featurePro2: "5,000 შეტყობინება / თვეში",
+    featurePro3: "ყველა მოწინავე AI მოდელთან წვდომა",
     featurePro4: "მესენჯერ ინტეგრაციები",
     featurePro5: "24/7 პრიორიტეტული მხარდაჭერა",
 
@@ -192,7 +192,7 @@ const translations: Record<Language, Record<string, string>> = {
     planScaleTitle: "Scale",
     planScaleDesc: "ულიმიტო შესაძლებლობები დიდი პროექტებისთვის და გუნდებისთვის",
     featureScale1: "ულიმიტო AI ბოტები",
-    featureScale2: "პერსონალური AI მოდელის კონფიგურაცია",
+    featureScale2: "20,000 შეტყობინება / თვეში",
     featureScale3: "VIP 24/7 მხარდაჭერა და მენეჯერი",
     featureScale4: "API სრული წვდომა და CRM სინქრონიზაცია",
   },
@@ -356,7 +356,7 @@ const translations: Record<Language, Record<string, string>> = {
     planStarterTitle: "Starter",
     planStarterDesc: "Ideal for beginners and small tests",
     featureStarter1: "1 AI Bot / Project",
-    featureStarter2: "Core AI models",
+    featureStarter2: "1,000 messages / month",
     featureStarter3: "Web chat integration",
     featureStarter4: "Basic technical support",
 
@@ -364,8 +364,8 @@ const translations: Record<Language, Record<string, string>> = {
     planProTitle: "Pro",
     planProDesc: "Full automation for small and medium businesses",
     featurePro1: "3 AI Bots / Projects",
-    featurePro2: "Access to all advanced AI models",
-    featurePro3: "Unlimited chat history",
+    featurePro2: "5,000 messages / month",
+    featurePro3: "Access to all advanced AI models",
     featurePro4: "Messenger integrations",
     featurePro5: "24/7 priority support",
 
@@ -373,7 +373,7 @@ const translations: Record<Language, Record<string, string>> = {
     planScaleTitle: "Scale",
     planScaleDesc: "Unlimited capabilities for large projects and teams",
     featureScale1: "Unlimited AI bots",
-    featureScale2: "Custom AI model configuration",
+    featureScale2: "20,000 messages / month",
     featureScale3: "VIP 24/7 support & manager",
     featureScale4: "Full API access & CRM sync",
   }
