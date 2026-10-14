@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { MessageCircle, X, Send } from 'lucide-react'; // 👈 დავამატეთ სუფთა აიქონები
+import { MessageCircle, X, Send } from 'lucide-react';
 import { useTranslation } from '@/context/LanguageContext';
 
 interface Message {
@@ -14,7 +14,7 @@ interface Message {
 const BOT_KEY = '11111111-1111-1111-1111-111111111111';
 
 export default function ChatWidget() {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -166,7 +166,7 @@ export default function ChatWidget() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="absolute bottom-0 right-0 w-[calc(100vw-2rem)] sm:w-[360px] h-[520px] max-h-[80vh] rounded-3xl border border-white/10 bg-[#0d0c14]/95 backdrop-blur-xl shadow-2xl flex flex-col overflow-hidden"
+            className="absolute bottom-0 right-0 w-[calc(100vw-2rem)] sm:w-[360px] h-[540px] max-h-[85vh] rounded-3xl border border-white/10 bg-[#0d0c14]/95 backdrop-blur-xl shadow-2xl flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
@@ -211,7 +211,7 @@ export default function ChatWidget() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Footer with Form & Disclaimer */}
+            {/* Footer with Form, Disclaimer & Branding */}
             <div className="p-3 border-t border-white/10 bg-white/[0.02] flex flex-col gap-2">
               <form onSubmit={sendMessage} className="flex gap-2">
                 <input
@@ -231,8 +231,8 @@ export default function ChatWidget() {
               </form>
 
               {/* AI Disclaimer & Privacy Link */}
-              <p className="text-[10px] text-center text-white/40 leading-tight pt-1">
-                {t('language') === 'geo' ? 'AI-ს შეუძლია დაუშვას შეცდომები.' : 'AI can make mistakes.'}{' '}
+              <p className="text-[10px] text-center text-white/40 leading-tight">
+                {language === 'geo' ? 'AI-ს შეუძლია დაუშვას შეცდომები.' : 'AI can make mistakes.'}{' '}
                 <Link
                   href="/privacy"
                   target="_blank"
@@ -241,6 +241,18 @@ export default function ChatWidget() {
                   {t('footerLegalPrivacy')}
                 </Link>
               </p>
+
+              {/* 🚀 Powered by YourBot.site Branding */}
+              <div className="text-center pt-0.5 border-t border-white/5">
+                <a
+                  href="https://yourbot.site"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] text-gray-500 hover:text-gray-300 transition-colors inline-flex items-center gap-1"
+                >
+                  Powered by <span className="font-semibold text-violet-400">YourBot.site</span>
+                </a>
+              </div>
             </div>
           </motion.div>
         )}
