@@ -1,6 +1,21 @@
-import { clerkMiddleware } from '@clerk/nextjs/server';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
 
-export default clerkMiddleware();
+const isProtectedRoute = createRouteMatcher([
+  '/dashboard(.*)',
+  '/projects(.*)',
+]);
+
+export default clerkMiddleware(async (auth, req) => {
+  const session = await auth();
+
+  // თუ გვერდი დაცულია და მომხმარებელს არ აქვს userId (ანუ არ არის შემოსული)
+  if (isProtectedRoute(req) && !session.userId) {
+    // გადავამისამართოთ მთავარ გვერდზე ან სგნინზე
+    const signInUrl = new URL('/', req.url);
+    return NextResponse.redirect(signInUrl);
+  }
+});
 
 export const config = {
   matcher: [
