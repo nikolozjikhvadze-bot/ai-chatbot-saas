@@ -52,6 +52,20 @@ const translations: Record<Language, Record<string, string>> = {
     feature4Title: "24/7 ავტომატური მხარდაჭერა",
     feature4Desc: "უპასუხე მომხმარებელთა კითხვებს და შეასრულე დავალებები შეფერხებების გარეშე, დღისა და ღამის ნებისმიერ დროს.",
 
+    // FAQ სექცია (ახალი დამატებული)
+    faqTitle: "ხშირად დასმული კითხვები",
+    faqSubtitle: "ყველაფერი, რაც გჭირდებათ YourBot-ის შესახებ ცოდნისთვის",
+    faqQ1: "როგორ ჩავსვა AI ბოტი ჩემს საიტზე?",
+    faqA1: "ძალიან მარტივად! რეგისტრაციის შემდეგ პლატფორმა მოგცემთ კოდის 1 მოკლე სტრიქონს. დააკოპირეთ ის და ჩასვით თქვენი საიტის (WordPress, Shopify, Webflow თუ HTML) HTML კოდში. პროცესს 1 წუთზე ნაკლები სჭირდება და არ მოითხოვს დეველოპერის დახმარებას.",
+    faqQ2: "რა მონაცემებზე შემიძლია ვასწავლო AI ასისტენტი?",
+    faqA2: "თქვენ შეგიძლიათ ატვირთოთ ნებისმიერი ტექსტური დოკუმენტი (PDF, Word), მიუთითოთ თქვენი ვებსაიტის ბმული (URL) ან ხელით ჩაწიროთ კითხვა-პასუხები. ბოტი წამებში ისწავლის ამ ინფორმაციას და მხოლოდ თქვენს მონაცემებზე დაყრდნობით უპასუხებს მომხმარებლებს.",
+    faqQ3: "შემიძლია თუ არა უფასოდ გამოვცადო?",
+    faqA3: "დიახ! თქვენ იღებთ 7-დღიან უფასო საცდელ პერიოდს (Free Trial), რათა სრულად გამოსცადოთ პლატფორმის შესაძლებლობები და ნახოთ, როგორ ეხმარება ის თქვენს ბიზნესს.",
+    faqQ4: "უსაფრთხოა თუ არა ჩემი ბიზნესის მონაცემები?",
+    faqA4: "დიახ, სრულად უსაფრთხოა. თქვენი მონაცემები გამოიყენება მხოლოდ თქვენივე ჩატბოტის საპასუხოდ და არასოდეს გადაეცემა მესამე პირებს ან ზოგადი AI მოდელების დასატრენინგებლად.",
+    faqQ5: "შემიძლია თუ არა გამოიწერის გაუქმება ნებისმიერ დროს?",
+    faqA5: "დიახ, არანაირი გრძელვადიანი კონტრაქტი არ არის. გამოიწერის გაუქმება ან შეცვლა შეგიძლიათ ნებისმიერ დროს, 1 დაწკაპუნებით Whop-ის მართვის პანელიდან.",
+
     // How It Works სექცია
     howTitlePrefix: "როგორ შევქმნათ",
     howTitleSuffix: "მარტივად",
@@ -270,6 +284,20 @@ const translations: Record<Language, Record<string, string>> = {
     feature3Desc: "Your data is strictly protected and remains under your full control.",
     feature4Title: "24/7 Automated Support",
     feature4Desc: "Answer customer queries and handle tasks smoothly, day or night.",
+
+    // FAQ სექცია (ახალი დამატებული)
+    faqTitle: "Frequently Asked Questions",
+    faqSubtitle: "Everything you need to know about YourBot",
+    faqQ1: "How do I embed the AI bot on my website?",
+    faqA1: "It's super simple! After signing up, the platform gives you 1 short line of code. Just copy and paste it into your website's HTML (WordPress, Shopify, Webflow, etc.). It takes less than a minute and requires no developer.",
+    faqQ2: "What data can I train my AI assistant on?",
+    faqA2: "You can upload text documents (PDF, Word), provide your website URL, or manually enter Q&As. The bot learns your content in seconds and only answers based on your data.",
+    faqQ3: "Can I try it for free?",
+    faqA3: "Yes! You get a 7-day free trial to test all features and see how it works for your business.",
+    faqQ4: "Is my business data secure?",
+    faqA4: "Yes, completely secure. Your data is used strictly to power your chatbot and is never shared with third parties or used to train public AI models.",
+    faqQ5: "Can I cancel my subscription anytime?",
+    faqA5: "Yes, there are no long-term contracts. You can cancel or change your plan anytime with 1 click from your Whop dashboard.",
 
     // How It Works სექცია
     howTitlePrefix: "How to Build",

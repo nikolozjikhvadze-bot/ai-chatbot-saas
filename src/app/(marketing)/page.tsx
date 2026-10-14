@@ -8,6 +8,7 @@ import HeroTunnel from '@/components/landing/hero-tunnel';
 import FeaturesSection from '@/components/landing/features-section';
 import HowItWorksSection from '@/components/landing/how-it-works-section';
 import PricingSection from '@/components/landing/pricing-section';
+import FAQSection from '@/components/landing/faq-section'; // ახალი FAQ კომპონენტის იმპორტი
 import ContactSection from '@/components/landing/contact-section';
 import Logo from '@/components/Logo';
 import Footer from '@/components/landing/footer';
@@ -48,6 +49,7 @@ export default function LandingPage() {
     { name: t('navFeatures' as any), href: '#features' },
     { name: t('navHowItWorks' as any), href: '#how-it-works' },
     { name: t('navPricing' as any), href: '#pricing' },
+    { name: 'FAQ', href: '#faq' }, // FAQ დაემატა ნავიგაციაში
     { name: t('navContact' as any), href: '#contact' },
   ];
 
@@ -128,6 +130,7 @@ export default function LandingPage() {
       <FeaturesSection />
       <HowItWorksSection />
       <PricingSection isPaid={isPaid} />
+      <FAQSection /> {/* FAQ სექცია დაემატა ფასებსა და კონტაქტს შორის */}
       <ContactSection />
       <Footer />
 
