@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useTranslation } from '@/context/LanguageContext';
-import { Sparkles, Plus, Folder, Loader2 } from 'lucide-react';
+import { Sparkles, Plus, Folder, Loader2, CreditCard, Lock } from 'lucide-react';
 import TrialSuccessModal from '@/components/TrialSuccessModal';
 
 interface Project {
@@ -17,23 +17,27 @@ interface Project {
 export default function DashboardPage() {
   const { t } = useTranslation();
   const [projects, setProjects] = useState<Project[]>([]);
+  const [isPaid, setIsPaid] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchProjects() {
+    async function fetchDashboardData() {
       try {
         const res = await fetch('/api/projects');
         const data = await res.json();
-        if (data.success && data.projects) {
-          setProjects(data.projects);
+        
+        if (data.success) {
+          if (data.projects) setProjects(data.projects);
+          // იღებს isPaid სტატუსს API-დან (თუ API-ში isPaid-ს აბრუნებ)
+          setIsPaid(Boolean(data.isPaid)); 
         }
       } catch (err) {
-        console.error('Error fetching projects:', err);
+        console.error('Error fetching dashboard data:', err);
       } finally {
         setLoading(false);
       }
     }
-    fetchProjects();
+    fetchDashboardData();
   }, []);
 
   return (
@@ -55,13 +59,24 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Link
-            href="/projects/new"
-            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-violet-500/20 hover:opacity-90 transition"
-          >
-            <Plus className="h-4 w-4" />
-            {t('dashAddProject')}
-          </Link>
+          {/* თუ გადახდილი აქვს, ჩვეულებრივი ლინკი, თუ არა - ბლოკავს ან Checkout-ზე გადაყავს */}
+          {isPaid ? (
+            <Link
+              href="/projects/new"
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-violet-500/20 hover:opacity-90 transition"
+            >
+              <Plus className="h-4 w-4" />
+              {t('dashAddProject')}
+            </Link>
+          ) : (
+            <Link
+              href="/checkout"
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-rose-500/20 hover:opacity-90 transition"
+            >
+              <CreditCard className="h-4 w-4" />
+              გადახდა / ტრიალის ჩართვა
+            </Link>
+          )}
         </div>
       </header>
 
@@ -78,6 +93,29 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* 🛑 თუ მომხმარებელს არ აქვს გადახდილი (isPaid === false), ვაჩვენებთ გაფრთხილებას */}
+        {!loading && !isPaid && (
+          <div className="mb-8 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-6 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4 text-center sm:text-left">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                <Lock className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-amber-200 text-base">გამოწერა არ არის აქტიური</h3>
+                <p className="text-xs text-amber-200/70 mt-1">
+                  ახალი ბოტის შესაქმნელად და საიტზე განსათავსებლად საჭიროა 7-დღიანი უფასო ტრიალის ან პაკეტის გააქტიურება.
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/checkout"
+              className="whitespace-nowrap rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-bold text-black hover:bg-amber-400 transition shadow-lg shadow-amber-500/20"
+            >
+              გააქტიურება 💳
+            </Link>
+          </div>
+        )}
+
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 text-white/50">
             <Loader2 className="h-8 w-8 animate-spin text-violet-500 mb-3" />
@@ -92,13 +130,25 @@ export default function DashboardPage() {
             <p className="text-xs text-white/40 max-w-sm mb-6">
               {t('dashNoProjectsDesc')}
             </p>
-            <Link
-              href="/projects/new"
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-5 py-3 text-xs font-semibold text-white shadow-lg shadow-violet-500/20 hover:opacity-90 transition"
-            >
-              <Sparkles className="h-4 w-4" />
-              {t('dashAddProject')}
-            </Link>
+            
+            {/* ღილაკი: თუ გადახდილი აქვს -> Create Project, თუ არა -> Checkout */}
+            {isPaid ? (
+              <Link
+                href="/projects/new"
+                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-5 py-3 text-xs font-semibold text-white shadow-lg shadow-violet-500/20 hover:opacity-90 transition"
+              >
+                <Sparkles className="h-4 w-4" />
+                {t('dashAddProject')}
+              </Link>
+            ) : (
+              <Link
+                href="/checkout"
+                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 px-5 py-3 text-xs font-semibold text-white shadow-lg shadow-rose-500/20 hover:opacity-90 transition"
+              >
+                <CreditCard className="h-4 w-4" />
+                გააქტიურე 7-დღიანი ტრიალი
+              </Link>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -133,7 +183,7 @@ export default function DashboardPage() {
         )}
       </main>
 
-      {/* Trial / Payment Success Modal (Suspense-ში ჩასმული) */}
+      {/* Trial / Payment Success Modal */}
       <Suspense fallback={null}>
         <TrialSuccessModal />
       </Suspense>

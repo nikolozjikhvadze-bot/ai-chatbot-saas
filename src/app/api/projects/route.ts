@@ -19,15 +19,33 @@ export async function GET() {
   ]);
   if (!rateLimit.success) return rateLimitResponse(rateLimit.retryAfter);
 
-  const { data, error } = await supabaseAdmin
+  // 1. იღებს მომხმარებლის პროექტების სიას
+  const { data: projects, error: projectsError } = await supabaseAdmin
     .from("projects")
     .select("id, title, created_at")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (projectsError) {
+    return NextResponse.json({ error: projectsError.message }, { status: 500 });
   }
 
-  return NextResponse.json({ success: true, projects: data });
+  // 2. ამოწმებს მომხმარებლის გადახდის სტატუსს (users / profiles ცხრილიდან)
+  const { data: userData, error: userError } = await supabaseAdmin
+    .from("users") // ⚠️ თუ ცხრილს "profiles" ჰქვია, ჩაანაცვლე profiles-ით
+    .select("is_paid, trial_ends_at")
+    .eq("clerk_user_id", userId) // ⚠️ დარწმუნდი, რომ სვეტის სახელი სწორია (მაგ. user_id ან clerk_id)
+    .maybeSingle();
+
+  // ლოგიკა: გადახდილი აქვს თუ active trial აქვს?
+  const isPaid = Boolean(
+    userData?.is_paid || 
+    (userData?.trial_ends_at && new Date(userData.trial_ends_at) > new Date())
+  );
+
+  return NextResponse.json({ 
+    success: true, 
+    projects: projects || [], 
+    isPaid: isPaid 
+  });
 }
