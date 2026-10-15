@@ -28,7 +28,6 @@ export default function DashboardPage() {
         
         if (data.success) {
           if (data.projects) setProjects(data.projects);
-          // იღებს isPaid სტატუსს API-დან (თუ API-ში isPaid-ს აბრუნებ)
           setIsPaid(Boolean(data.isPaid)); 
         }
       } catch (err) {
@@ -59,7 +58,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex items-center gap-4">
-          {/* თუ გადახდილი აქვს, ჩვეულებრივი ლინკი, თუ არა - ბლოკავს ან Checkout-ზე გადაყავს */}
+          {/* თუ გადახდილი აქვს, ქმნის ახალ პროექტს, თუ არა - გადაჰყავს pricing-ზე */}
           {isPaid ? (
             <Link
               href="/projects/new"
@@ -70,7 +69,7 @@ export default function DashboardPage() {
             </Link>
           ) : (
             <Link
-              href="/checkout"
+              href="/#pricing"
               className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-rose-500/20 hover:opacity-90 transition"
             >
               <CreditCard className="h-4 w-4" />
@@ -108,7 +107,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <Link
-              href="/checkout"
+              href="/#pricing"
               className="whitespace-nowrap rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-bold text-black hover:bg-amber-400 transition shadow-lg shadow-amber-500/20"
             >
               გააქტიურება 💳
@@ -131,7 +130,7 @@ export default function DashboardPage() {
               {t('dashNoProjectsDesc')}
             </p>
             
-            {/* ღილაკი: თუ გადახდილი აქვს -> Create Project, თუ არა -> Checkout */}
+            {/* ღილაკი: თუ გადახდილი აქვს -> Create Project, თუ არა -> Pricing */}
             {isPaid ? (
               <Link
                 href="/projects/new"
@@ -142,7 +141,7 @@ export default function DashboardPage() {
               </Link>
             ) : (
               <Link
-                href="/checkout"
+                href="/#pricing"
                 className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 px-5 py-3 text-xs font-semibold text-white shadow-lg shadow-rose-500/20 hover:opacity-90 transition"
               >
                 <CreditCard className="h-4 w-4" />

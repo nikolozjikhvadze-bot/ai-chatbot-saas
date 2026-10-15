@@ -30,14 +30,13 @@ export async function GET() {
     return NextResponse.json({ error: projectsError.message }, { status: 500 });
   }
 
-  // 2. ამოწმებს მომხმარებლის გადახდის სტატუსს (users / profiles ცხრილიდან)
+  // 2. ამოწმებს მომხმარებლის გადახდის სტატუსს users ცხრილიდან clerk_id-ით
   const { data: userData, error: userError } = await supabaseAdmin
-    .from("users") // ⚠️ თუ ცხრილს "profiles" ჰქვია, ჩაანაცვლე profiles-ით
+    .from("users")
     .select("is_paid, trial_ends_at")
-    .eq("clerk_user_id", userId) // ⚠️ დარწმუნდი, რომ სვეტის სახელი სწორია (მაგ. user_id ან clerk_id)
+    .eq("clerk_id", userId)
     .maybeSingle();
 
-  // ლოგიკა: გადახდილი აქვს თუ active trial აქვს?
   const isPaid = Boolean(
     userData?.is_paid || 
     (userData?.trial_ends_at && new Date(userData.trial_ends_at) > new Date())
