@@ -144,7 +144,12 @@ const translations: Record<Language, Record<string, string>> = {
     dashNoProjects: "ჯერ არცერთი პროექტი არ გაქვთ შექმნილი.",
     dashNoProjectsDesc: "შექმენი შენი პირველი AI ასისტენტი ვებსაიტის ბმულით ან ფაილების ატვირთვით.",
     dashManage: "მართვა",
-    
+    dashSubNotActiveTitle: "გამოწერა არ არის აქტიური",
+    dashSubNotActiveDesc: "ახალი ბოტის შესაქმნელად და საიტზე განსათავსებლად საჭიროა 7-დღიანი უფასო ტრიალის ან პაკეტის გააქტიურება.",
+    dashPayOrTrialBtn: "გადახდა / ტრიალის ჩართვა",
+    dashActivateBtn: "გააქტიურება 💳",
+    dashActivateTrialBtn: "გააქტიურე 7-დღიანი ტრიალი",
+
     // ახალი პროექტის შექმნა (/projects/new)
     newProjHeading: "შექმენი შენი AI ასისტენტი",
     newProjSubheading: "აირჩიე შენი ბიზნესის სფერო და მიაწოდე ბოტს ინფორმაცია სტუმრების მოსსახიბლად",
@@ -377,6 +382,11 @@ const translations: Record<Language, Record<string, string>> = {
     dashNoProjects: "You haven't created any projects yet.",
     dashNoProjectsDesc: "Create your first AI assistant by providing a website link or uploading files.",
     dashManage: "Manage",
+    dashSubNotActiveTitle: "Subscription is not active",
+    dashSubNotActiveDesc: "To create a new bot and deploy it on your website, you need to activate a 7-day free trial or choose a plan.",
+    dashPayOrTrialBtn: "Payment / Activate Trial",
+    dashActivateBtn: "Activate 💳",
+    dashActivateTrialBtn: "Activate 7-Day Trial",
     
     // ახალი პროექტის შექმნა (/projects/new)
     newProjHeading: "Create Your AI Assistant",

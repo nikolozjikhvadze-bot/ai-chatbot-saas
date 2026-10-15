@@ -58,7 +58,6 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex items-center gap-4">
-          {/* თუ გადახდილი აქვს, ქმნის ახალ პროექტს, თუ არა - გადაჰყავს pricing-ზე */}
           {isPaid ? (
             <Link
               href="/projects/new"
@@ -73,7 +72,7 @@ export default function DashboardPage() {
               className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-rose-500/20 hover:opacity-90 transition"
             >
               <CreditCard className="h-4 w-4" />
-              გადახდა / ტრიალის ჩართვა
+              {t('dashPayOrTrialBtn')}
             </Link>
           )}
         </div>
@@ -92,7 +91,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* 🛑 თუ მომხმარებელს არ აქვს გადახდილი (isPaid === false), ვაჩვენებთ გაფრთხილებას */}
+        {/* 🛑 Subscription Warning Banner */}
         {!loading && !isPaid && (
           <div className="mb-8 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-6 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4 text-center sm:text-left">
@@ -100,9 +99,9 @@ export default function DashboardPage() {
                 <Lock className="h-6 w-6" />
               </div>
               <div>
-                <h3 className="font-semibold text-amber-200 text-base">გამოწერა არ არის აქტიური</h3>
+                <h3 className="font-semibold text-amber-200 text-base">{t('dashSubNotActiveTitle')}</h3>
                 <p className="text-xs text-amber-200/70 mt-1">
-                  ახალი ბოტის შესაქმნელად და საიტზე განსათავსებლად საჭიროა 7-დღიანი უფასო ტრიალის ან პაკეტის გააქტიურება.
+                  {t('dashSubNotActiveDesc')}
                 </p>
               </div>
             </div>
@@ -110,7 +109,7 @@ export default function DashboardPage() {
               href="/#pricing"
               className="whitespace-nowrap rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-bold text-black hover:bg-amber-400 transition shadow-lg shadow-amber-500/20"
             >
-              გააქტიურება 💳
+              {t('dashActivateBtn')}
             </Link>
           </div>
         )}
@@ -130,7 +129,6 @@ export default function DashboardPage() {
               {t('dashNoProjectsDesc')}
             </p>
             
-            {/* ღილაკი: თუ გადახდილი აქვს -> Create Project, თუ არა -> Pricing */}
             {isPaid ? (
               <Link
                 href="/projects/new"
@@ -145,7 +143,7 @@ export default function DashboardPage() {
                 className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 px-5 py-3 text-xs font-semibold text-white shadow-lg shadow-rose-500/20 hover:opacity-90 transition"
               >
                 <CreditCard className="h-4 w-4" />
-                გააქტიურე 7-დღიანი ტრიალი
+                {t('dashActivateTrialBtn')}
               </Link>
             )}
           </div>
