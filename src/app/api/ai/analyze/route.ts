@@ -23,6 +23,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "საჭიროა ავტორიზაცია." }, { status: 401 });
   }
 
+  // 🛑 1. მკაცრი შემოწმება: თუ იუზერს არ აქვს გადახდილი, აქედანვე ვბლოკავთ მოთხოვნას!
+  try {
+    await requirePaidDbUserId(userId);
+  } catch (error: any) {
+    if (error instanceof NotPaidError) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
+    return NextResponse.json({ error: "გამოწერა არ არის აქტიური." }, { status: 403 });
+  }
+
   const rateLimit = await checkRateLimits([
     { policy: "aiAnalyzeHour", key: userId },
     { policy: "aiAnalyzeDay", key: userId },
@@ -61,7 +71,6 @@ export async function POST(req: NextRequest) {
       try {
         const siteRes = await fetch(websiteUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
         const htmlText = await siteRes.text();
-        // ამოვჭრათ ტექსტი მარტივად ან მივაწოდოთ AI-ს
         sourceInfo = `ვებსაიტის ბმული: ${websiteUrl}\nსაიტის HTML/კონტენტი (ნაწილი): ${htmlText.slice(0, 15000)}`;
       } catch (e) {
         sourceInfo = `ვებსაიტის ბმული: ${websiteUrl} (ვერ მოხერხდა საიტის პირდაპირი წაკითხვა, გამოიყენე ზოგადი ცოდნა ამ ბიზნესზე).`;
@@ -108,13 +117,14 @@ JSON სტრუქტურა ზუსტად ასეთი უნდა
 }
 
 მკაცრი მოთხოვნები:
-1. შექმენი \`Chatbot.tsx\` კომპონენტი (მცურავი ჩათბოტი ქვედა მარჯვენა კუთხეში, გრადიენტებით, ბნელი თემით).
+1. შექმენი 
+\`Chatbot.tsx\` კომპონენტი (მცურავი ჩათბოტი ქვედა მარჯვენა კუთხეში, გრადიენტებით, ბნელი თემით).
 2. \`Chatbot.tsx\` კომპონენტის ვიჯეტის ბოლოში (input ველის ქვეშ, დისქლაიმერის ქვემოთ) აუცილებლად ჩაამატე ბრენდინგის ლინკი:
-   <div style="text-align: center; padding: 4px 0; border-top: 1px solid rgba(255,255,255,0.05); font-family: sans-serif;">
-     <a href="https://yourbot.site" target="_blank" style="font-size: 10px; color: #9ca3af; text-decoration: none;">
-       Powered by <span style="font-weight: 600; color: #a78bfa;">YourBot.site</span>
-     </a>
-   </div>
+    <div style="text-align: center; padding: 4px 0; border-top: 1px solid rgba(255,255,255,0.05); font-family: sans-serif;">
+      <a href="https://yourbot.site" target="_blank" style="font-size: 10px; color: #9ca3af; text-decoration: none;">
+        Powered by <span style="font-weight: 600; color: #a78bfa;">YourBot.site</span>
+      </a>
+    </div>
 3. შექმენი \`app/api/chat/route.ts\` რომელიც აგზავნის მოთხოვნას Relay მისამართზე: \`${appUrl}/api/relay/${botId}\`.
 4. \`terminalCommands\` იყოს: "npm install";
 5. \`content\` ველებში ჩაწერე სრული და მზა კოდი.`;

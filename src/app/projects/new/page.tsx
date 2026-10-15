@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslation } from '@/context/LanguageContext';
@@ -30,6 +30,26 @@ export default function NewProjectPage() {
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  // 🛑 უსაფრთხოების შემოწმება: თუ გადახდილი არ აქვს, არ ვუშვებთ ამ გვერდზე!
+  useEffect(() => {
+    async function verifyPaidStatus() {
+      try {
+        const res = await fetch('/api/user/status');
+        const data = await res.json();
+        if (!data.isPaid) {
+          router.replace('/#pricing'); // გადამისამართება ფასების სექციაზე
+        } else {
+          setCheckingAuth(false);
+        }
+      } catch (err) {
+        console.error('Failed to verify subscription status:', err);
+        router.replace('/#pricing');
+      }
+    }
+    verifyPaidStatus();
+  }, [router]);
 
   const handleUrlSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,6 +105,15 @@ export default function NewProjectPage() {
       setIsUploading(false);
     }
   };
+
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-[#07060a] text-white flex flex-col items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-violet-500 mb-3" />
+        <p className="text-xs text-white/50">მოწმდება გამოწერის სტატუსი...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full bg-[#07060a] text-white flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden">
