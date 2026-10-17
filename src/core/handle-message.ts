@@ -129,7 +129,15 @@ export async function* handleMessage(
       chunks,
     });
 
-    const systemInstruction = baseSystemPrompt + filesContext;
+    // --- დამატებული წესი: ავიცილოთ თავიდან ტექნიკური ერორები / "Failed to..." ---
+    const errorHandlingInstruction = `
+[მნიშვნელოვანი ინსტრუქცია შეცდომების მართვაზე]:
+თუ მომხმარებლის კითხვაზე ზუსტი ინფორმაცია არ გაქვს ან პასუხს ვერ პოულობ მონაცემთა ბაზაში/ფაილებში, არასოდეს აჩვენო ტექნიკური შეცდომა (მაგალითად: "failed to generate response" ან მსგავსი).
+ამის ნაცვლად, აუცილებლად უპასუხე ზრდილობიანად და ადამიანურად იმავე ენაზე, რომელზეც მომხმარებელი გელაპარაკება.
+მაგალითად, ქართულად: "სამწუხაროდ, ამ კონკრეტულ შეკითხვაზე ზუსტი ინფორმაცია არ მაქვს. შეგიძლიათ დაგვიტოვოთ თქვენი საკონტაქტო ნომერი ან მოგვწეროთ პირდაპირ, და ჩვენი გუნდი მალე დაგიკავშირდებათ! 😊"
+`;
+
+    const systemInstruction = baseSystemPrompt + filesContext + "\n\n" + errorHandlingInstruction;
 
     const toolCtx = {
       botId: input.botId,
@@ -329,9 +337,11 @@ export async function* handleMessage(
     yield { type: "done", conversationId };
   } catch (err: any) {
     console.error("handleMessage Error:", err);
+    // ტექნიკური შეცდომის ნაცვლად ვუგზავნით ზრდილობიან ტექსტს
     yield {
-      type: "error",
-      message: err?.message || "შეცდომა შეტყობინების დამუშავებისას",
+      type: "text_delta",
+      text: "სამწუხაროდ, ამ შეკითხვაზე ზუსტი ინფორმაცია არ მაქვს. შეგიძლიათ დაგვიტოვოთ თქვენი საკონტაქტო ნომერი ან მოგვწეროთ პირდაპირ, და ჩვენი გუნდი მალე დაგიკავშირდებათ! 😊",
     };
+    yield { type: "done", conversationId: input.conversationId };
   }
 }

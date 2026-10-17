@@ -7,7 +7,7 @@ import { checkRateLimits, getClientIp, rateLimitResponse } from "@/lib/rate-limi
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-/** შენი პლატფორმის ოფიციალური/მთავარი ბოტის ID (შეცვალე შენი რეალური ID-ით) */
+/** შენი პლატფორმის ოფიციალური/მთავარი ბოტის ID */
 const YOURBOT_ADMIN_BOT_KEY = "11111111-1111-1111-1111-111111111111";
 
 /** origin-ს ინარჩუნებს მხოლოდ schema+host+port-ს */
@@ -132,11 +132,9 @@ export async function POST(req: Request) {
   // ==========================================
   let isOwner = false;
 
-  // თუ ეს ზუსტად შენი პლატფორმის მთავარი დამხმარე ბოტია, ავტომატურად ვაძლევთ true-ს
   if (botKey === YOURBOT_ADMIN_BOT_KEY) {
     isOwner = true;
   } else {
-    // სხვა დანარჩენი ბოტებისთვის ვამოწმებთ ავტორიზაციის ტოკენით
     const authHeader = req.headers.get("authorization");
     if (authHeader) {
       const token = authHeader.replace("Bearer ", "");
@@ -209,7 +207,7 @@ export async function POST(req: Request) {
             externalUserId: visitorId,
             text: message,
             conversationId,
-            isOwner, // <-- გადავცემთ მფლობელის ფლაგს
+            isOwner,
             metadata: {
               user_agent: req.headers.get("user-agent"),
               telegram_chat_id: bot.telegram_chat_id,
@@ -220,6 +218,14 @@ export async function POST(req: Request) {
         )) {
           send(event);
         }
+      } catch (error) {
+        console.error("Chat Stream Error:", error);
+        // ტექნიკური შეცდომის ("failed to...") ნაცვლად ვუგზავნით ზრდილობიან პასუხს:
+        send({
+          type: "text_delta",
+          text: "სამწუხაროდ, ამ შეკითხვაზე ზუსტი ინფორმაცია არ მაქვს. შეგიძლიათ დაგვიტოვოთ თქვენი საკონტაქტო ნომერი ან მოგვწეროთ პირდაპირ, და ჩვენი გუნდი მალე დაგიკავშირდებათ! 😊",
+        });
+        send({ type: "done", conversationId });
       } finally {
         try {
           controller.close();
