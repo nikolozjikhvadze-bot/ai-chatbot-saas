@@ -8,7 +8,7 @@ import HeroTunnel from '@/components/landing/hero-tunnel';
 import FeaturesSection from '@/components/landing/features-section';
 import HowItWorksSection from '@/components/landing/how-it-works-section';
 import PricingSection from '@/components/landing/pricing-section';
-import FAQSection from '@/components/landing/faq-section'; // ახალი FAQ კომპონენტის იმპორტი
+import FAQSection from '@/components/landing/faq-section';
 import ContactSection from '@/components/landing/contact-section';
 import Logo from '@/components/Logo';
 import Footer from '@/components/landing/footer';
@@ -49,12 +49,12 @@ export default function LandingPage() {
     { name: t('navFeatures' as any), href: '#features' },
     { name: t('navHowItWorks' as any), href: '#how-it-works' },
     { name: t('navPricing' as any), href: '#pricing' },
-    { name: 'FAQ', href: '#faq' }, // FAQ დაემატა ნავიგაციაში
+    { name: 'FAQ', href: '#faq' },
     { name: t('navContact' as any), href: '#contact' },
   ];
 
   return (
-    <main className="bg-[#08070c] text-white antialiased selection:bg-violet-500/45">
+    <main className="bg-transparent text-white antialiased selection:bg-violet-500/45 relative">
       {/* NAV */}
       <nav className="fixed inset-x-0 top-0 z-50 flex items-center justify-between border-b border-white/5 bg-[#08070c]/70 px-3 py-3 backdrop-blur-xl sm:px-6 md:px-12">
         <a
@@ -130,7 +130,7 @@ export default function LandingPage() {
       <FeaturesSection />
       <HowItWorksSection />
       <PricingSection isPaid={isPaid} />
-      <FAQSection /> {/* FAQ სექცია დაემატა ფასებსა და კონტაქტს შორის */}
+      <FAQSection />
       <ContactSection />
       <Footer />
 

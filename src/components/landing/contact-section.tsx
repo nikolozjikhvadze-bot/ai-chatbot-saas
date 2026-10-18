@@ -53,7 +53,7 @@ export default function ContactSection() {
   };
 
   return (
-    <section id="contact" className="relative z-10 overflow-hidden bg-[#08070c] pt-16 pb-12 text-white border-t border-white/5 sm:pt-24">
+    <section id="contact" className="relative z-10 overflow-hidden bg-transparent pt-16 pb-12 text-white border-t border-white/5 sm:pt-24">
       {/* Background Ambient Glows */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-1/2 top-0 h-[300px] sm:h-[400px] w-full max-w-[600px] -translate-x-1/2 rounded-full bg-violet-600/10 blur-[140px]" />
@@ -105,7 +105,7 @@ export default function ContactSection() {
                     className="group relative flex items-center justify-between overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-4 sm:p-5 backdrop-blur-md transition-all duration-300 hover:border-violet-500/40 hover:bg-white/[0.04]"
                   >
                     <div className="flex items-center gap-3 sm:gap-4">
-                      <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-[#0d0c14] text-violet-400 transition-colors duration-300 group-hover:border-violet-500/30 group-hover:text-fuchsia-400">
+                      <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-[#0d0c14]/80 text-violet-400 transition-colors duration-300 group-hover:border-violet-500/30 group-hover:text-fuchsia-400">
                         <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
                       </div>
                       <div>
@@ -198,9 +198,9 @@ export default function ContactSection() {
               <button
                 type="submit"
                 disabled={loading}
-                className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-violet-600 p-px font-medium text-white shadow-lg transition duration-300 hover:shadow-violet-500/25 disabled:opacity-50"
+                className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-violet-600 p-px font-medium text-white shadow-lg transition duration-300 hover:shadow-violet-500/25 disabled:opacity-50 cursor-pointer"
               >
-                <span className="flex w-full items-center justify-center gap-2 rounded-[11px] bg-[#0d0c14] px-6 py-3 text-sm transition duration-300 group-hover:bg-transparent">
+                <span className="flex w-full items-center justify-center gap-2 rounded-[11px] bg-[#0d0c14]/80 px-6 py-3 text-sm transition duration-300 group-hover:bg-transparent">
                   {loading ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" /> {t('formSending')}

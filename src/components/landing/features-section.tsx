@@ -25,7 +25,7 @@ export default function FeaturesSection() {
   const tracerCoreOffset = useTransform(smoothProgress, [0, 1], [4, -996]);
 
   return (
-    <div id="features" ref={containerRef} className="relative h-auto py-16 md:h-[280vh] md:py-0 bg-[#08070c]">
+    <div id="features" ref={containerRef} className="relative h-auto py-16 md:h-[280vh] md:py-0 bg-transparent">
       <div className="relative flex min-h-screen w-full flex-col items-center justify-center px-4 sm:px-6 md:sticky md:top-0 md:h-screen md:overflow-hidden md:px-12">
         
         {/* სათაური */}
@@ -185,7 +185,7 @@ function BentoCard({
 }) {
   return (
     <div
-      className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-[#08070c]/80 p-4 sm:p-5 backdrop-blur-sm transition hover:border-white/20 flex flex-col justify-between ${className}`}
+      className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5 backdrop-blur-md transition hover:border-white/20 flex flex-col justify-between ${className}`}
     >
       <div
         className={`pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gradient-to-br ${glow} to-transparent opacity-0 blur-2xl transition group-hover:opacity-100`}

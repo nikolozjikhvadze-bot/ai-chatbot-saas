@@ -40,13 +40,13 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
         t('featureStarter4')
       ],
       popular: false,
-      trialDays: 7, // გასწორებულია 7 დღეზე
+      trialDays: 7,
       ctaLink: "https://whop.com/yourbot/yourbot-starter/"
     },
     {
       name: t('planProTitle'),
-      priceMonthly: "$79",
-      priceAnnual: "$790",
+      priceMonthly: "$69",
+      priceAnnual: "$690",
       desc: t('planProDesc'),
       features: [
         t('featurePro1'),
@@ -56,13 +56,13 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
         t('featurePro5')
       ],
       popular: true,
-      trialDays: 7, // გასწორებულია 7 დღეზე
+      trialDays: 7,
       ctaLink: "https://whop.com/yourbot/yourbot-pro-plan/"
     },
     {
       name: t('planScaleTitle'),
-      priceMonthly: "$149",
-      priceAnnual: "$1,490",
+      priceMonthly: "$139",
+      priceAnnual: "$1,390",
       desc: t('planScaleDesc'),
       features: [
         t('featureScale1'),
@@ -79,7 +79,7 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
   const manageSubscriptionLink = "https://whop.com/hub/"; 
 
   return (
-    <div id="pricing" ref={containerRef} className="relative h-auto py-20 md:h-[220vh] bg-[#08070c]">
+    <div id="pricing" ref={containerRef} className="relative h-auto py-20 md:h-[220vh] bg-transparent">
       <div className="relative flex min-h-screen w-full flex-col items-center justify-center px-4 sm:px-6 md:sticky md:top-0 md:h-screen md:overflow-hidden">
         
         <div className="pointer-events-none absolute inset-0">
@@ -241,9 +241,9 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
                   >
                     <span className={`flex w-full items-center justify-center gap-2 rounded-[11px] px-4 py-2.5 text-xs sm:text-sm transition duration-300 ${
                       isPaid 
-                        ? 'bg-[#0d0c14] group-hover:bg-transparent' 
+                        ? 'bg-[#0d0c14]/80 group-hover:bg-transparent' 
                         : !isPaid && plan.popular 
-                          ? 'bg-[#0d0c14] group-hover:bg-transparent' 
+                          ? 'bg-[#0d0c14]/80 group-hover:bg-transparent' 
                           : 'bg-transparent'
                     }`}>
                       {isPaid ? (

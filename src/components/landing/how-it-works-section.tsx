@@ -104,7 +104,7 @@ export default function HowItWorksSection() {
   const tracerCoreOffset = useTransform(smoothProgress, [0, 1], [4, -996]);
 
   return (
-    <div id="how-it-works" ref={containerRef} className="relative h-auto py-16 md:h-[250vh] md:py-0 bg-[#08070c]">
+    <div id="how-it-works" ref={containerRef} className="relative h-auto py-16 md:h-[250vh] md:py-0 bg-transparent">
       <div className="relative flex min-h-screen w-full flex-col items-center justify-center px-4 sm:px-6 md:sticky md:top-0 md:h-screen md:overflow-hidden">
         
         {/* ambient background */}
@@ -227,7 +227,7 @@ export default function HowItWorksSection() {
                   <div className="relative z-10 mb-8 hidden md:block">
                     <div className="flex h-20 w-20 items-center justify-center">
                       <div className="absolute h-20 w-20 rounded-full bg-violet-500/10 blur-xl transition-opacity duration-300 group-hover:bg-fuchsia-500/20" />
-                      <div className="flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-[#0d0c14] shadow-[0_0_0_1px_rgba(255,255,255,0.02)] transition-transform duration-300 group-hover:scale-105 group-hover:border-violet-400/40">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-[#0d0c14]/80 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] transition-transform duration-300 group-hover:scale-105 group-hover:border-violet-400/40">
                         <StepIcon className="h-6 w-6 text-violet-300 transition-colors duration-300 group-hover:text-fuchsia-300" />
                       </div>
                     </div>
@@ -235,7 +235,7 @@ export default function HowItWorksSection() {
 
                   <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5 sm:p-7 backdrop-blur-md transition-colors duration-300 group-hover:border-violet-400/25 group-hover:bg-white/[0.04]">
                     <div className="mb-3 flex items-center gap-3 md:hidden">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-[#0d0c14]">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-[#0d0c14]/80">
                         <StepIcon className="h-5 w-5 text-violet-300" />
                       </div>
                       <span className="font-mono text-xs text-white/30">

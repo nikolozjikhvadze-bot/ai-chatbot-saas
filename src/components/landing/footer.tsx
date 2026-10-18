@@ -7,7 +7,7 @@ export default function Footer() {
   const { t } = useTranslation();
 
   return (
-    <footer className="relative z-10 border-t border-white/10 bg-[#08070c] py-12 text-white">
+    <footer className="relative z-10 border-t border-white/10 bg-transparent py-12 text-white">
       {/* Background Ambient Glow */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-1/2 bottom-0 h-[150px] w-full max-w-[800px] -translate-x-1/2 rounded-full bg-violet-600/10 blur-[100px]" />

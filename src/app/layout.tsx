@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import ChatWidget from "@/components/chatWidget";
+import GlobalBackground from "@/components/landing/global-background";
 import "./globals.css";
 import { LanguageProvider } from "@/context/LanguageContext";
 
@@ -21,16 +22,16 @@ const baseUrl = new URL(rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`
 export const metadata: Metadata = {
   metadataBase: baseUrl,
   title: {
-    default: 'YourBot - AI ასისტენტი და ჩატ-ბოტის პლატფორმა',
+    default: 'YourBot - Custom AI Chatbot Platform for Business',
     template: '%s | YourBot',
   },
-  description: 'ავტომატიზირე შენი ბიზნესი ინტელექტუალური AI ასისტენტებითა და ჩატ-ბოტებით რამდენიმე წუთში.',
+  description: 'Automate customer support, capture leads, and boost sales 24/7 with intelligent AI chatbots tailored for your business.',
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'YourBot - AI ასისტენტი და ჩატ-ბოტის პლატფორმა',
-    description: 'ავტომატიზირე შენი ბიზნესი ინტელექტუალური AI ასისტენტებითა და ჩატ-ბოტებით რამდენიმე წუთში.',
+    title: 'YourBot - Custom AI Chatbot Platform for Business',
+    description: 'Automate customer support, capture leads, and boost sales 24/7 with intelligent AI chatbots tailored for your business.',
     url: baseUrl,
     siteName: 'YourBot',
     images: [
@@ -41,13 +42,13 @@ export const metadata: Metadata = {
         alt: 'YourBot AI',
       },
     ],
-    locale: 'ka_GE',
+    locale: 'en_US',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'YourBot - AI ასისტენტი',
-    description: 'ავტომატიზირე შენი ბიზნესი ინტელექტუალური AI ასისტენტებით.',
+    title: 'YourBot - AI Chatbot Platform',
+    description: 'Automate your customer support and drive sales 24/7 with custom AI assistants.',
     images: ['/og-image.png'],
   },
 };
@@ -57,7 +58,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <ClerkProvider>
       <LanguageProvider>
         <html
-          lang="ka"
+          lang="en"
           className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
         >
           <head>
@@ -77,7 +78,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               }}
             />
 
-            {/* Whop Pixel - ოფიციალური დოკუმენტაციის სრული სკრიპტი */}
+            {/* Whop Pixel */}
             <script
               dangerouslySetInnerHTML={{
                 __html: `
@@ -91,8 +92,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               }}
             />
           </head>
-          <body className="min-h-full flex flex-col bg-[#08070c] text-white">
-            {children}
+          <body className="min-h-full flex flex-col bg-[#08070c] text-white relative">
+            {/* გლობალური ფონური ანიმაცია */}
+            <GlobalBackground />
+
+            {/* კონტენტი ზის ფონის თავზე */}
+            <div className="relative z-10 flex-1 flex flex-col">
+              {children}
+            </div>
+
             {/* გლობალური AI ჩატბოტი */}
             <ChatWidget />
           </body>

@@ -1,31 +1,14 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useUser, useClerk } from '@clerk/nextjs';
 import { useTranslation } from '@/context/LanguageContext';
-
-// R3F/Three.js მხოლოდ client-ზე
-const HeroTunnelScene = dynamic(() => import('@/components/landing/hero-tunnel-scene'), {
-  ssr: false,
-});
-
-function clamp(v: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, v));
-}
 
 export default function HeroTunnel() {
   const router = useRouter();
   const { isSignedIn } = useUser();
   const { openSignUp } = useClerk();
   const { t } = useTranslation();
-
-  const containerRef = useRef<HTMLDivElement>(null);
-  const progressRef = useRef(0);
-  const textRef = useRef<HTMLDivElement>(null);
-  const flashRef = useRef<HTMLDivElement>(null);
-  const rafRef = useRef<number | null>(null);
 
   // ღილაკზე დაჭერის ლოგიკა Clerk-ის მოდალით
   const handleCreateBot = () => {
@@ -36,97 +19,41 @@ export default function HeroTunnel() {
     }
   };
 
-  useEffect(() => {
-    const update = () => {
-      const el = containerRef.current;
-      if (el) {
-        const rect = el.getBoundingClientRect();
-        const total = rect.height - window.innerHeight;
-        const p = total > 0 ? clamp(-rect.top / total, 0, 1) : 0;
-        progressRef.current = p;
-
-        // ტექსტი სრულად ჩანს 0 -> 0.12, მერე 0.12 -> 0.3 ქრება ტუნელის სიღრმეში
-        if (textRef.current) {
-          const textOpacity = 1 - clamp((p - 0.12) / 0.18, 0, 1);
-          textRef.current.style.opacity = String(textOpacity);
-          textRef.current.style.transform = `translateY(${p * -40}px)`;
-        }
-
-        // პორტალის გარღვევის ფლეშ-ეფექტი: 0.85 -> 1.0
-        if (flashRef.current) {
-          const flash = clamp((p - 0.85) / 0.15, 0, 1);
-          flashRef.current.style.opacity = String(flash * 0.9);
-        }
-      }
-      rafRef.current = requestAnimationFrame(update);
-    };
-
-    rafRef.current = requestAnimationFrame(update);
-
-    return () => {
-      if (rafRef.current !== null) {
-        cancelAnimationFrame(rafRef.current);
-      }
-    };
-  }, []);
-
   return (
-    // 400vh: sticky ბავშვის "ვირტუალური pin" + საკმარისი დისტანცია
-    <div ref={containerRef} className="relative h-[400vh]">
-      <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#08070c]">
-        <div className="absolute inset-0">
-          <HeroTunnelScene progressRef={progressRef} />
-        </div>
+    <section className="relative min-h-screen w-full flex items-center justify-start overflow-hidden bg-transparent">
+      {/* ვინიეტები კონტრასტისთვის */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#08070c]/80 via-[#08070c]/40 to-transparent z-0" />
 
-        {/* ვინიეტები კონტრასტისთვის */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#08070c] via-[#08070c]/30 to-[#08070c]/70" />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#08070c]/40 via-transparent to-[#08070c]" />
+      {/* ტექსტის სექცია */}
+      <div className="relative z-10 flex flex-col justify-center pt-28 pb-16 px-5 sm:px-8 md:px-16 lg:px-24 max-w-2xl">
+        <span className="mb-4 sm:mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs text-white/70 backdrop-blur-md">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          {t('heroBadge')}
+        </span>
 
-        {/* პორტალის ფლეშ-ეფექტი */}
-        <div
-          ref={flashRef}
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,#e9d5ff_0%,transparent_70%)] opacity-0"
-        />
+        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.25] sm:leading-[1.2] tracking-tight text-white mb-6">
+          {t('heroTitleLine1')}
+          <br />
+          {t('heroTitleLine2')}
+        </h1>
 
-        {/* ასიმეტრიული ტექსტი, მარცხნივ (დაემატა pt-24 ან pt-28, რომ ნავისს არ მიედოს) */}
-        <div
-          ref={textRef}
-          className="relative z-10 flex h-full max-w-2xl flex-col justify-center pt-24 sm:pt-28 px-5 sm:px-8 md:px-16 lg:px-24"
-        >
-          <span className="mb-4 sm:mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs text-white/50">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            {t('heroBadge')}
-          </span>
+        <p className="max-w-md text-sm sm:text-base text-white/60 mb-8 leading-relaxed">
+          {t('heroDescription')}
+        </p>
 
-          <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold leading-[1.15] tracking-tight text-white mb-4 sm:mb-6">
-            {t('heroTitleLine1')}
-            <br />
-            {t('heroTitleLine2')}
-          </h1>
+        <div className="flex flex-col items-start gap-4 w-full max-w-md">
+          <button
+            onClick={handleCreateBot}
+            className="rounded-full bg-gradient-to-r from-violet-600 via-fuchsia-500 to-purple-600 px-8 py-4 text-sm font-semibold text-white shadow-[0_0_50px_-8px_rgba(168,85,247,0.8)] transition-all duration-300 hover:scale-105 hover:shadow-[0_0_60px_-5px_rgba(168,85,247,0.9)] active:scale-95 cursor-pointer"
+          >
+            {t('heroCtaButton')}
+          </button>
 
-          <p className="max-w-md text-sm sm:text-base text-white/50 mb-6 sm:mb-8 leading-relaxed">
-            {t('heroDescription')}
-          </p>
-
-          <div className="flex flex-col items-start gap-3 w-full max-w-md pb-12 sm:pb-0">
-            <button
-              onClick={handleCreateBot}
-              className="rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-7 py-3.5 text-sm font-medium text-white shadow-[0_0_40px_-10px_rgba(139,92,246,0.7)] transition hover:opacity-90 active:scale-95 cursor-pointer"
-            >
-              {t('heroCtaButton')}
-            </button>
-
-            {/* ცოცხალი დემო-ჩატის მინიშნება (მოწესრიგებული სივრცეებით) */}
-            <div className="inline-flex items-center gap-2 rounded-xl border border-violet-500/20 bg-violet-500/10 px-4 py-2.5 text-xs sm:text-sm text-violet-200 backdrop-blur-md text-left leading-relaxed w-full">
-              <span>{t('heroDemoNotice')}</span>
-            </div>
+          <div className="inline-flex items-center gap-2 rounded-xl border border-violet-500/20 bg-violet-500/10 px-4 py-2.5 text-xs sm:text-sm text-violet-200 backdrop-blur-md text-left leading-relaxed w-full">
+            <span>{t('heroDemoNotice')}</span>
           </div>
         </div>
-
-        <div className="pointer-events-none absolute bottom-6 sm:bottom-8 left-1/2 z-10 -translate-x-1/2 text-xs uppercase tracking-widest text-white/30">
-          {t('heroScrollLabel')}
-        </div>
       </div>
-    </div>
+    </section>
   );
 }
