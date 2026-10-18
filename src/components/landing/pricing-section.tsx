@@ -52,7 +52,6 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
         t('featurePro1'),
         t('featurePro2'),
         t('featurePro3'),
-        t('featurePro4'),
         t('featurePro5')
       ],
       popular: true,
@@ -67,8 +66,7 @@ export default function PricingSection({ isPaid = false }: PricingSectionProps) 
       features: [
         t('featureScale1'),
         t('featureScale2'),
-        t('featureScale3'),
-        t('featureScale4')
+        t('featureScale3')
       ],
       popular: false,
       trialDays: 7,

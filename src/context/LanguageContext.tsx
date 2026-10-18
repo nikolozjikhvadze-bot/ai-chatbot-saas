@@ -480,7 +480,6 @@ const translations: Record<Language, Record<string, string>> = {
     featurePro1: "3 AI Bots / Projects",
     featurePro2: "5,000 messages / month",
     featurePro3: "Access to all advanced AI models",
-    featurePro4: "Messenger integrations",
     featurePro5: "24/7 priority support",
 
     // Scale Plan
@@ -489,7 +488,7 @@ const translations: Record<Language, Record<string, string>> = {
     featureScale1: "Unlimited AI bots",
     featureScale2: "20,000 messages / month",
     featureScale3: "VIP 24/7 support & manager",
-    featureScale4: "Full API access & CRM sync",
+    
   }
 };
 
