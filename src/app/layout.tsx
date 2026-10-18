@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
 import ChatWidget from "@/components/chatWidget";
 import "./globals.css";
 import { LanguageProvider } from "@/context/LanguageContext";
@@ -62,31 +61,35 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
         >
           <head>
-            {/* Google Analytics სკრიპტი */}
-            <Script
+            {/* Google Analytics */}
+            <script
+              async
               src="https://www.googletagmanager.com/gtag/js?id=G-GQBVB2JHSX"
-              strategy="afterInteractive"
             />
-            <Script id="google-analytics" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', 'G-GQBVB2JHSX');
-              `}
-            </Script>
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', 'G-GQBVB2JHSX');
+                `,
+              }}
+            />
 
-            {/* Whop Pixel ოფიციალური დოკუმენტაციის სკრიპტი */}
-            <Script id="whop-pixel" strategy="beforeInteractive">
-              {`
-                !function(w,d,s,u,n,a,b){if(w[n])return;a=w[n]={q:[],t:+new Date,s:[],o:u,track:function(){a.q.push([+new Date].concat([].slice.call(arguments)))},setScope:function(){a.s=[].slice.call(arguments).filter(function(x){return typeof x==="string"});a.q.push([+new Date,"setScope"].concat(a.s))},scope:function(){var c=[].slice.call(arguments);return{track:function(){a.q.push([+new Date].concat([].slice.call(arguments)).concat([{__scope:c}]))}}}};b=d.createElement(s);b.async=1;b.src=u+"/s.js";d.getElementsByTagName(s)[0].parentNode.insertBefore(b,d.getElementsByTagName(s)[0])}(window,document,"script","https://t.whop.tw","whop");
-                whop.setScope("biz_hM707CrozReVAm");
-                whop.track("page");
-                whop.track("view_content");
-                whop.track("lead");
-                whop.track("complete_registration");
-              `}
-            </Script>
+            {/* Whop Pixel - ოფიციალური დოკუმენტაციის სრული სკრიპტი */}
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  !function(w,d,s,u,n,a,b){if(w[n])return;a=w[n]={q:[],t:+new Date,s:[],o:u,track:function(){a.q.push([+new Date].concat([].slice.call(arguments)))},setScope:function(){a.s=[].slice.call(arguments).filter(function(x){return typeof x==="string"});a.q.push([+new Date,"setScope"].concat(a.s))},scope:function(){var c=[].slice.call(arguments);return{track:function(){a.q.push([+new Date].concat([].slice.call(arguments)).concat([{__scope:c}]))}}}};b=d.createElement(s);b.async=1;b.src=u+"/s.js";d.getElementsByTagName(s)[0].parentNode.insertBefore(b,d.getElementsByTagName(s)[0])}(window,document,"script","https://t.whop.tw","whop");
+                  whop.setScope("biz_hM707CrozReVAm");
+                  whop.track("page");
+                  whop.track("view_content");
+                  whop.track("lead");
+                  whop.track("complete_registration");
+                `,
+              }}
+            />
           </head>
           <body className="min-h-full flex flex-col bg-[#08070c] text-white">
             {children}
