@@ -166,7 +166,7 @@ export default function ChatWidget() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="absolute bottom-0 right-0 w-[calc(100vw-2rem)] sm:w-[360px] h-[540px] max-h-[85vh] rounded-3xl border border-white/10 bg-[#0d0c14]/95 backdrop-blur-xl shadow-2xl flex flex-col overflow-hidden"
+            className="absolute bottom-0 right-0 w-[calc(100vw-2rem)] sm:w-[360px] h-[500px] max-h-[80dvh] rounded-3xl border border-white/10 bg-[#0d0c14]/95 backdrop-blur-xl shadow-2xl flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
@@ -219,7 +219,7 @@ export default function ChatWidget() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder={t('chatbotPlaceholder')}
-                  className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-violet-500 transition"
+                  className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-base sm:text-xs text-white focus:outline-none focus:border-violet-500 transition"
                 />
                 <button
                   type="submit"
