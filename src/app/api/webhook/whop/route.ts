@@ -41,6 +41,7 @@ export async function POST(req: Request) {
       }
 
       if (customerEmail) {
+        // 1. Supabase-ში სტატუსის განახლება
         const { error: updateError } = await supabase
           .from('users')
           .update({ 
@@ -55,6 +56,29 @@ export async function POST(req: Request) {
         }
 
         console.log(`LOG - User ${customerEmail} upgraded to plan: ${assignedPlan} via Whop!`);
+
+        // 2. DataFast-ისთვის გადახდის მონაცემის გაგზავნა
+        try {
+          if (process.env.DATAFAST_API_KEY) {
+            await fetch('https://datafa.st/api/v1/payments', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.DATAFAST_API_KEY}`,
+              },
+              body: JSON.stringify({
+                amount: (body.data?.amount || body.data?.total || 0) / 100, // თანხა დოლარებში
+                currency: body.data?.currency || 'USD',
+                transaction_id: body.data?.id || body.data?.payment_id,
+                customer_email: customerEmail,
+              }),
+            });
+            console.log("LOG - Payment successfully sent to DataFast!");
+          }
+        } catch (datafastErr) {
+          console.error("LOG - DataFast API error:", datafastErr);
+          // არ ვთიშავთ მთლიან ექშენს, თუ DataFast-მა ვერ უპასუხა
+        }
       }
     } 
     else if (body.action === 'membership.went_terminated' || body.action === 'payment.failed') {
