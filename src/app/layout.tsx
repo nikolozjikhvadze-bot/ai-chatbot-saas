@@ -62,6 +62,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
         >
           <head>
+            {/* DataFast Analytics */}
+            <script
+              defer
+              data-website-id="dfid_M6IwFQqIB8h0ZTkJimOIh"
+              data-domain="yourbot.site"
+              src="https://datafa.st/js/script.js"
+            />
+
             {/* Google Analytics */}
             <script
               async
