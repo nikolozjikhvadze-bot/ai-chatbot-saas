@@ -86,7 +86,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               }}
             />
 
-            {/* Whop Pixel */}
+            {/* Whop Pixel (გასწორებული: ამოღებულია ავტომატური lead/registration) */}
             <script
               dangerouslySetInnerHTML={{
                 __html: `
@@ -94,8 +94,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   whop.setScope("biz_hM707CrozReVAm");
                   whop.track("page");
                   whop.track("view_content");
-                  whop.track("lead");
-                  whop.track("complete_registration");
                 `,
               }}
             />
