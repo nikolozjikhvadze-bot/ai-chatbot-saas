@@ -62,6 +62,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
         >
           <head>
+            {/* Meta Pixel Base Code */}
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  !function(f,b,e,v,n,t,s)
+                  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                  n.queue=[];t=b.createElement(e);t.async=!0;
+                  t.src=v;s=b.getElementsByTagName(e)[0];
+                  s.parentNode.insertBefore(t,s)}(window, document,'script',
+                  'https://connect.facebook.net/en_US/fbevents.js');
+                  fbq('init', '1495178899193431');
+                  fbq('track', 'PageView');
+                `,
+              }}
+            />
+
             {/* DataFast Analytics */}
             <script
               defer
@@ -86,7 +104,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               }}
             />
 
-            {/* Whop Pixel (გასწორებული: ამოღებულია ავტომატური lead/registration) */}
+            {/* Whop Pixel (სუფთა, ავტომატური ყალბი ივენთების გარეშე) */}
             <script
               dangerouslySetInnerHTML={{
                 __html: `
@@ -99,15 +117,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             />
           </head>
           <body className="min-h-full flex flex-col bg-[#08070c] text-white relative">
-            {/* გლობალური ფონური ანიმაცია */}
             <GlobalBackground />
-
-            {/* კონტენტი ზის ფონის თავზე */}
             <div className="relative z-10 flex-1 flex flex-col">
               {children}
             </div>
-
-            {/* გლობალური AI ჩატბოტი */}
             <ChatWidget />
           </body>
         </html>

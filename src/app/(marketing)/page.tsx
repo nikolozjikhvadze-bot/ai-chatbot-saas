@@ -26,6 +26,17 @@ export default function LandingPage() {
 
   const [isPaid, setIsPaid] = useState(false);
 
+  // Meta Pixel CompleteRegistration თრექინგი რეგისტრაციის/ავტორიზაციის დროს
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      const hasTracked = localStorage.getItem('fb_registration_tracked');
+      if (!hasTracked && typeof window !== 'undefined' && (window as any).fbq) {
+        (window as any).fbq('track', 'CompleteRegistration');
+        localStorage.setItem('fb_registration_tracked', 'true');
+      }
+    }
+  }, [isLoaded, isSignedIn]);
+
   useEffect(() => {
     async function checkPaidStatus() {
       console.log("LOG - Checking user status, isLoaded:", isLoaded, "isSignedIn:", isSignedIn);
