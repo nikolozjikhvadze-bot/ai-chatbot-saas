@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { SignInButton, SignUpButton, UserButton, useAuth } from '@clerk/nextjs';
+import { SignInButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs'; // useAuth-ის ნაცვლად useUser
 import HeroTunnel from '@/components/landing/hero-tunnel';
 import FeaturesSection from '@/components/landing/features-section';
 import HowItWorksSection from '@/components/landing/how-it-works-section';
@@ -21,33 +21,30 @@ const ChatbotWidget = dynamic(() => import('@/components/chatWidget'), {
 
 export default function LandingPage() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isSignedIn, isLoaded, user } = useUser(); // user-ის დამატება
   const { t } = useTranslation();
 
   const [isPaid, setIsPaid] = useState(false);
 
-  // Meta Pixel CompleteRegistration თრექინგი რეგისტრაციის/ავტორიზაციის დროს (sessionStorage-ით)
+  // Meta Pixel CompleteRegistration თრექინგი თითოეული ახალი უნიკალური მომხმარებლისთვის
   useEffect(() => {
-    if (isLoaded && isSignedIn) {
-      const sessionKey = 'fb_reg_tracked_' + window.location.hostname;
-      const hasTracked = sessionStorage.getItem(sessionKey);
+    if (isLoaded && isSignedIn && user?.id) {
+      const trackingKey = `fb_reg_tracked_${user.id}`;
+      const hasTracked = localStorage.getItem(trackingKey);
       
       if (!hasTracked && typeof window !== 'undefined' && (window as any).fbq) {
         (window as any).fbq('track', 'CompleteRegistration');
-        sessionStorage.setItem(sessionKey, 'true');
-        console.log("LOG - CompleteRegistration event tracked successfully!");
+        localStorage.setItem(trackingKey, 'true');
+        console.log("LOG - CompleteRegistration tracked for user ID:", user.id);
       }
     }
-  }, [isLoaded, isSignedIn]);
+  }, [isLoaded, isSignedIn, user?.id]);
 
   useEffect(() => {
     async function checkPaidStatus() {
-      console.log("LOG - Checking user status, isLoaded:", isLoaded, "isSignedIn:", isSignedIn);
-      
       try {
         const res = await fetch('/api/user/status');
         const data = await res.json();
-        console.log("LOG - API Status Response:", data);
         setIsPaid(Boolean(data.isPaid));
       } catch (err) {
         console.error("Failed to fetch user status:", err);
