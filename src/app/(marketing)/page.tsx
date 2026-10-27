@@ -26,13 +26,16 @@ export default function LandingPage() {
 
   const [isPaid, setIsPaid] = useState(false);
 
-  // Meta Pixel CompleteRegistration თრექინგი რეგისტრაციის/ავტორიზაციის დროს
+  // Meta Pixel CompleteRegistration თრექინგი რეგისტრაციის/ავტორიზაციის დროს (sessionStorage-ით)
   useEffect(() => {
     if (isLoaded && isSignedIn) {
-      const hasTracked = localStorage.getItem('fb_registration_tracked');
+      const sessionKey = 'fb_reg_tracked_' + window.location.hostname;
+      const hasTracked = sessionStorage.getItem(sessionKey);
+      
       if (!hasTracked && typeof window !== 'undefined' && (window as any).fbq) {
         (window as any).fbq('track', 'CompleteRegistration');
-        localStorage.setItem('fb_registration_tracked', 'true');
+        sessionStorage.setItem(sessionKey, 'true');
+        console.log("LOG - CompleteRegistration event tracked successfully!");
       }
     }
   }, [isLoaded, isSignedIn]);
