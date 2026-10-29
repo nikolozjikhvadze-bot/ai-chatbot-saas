@@ -6,9 +6,11 @@ import { useTranslation } from '@/context/LanguageContext';
 export default function LanguageSwitcher() {
   const { language, setLanguage } = useTranslation();
 
+  // სატესტოდ ვმალავთ მთლიან გადამრთველს, რომ საიტი მუდმივად ინგლისურზე იყოს
+  // ორიგინალური კოდი ინახება ქვემოთ კომენტარში:
+  /*
   return (
     <div className="relative inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] p-1 backdrop-blur-md">
-      {/* ფონური ანიმაციური გადამრთველი */}
       <motion.div
         className="absolute bottom-1 top-1 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 shadow-[0_0_12px_rgba(139,92,246,0.5)]"
         initial={false}
@@ -18,8 +20,6 @@ export default function LanguageSwitcher() {
         }}
         transition={{ type: 'spring', stiffness: 400, damping: 30 }}
       />
-
-      {/* GEO ღილაკი */}
       <button
         type="button"
         onClick={() => setLanguage('geo')}
@@ -29,8 +29,6 @@ export default function LanguageSwitcher() {
       >
         GEO
       </button>
-
-      {/* ENG ღილაკი */}
       <button
         type="button"
         onClick={() => setLanguage('eng')}
@@ -42,4 +40,7 @@ export default function LanguageSwitcher() {
       </button>
     </div>
   );
+  */
+
+  return null;
 }
