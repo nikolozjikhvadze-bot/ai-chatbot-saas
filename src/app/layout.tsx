@@ -3,6 +3,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import ChatWidget from "@/components/chatWidget";
 import GlobalBackground from "@/components/landing/global-background";
+import ClarityTracker from "@/components/ClarityTracker";
 import "./globals.css";
 import { LanguageProvider } from "@/context/LanguageContext";
 
@@ -62,20 +63,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
         >
           <head>
-            {/* Microsoft Clarity */}
-            <script
-              type="text/javascript"
-              dangerouslySetInnerHTML={{
-                __html: `
-                  (function(c,l,a,r,i,t,y){
-                      c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-                      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-                      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-                  })(window, document, "clarity", "script", "z4rld1d7cy");
-                `,
-              }}
-            />
-
             {/* Meta Pixel Base Code */}
             <script
               dangerouslySetInnerHTML={{
@@ -131,6 +118,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             />
           </head>
           <body className="min-h-full flex flex-col bg-[#08070c] text-white relative">
+            <ClarityTracker />
             <GlobalBackground />
             <div className="relative z-10 flex-1 flex flex-col">
               {children}
