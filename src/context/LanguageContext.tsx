@@ -25,8 +25,8 @@ const translations: Record<Language, Record<string, string>> = {
     authGetStarted: "დაიწყე ახლავე",
     dashboardLink: "პანელი (Dashboard)",
     
-    // ჰერო სექცია (მთავარი გვერდი - ვერტიკალებზე მორგებული)
-    heroBadge: "AI ასისტენტი სასტუმროებისა და ონლაინ მაღაზიებისთვის",
+    // ჰერო სექცია
+    heroBadge: "⚡ ჩააშენე 2 წუთში • არ სჭირდება კოდი",
     heroTitleLine1: "მიიღე ჯავშნები და გაყიდვები",
     heroTitleLine2: "24/7 რეჟიმში, AI ჩატბოტით",
     heroDescription: "ჩააშენე ჭკვიანი AI ასისტენტი შენს ვებსაიტზე 2 წუთში. უპასუხე სტუმრებისა და მყიდველების კითხვებს ავტომატურად — ყოველგვარი კოდის წერის გარეშე.",
@@ -52,7 +52,7 @@ const translations: Record<Language, Record<string, string>> = {
     feature4Title: "24/7 ავტომატური მხარდაჭერა",
     feature4Desc: "უპასუხე მომხმარებელთა კითხვებს და შეასრულე დავალებები შეფერხებების გარეშე, დღისა და ღამის ნებისმიერ დროს.",
 
-    // FAQ სექცია (ახალი დამატებული)
+    // FAQ სექცია
     faqTitle: "ხშირად დასმული კითხვები",
     faqSubtitle: "ყველაფერი, რაც გჭირდებათ YourBot-ის შესახებ ცოდნისთვის",
     faqQ1: "როგორ ჩავსვა AI ბოტი ჩემს საიტზე?",
@@ -265,11 +265,11 @@ const translations: Record<Language, Record<string, string>> = {
     heroScrollLabel: "scroll",
     contactBadge: "Contact",
     
-    // ჰერო სექცია (მთავარი გვერდი - ვერტიკალებზე მორგებული)
-    heroBadge: "AI Assistant for Hotels & E-Commerce",
-    heroTitleLine1: "Drive Bookings & Sales",
-    heroTitleLine2: "24/7 With an AI Chatbot",
-    heroDescription: "Deploy a smart AI assistant on your website in 2 minutes. Answer customer questions, capture leads, and automate support effortlessly.",
+    // ჰერო სექცია (განახლებული მჭრელი ბეჯი & სათაური)
+    heroBadge: "⚡ Launch in 2 Minutes • No Code Required",
+    heroTitleLine1: "Automate 80% of Support",
+    heroTitleLine2: "& Capture Leads 24/7",
+    heroDescription: "Deploy a smart AI assistant on your website in under 2 minutes. Answer customer questions, boost conversions, and streamline support effortlessly.",
     heroCtaButton: "Start 7-Day Free Trial",
     heroDemoNotice: "✨ Try the live AI Assistant right now — open the chat in the bottom-right corner!",
     
@@ -290,7 +290,7 @@ const translations: Record<Language, Record<string, string>> = {
     feature4Title: "24/7 Automated Support",
     feature4Desc: "Answer customer queries and handle tasks smoothly, day or night.",
 
-    // FAQ სექცია (ახალი დამატებული)
+    // FAQ სექცია
     faqTitle: "Frequently Asked Questions",
     faqSubtitle: "Everything you need to know about YourBot",
     faqQ1: "How do I embed the AI bot on my website?",
@@ -440,7 +440,7 @@ const translations: Record<Language, Record<string, string>> = {
     chatInputPlaceholder: "Type a message...",
     chatSendBtn: "Send",
 
-    // Embed Widget & Tabs (ახალი)
+    // Embed Widget & Tabs
     tabEmbedWidget: "🌐 Website Embed Widget",
     tabDevCode: "💻 Developer Code",
     embedWidgetTitle: "Embed AI Assistant on Your Website",
