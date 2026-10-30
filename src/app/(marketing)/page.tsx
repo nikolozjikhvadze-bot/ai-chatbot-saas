@@ -114,19 +114,23 @@ export default function LandingPage() {
           {/* DESKTOP AUTH */}
           <div className="hidden md:flex items-center gap-3">
             {!isSignedIn ? (
-              <>
-                <SignInButton mode="modal">
-                  <button className="text-sm font-medium text-white/70 transition hover:text-white cursor-pointer px-2 py-1">
-                    {t('authSignIn' as any)}
-                  </button>
-                </SignInButton>
+              <div className="flex flex-col items-end">
+                <div className="flex items-center gap-2">
+                  <SignInButton mode="modal">
+                    <button className="text-sm font-medium text-white/70 transition hover:text-white cursor-pointer px-2 py-1">
+                      {t('authSignIn' as any)}
+                    </button>
+                  </SignInButton>
 
-                <SignUpButton mode="modal">
-                  <button className="rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 px-5 py-2 text-sm font-medium text-white shadow-[0_0_15px_rgba(139,92,246,0.4)] transition hover:opacity-90 cursor-pointer">
-                    {t('authGetStarted' as any)}
-                  </button>
-                </SignUpButton>
-              </>
+                  <SignUpButton mode="modal">
+                    <button className="rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 px-5 py-2 text-sm font-medium text-white shadow-[0_0_15px_rgba(139,92,246,0.4)] transition hover:opacity-90 cursor-pointer">
+                      {t('authGetStarted' as any)}
+                    </button>
+                  </SignUpButton>
+                </div>
+                {/* 1. ნდობის ბარიერის მოხსნა დესკტოპისთვის */}
+                <span className="text-[10px] text-white/40 pr-2 pt-0.5">No credit card required</span>
+              </div>
             ) : (
               <div className="flex items-center gap-3">
                 <a
@@ -200,10 +204,15 @@ export default function LandingPage() {
                       </button>
                     </SignUpButton>
 
+                    {/* 1. ნდობის ბარიერის მოხსნა მობილურისთვის */}
+                    <span className="text-center text-[11px] text-white/40">
+                      No credit card required • Instant setup
+                    </span>
+
                     <SignInButton mode="modal">
                       <button
                         onClick={() => setMobileMenuOpen(false)}
-                        className="w-full text-center py-2.5 text-xs font-medium text-white/60 hover:text-white transition"
+                        className="w-full text-center py-2 text-xs font-medium text-white/60 hover:text-white transition"
                       >
                         {t('authSignIn' as any)}
                       </button>

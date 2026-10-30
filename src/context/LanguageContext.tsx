@@ -488,7 +488,6 @@ const translations: Record<Language, Record<string, string>> = {
     featureScale1: "Unlimited AI bots",
     featureScale2: "20,000 messages / month",
     featureScale3: "VIP 24/7 support & manager",
-    
   }
 };
 
