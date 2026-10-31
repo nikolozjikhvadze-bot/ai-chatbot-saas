@@ -27,19 +27,23 @@ export default function LandingPage() {
 
   const [isPaid, setIsPaid] = useState(false);
 
-  // Meta Pixel CompleteRegistration თრექინგი
+  // Meta Pixel CompleteRegistration თრექინგი მხოლოდ ახალი რეგისტრაციისთვის
   useEffect(() => {
-    if (isLoaded && isSignedIn && user?.id) {
+    if (isLoaded && isSignedIn && user?.createdAt && user?.id) {
+      const createdAtTime = new Date(user.createdAt).getTime();
+      const now = new Date().getTime();
+      const isBrandNewUser = (now - createdAtTime) < 120000; // თუ შეიქმნა ბოლო 2 წუთში
+
       const trackingKey = `fb_reg_tracked_${user.id}`;
       const hasTracked = localStorage.getItem(trackingKey);
       
-      if (!hasTracked && typeof window !== 'undefined' && (window as any).fbq) {
+      if (isBrandNewUser && !hasTracked && typeof window !== 'undefined' && (window as any).fbq) {
         (window as any).fbq('track', 'CompleteRegistration');
         localStorage.setItem(trackingKey, 'true');
-        console.log("LOG - CompleteRegistration tracked for user ID:", user.id);
+        console.log("LOG - Real CompleteRegistration tracked for new user ID:", user.id);
       }
     }
-  }, [isLoaded, isSignedIn, user?.id]);
+  }, [isLoaded, isSignedIn, user?.createdAt, user?.id]);
 
   useEffect(() => {
     async function checkPaidStatus() {
@@ -128,7 +132,6 @@ export default function LandingPage() {
                     </button>
                   </SignUpButton>
                 </div>
-                {/* 1. ნდობის ბარიერის მოხსნა დესკტოპისთვის */}
                 <span className="text-[10px] text-white/40 pr-2 pt-0.5">No credit card required</span>
               </div>
             ) : (
@@ -176,7 +179,6 @@ export default function LandingPage() {
               transition={{ duration: 0.2, ease: 'easeInOut' }}
               className="fixed inset-x-0 top-0 pt-20 pb-8 px-6 bg-[#08070c]/98 backdrop-blur-2xl border-b border-white/10 md:hidden z-40 shadow-2xl flex flex-col gap-2"
             >
-              {/* NAV LINKS WITH SEPARATORS */}
               <div className="flex flex-col">
                 {navItems.map((item, index) => (
                   <a
@@ -190,7 +192,6 @@ export default function LandingPage() {
                 ))}
               </div>
 
-              {/* MOBILE BOTTOM CTA BUTTON */}
               <div className="pt-6 mt-2">
                 {!isSignedIn ? (
                   <div className="flex flex-col gap-3">
@@ -204,7 +205,6 @@ export default function LandingPage() {
                       </button>
                     </SignUpButton>
 
-                    {/* 1. ნდობის ბარიერის მოხსნა მობილურისთვის */}
                     <span className="text-center text-[11px] text-white/40">
                       No credit card required • Instant setup
                     </span>
