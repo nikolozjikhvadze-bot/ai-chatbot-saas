@@ -30,7 +30,7 @@ const translations: Record<Language, Record<string, string>> = {
     heroTitleLine1: "მიიღე ჯავშნები და გაყიდვები",
     heroTitleLine2: "24/7 რეჟიმში, AI ჩატბოტით",
     heroDescription: "ჩააშენე ჭკვიანი AI ასისტენტი შენს ვებსაიტზე 2 წუთში. უპასუხე სტუმრებისა და მყიდველების კითხვებს ავტომატურად — ყოველგვარი კოდის წერის გარეშე.",
-    heroCtaButton: "დაიწყე 7-დღიანი უფასო ტრიალი",
+    heroCtaButton: "უფასოდ სცადე 7 დღე",
     heroDemoNotice: "✨ გამოსცადე AI ასისტენტი რეალურ დროში — გახსენი ჩატი მარჯვენა ქვედა კუთხეში!",
     heroScrollLabel: "ასქროლე",
     contactBadge: "კონტაქტი",
@@ -492,12 +492,21 @@ const translations: Record<Language, Record<string, string>> = {
 };
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>('geo');
+  // ნაგულისხმები ენა ახლა არის ინგლისური ('eng')
+  const [language, setLanguageState] = useState<Language>('eng');
 
   useEffect(() => {
     const savedLang = localStorage.getItem('app_language') as Language;
     if (savedLang && (savedLang === 'geo' || savedLang === 'eng')) {
       setLanguageState(savedLang);
+    } else {
+      // ავტომატური დეტექცია: თუ ბრაუზერი ქართულია, ჩაურთოს ქართული, სხვა შემთხვევაში ინგლისური
+      const browserLang = navigator.language || navigator.languages[0];
+      if (browserLang && browserLang.startsWith('ka')) {
+        setLanguageState('geo');
+      } else {
+        setLanguageState('eng');
+      }
     }
   }, []);
 
