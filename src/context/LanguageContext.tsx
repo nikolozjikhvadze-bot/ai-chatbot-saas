@@ -265,7 +265,7 @@ const translations: Record<Language, Record<string, string>> = {
     heroScrollLabel: "scroll",
     contactBadge: "Contact",
     
-    // ჰერო სექცია (განახლებული მჭრელი ბეჯი & სათაური)
+    // ჰერო სექცია
     heroBadge: "⚡ Launch in 2 Minutes • No Code Required",
     heroTitleLine1: "Automate 80% of Support",
     heroTitleLine2: "& Capture Leads 24/7",
@@ -492,21 +492,13 @@ const translations: Record<Language, Record<string, string>> = {
 };
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  // ნაგულისხმები ენა ახლა არის ინგლისური ('eng')
+  // დეფოლტად ყოველთვის ინგლისურია
   const [language, setLanguageState] = useState<Language>('eng');
 
   useEffect(() => {
     const savedLang = localStorage.getItem('app_language') as Language;
     if (savedLang && (savedLang === 'geo' || savedLang === 'eng')) {
       setLanguageState(savedLang);
-    } else {
-      // ავტომატური დეტექცია: თუ ბრაუზერი ქართულია, ჩაურთოს ქართული, სხვა შემთხვევაში ინგლისური
-      const browserLang = navigator.language || navigator.languages[0];
-      if (browserLang && browserLang.startsWith('ka')) {
-        setLanguageState('geo');
-      } else {
-        setLanguageState('eng');
-      }
     }
   }, []);
 
